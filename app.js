@@ -2,7 +2,7 @@
   'use strict';
   const E = window.QuestEngine, app = document.getElementById('app');
   const lectures = window.LECTURES || [], missions = [...(window.MISSIONS_EARLY||[]),...(window.MISSIONS_LATE||[])];
-  if(lectures.length!==60 || missions.length!==60) { app.innerHTML='<main style="padding:50px"><h1>학습 자료를 불러오지 못했어요.</h1><p>인터넷 연결을 확인한 뒤 페이지를 새로고침해 주세요.</p></main>'; return; }
+  if(lectures.length!==60 || missions.length!==60) { app.innerHTML='<main style="padding:50px"><h1>학습 자료를 불러오지 못했어요.</h1><p>페이지를 새로고침한 뒤 다시 시도해 주세요.</p></main>'; return; }
   const chapters = [
     ['진동의 언어',1,7,'힘과 움직임을 수식으로 연결하기'],['차량을 모델로',8,15,'쿼터카에서 승차감까지'],
     ['부품의 성격',16,22,'스프링·댐퍼·부싱·타이어 이해하기'],['데이터를 읽는 눈',23,28,'주파수와 모드로 원인 찾기'],
@@ -29,12 +29,26 @@
   const mascot = () => `<svg viewBox="0 0 340 280" role="img" aria-label="스프링을 닮은 샤시 퀘스트 정비사"><ellipse cx="178" cy="250" rx="110" ry="15" fill="#ced9f2"/><g stroke="#c9d5f0" stroke-width="1.5" fill="none"><path d="M34 182h260M41 98h230M59 52v175M289 65v160" stroke-dasharray="5 6"/><circle cx="275" cy="67" r="23"/><path d="m262 67 9 9 16-17" stroke="#839ad0" stroke-width="3"/></g><g transform="rotate(-8 173 148)"><path d="M144 210v29h-29m92-29v29h30" fill="none" stroke="#354caf" stroke-width="13" stroke-linecap="round"/><path d="M120 111 88 134l-14-8m149-15 30 28 16-9" fill="none" stroke="#354caf" stroke-width="11" stroke-linecap="round"/><rect x="139" y="48" width="58" height="165" rx="24" fill="#c1cef8"/><rect x="151" y="23" width="34" height="44" rx="12" fill="#9bace4"/><rect x="118" y="66" width="104" height="70" rx="24" fill="#455bdb"/><path d="M115 68c0-23 23-42 53-42s53 19 53 42" fill="#f5c84c"/><path d="M104 68h128" stroke="#d8a529" stroke-width="9" stroke-linecap="round"/><path d="M169 27v30" stroke="#ffde73" stroke-width="10" stroke-linecap="round"/><ellipse cx="150" cy="98" rx="6" ry="8" fill="#fff"/><ellipse cx="191" cy="98" rx="6" ry="8" fill="#fff"/><path d="M162 113q9 9 18 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="m132 141 78 16-78 17 78 17-78 17" stroke="#455bdb" stroke-width="13" stroke-linejoin="round" fill="none"/><path d="M132 218h78" stroke="#354caf" stroke-width="12" stroke-linecap="round"/></g><g transform="rotate(13 287 163)"><path d="m276 171 6 42" stroke="#647cae" stroke-width="10" stroke-linecap="round"/><path d="M277 148c-13 9-10 23 2 25 13-1 16-15 9-24l-3 12-9-1Z" fill="#647cae"/></g><path d="m41 57 3 9 9 3-9 3-3 9-3-9-9-3 9-3Z" fill="#f5c84c"/></svg>`;
   const byDay = new Map(lectures.map(l=>[l.day,l]));
   const missionByDay = new Map(missions.map(m=>[m.day,m]));
+  const coaching = {...window.COACHING_EARLY,...window.COACHING_LATE};
+  const garageLines = [
+    ['감으로 찍던 손, 이제 자유물체도를 그립니다.','스프링: 힘은 내가 낼게. 부호는 네가 챙겨줘.'],
+    ['쿼터카: 차는 ¼인데 생각할 건 한가득.','차체와 바퀴가 각자 출렁이는 중. 팀워크 회의가 필요해요.'],
+    ['댐퍼: 출렁임은 제가 수습하겠습니다.','부품 이름은 익숙한데, 식으로 만나니 초면입니다.'],
+    ['시간 파형: 정신없죠? 주파수별로 줄 서세요.','피크 발견! 범인 확정은 아직입니다.'],
+    ['모델: 실행은 됩니다. 맞는지는 시험에 물어봐 주세요.','해석과 시험의 소개팅. 단위부터 맞춰봅시다.'],
+    ['링크 하나 움직였는데 토와 캠버가 단체 출근.','정렬했는데 움직이면 달라지는 너, 기구학.'],
+    ['핸들은 조금 돌렸는데 회의는 많이 돌아갑니다.','타이어: 조향각 받았습니다. 횡력은 조건 보고 드릴게요.'],
+    ['잘 멈추는 차도, 계산할 때는 한 단계씩.','ABS: 바쁘지만 바퀴를 완전히 잠그진 않을게요.'],
+    ['차량 전체 회의: 좋은 부품도 합을 맞춰야죠.','질량, 강성, 감쇠: 오늘도 서로의 업무에 관여 중.'],
+    ['전문가의 한마디: 그때 시험 조건이 뭐였죠?','그래프는 정직합니다. 해석은 우리가 잘해야 합니다.']
+  ];
   const bank = new Map();
   lectures.forEach(l=>(l.questions||[]).forEach(q=>bank.set(q.id,{...q,day:l.day,kind:q.type==='choice'?'강의 퀴즈':'설명 연습'})));
   missions.forEach(m=>{
     bank.set(m.id,m);
     if(m.reflection) bank.set(m.id+'-recall',{id:m.id+'-recall',day:m.day,type:'recall',kind:'설명 연습',prompt:m.reflection.prompt,explanation:m.reflection.explanation,sourceLabel:m.sourceLabel});
   });
+  bank.forEach(q=>{const prompt=coaching[q.day]?.questions[q.id]?.prompt;if(prompt)q.prompt=prompt;});
   const KEY = 'chassis-quest-v1';
   let storageOK=true,loadNotice='',state=E.fresh();
   try {
@@ -44,15 +58,16 @@
       state.session=E.restoreSession(parsed.session,bank,state.cards);
     }
   } catch(error) { storageOK=false; loadNotice='저장된 기록을 읽지 못했습니다. 기존 기록을 덮어쓰지 않으며, 이번 학습은 백업 파일로 저장할 수 있습니다.'; }
-  let view='path',selectedChapter=chapterOf(nextDay()), active=Boolean(state.session),lab={mass:300,stiffness:18000,damping:1500},toastTimer;
+  let view='path',selectedChapter=chapterOf(nextDay()), active=Boolean(state.session),lab={mass:300,stiffness:18000,damping:1500},toastTimer,labFrame=null,labMoment=0;
   function chapterOf(day){return chapters.findIndex(c=>day>=c[1]&&day<=c[2])+1;}
   function nextDay(){return lectures.find(l=>!state.completed[l.day])?.day||1;}
   function save(){ if(!storageOK)return; try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){storageOK=false;toast('브라우저 저장이 막혀 있어요. 성장 기록에서 백업을 내려받으세요.');} }
   function toast(message){const node=document.getElementById('toast');node.textContent=message;node.classList.add('toast-visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.classList.remove('toast-visible'),4200);}
   function dueIds(){return E.due(state,[...bank.keys()]).sort((a,b)=>state.cards[a].due.localeCompare(state.cards[b].due));}
-  function sourceHref(l){return 'lecture/'+encodeURIComponent(l.filename);}
+  function sourceHref(l){return location.protocol==='file:'?l.sourceUrl:'lecture/'+encodeURIComponent(l.filename);}
   function sourceLink(day){const l=byDay.get(day);return `<a class="source-link" href="${esc(sourceHref(l))}" target="_blank" rel="noopener">${icon('book')} Day ${String(day).padStart(2,'0')} 원문 강의 열기</a>`;}
   function render(){
+    stopLabMotion();
     if(active&&state.session){renderStudy();return;}
     const xp=E.xp(state),level=Math.floor(xp/200)+1,completed=Object.keys(state.completed).length;
     app.innerHTML=`${!storageOK?`<div class="storage-warning" role="alert">${esc(loadNotice||'브라우저 저장을 사용할 수 없습니다. 종료 전 성장 기록에서 백업을 내려받으세요.')}</div>`:''}<div class="shell"><aside class="sidebar"><a class="brand" href="#" data-action="nav" data-view="path"><img src="icon.svg" alt=""><span>샤시 퀘스트<small>매일 쌓이는 엔지니어의 감각</small></span></a><nav class="nav" aria-label="주요 메뉴">${[['path','route','학습 경로'],['review','wrench','오답 정비소'],['lab','lab','실험실'],['progress','chart','성장 기록']].map(([v,i,t])=>`<button data-action="nav" data-view="${v}" class="${view===v?'active':''}" ${view===v?'aria-current="page"':''} aria-label="${t}">${icon(i)}<span class="nav-label">${t}</span>${v==='review'&&dueIds().length?`<span class="count">${dueIds().length}</span>`:''}</button>`).join('')}</nav><div class="sidebar-note"><strong>샤시 전문가를 향해</strong>한 번에 한 개념씩, 꾸준하게.<div class="mini-road">${chapters.map((c,i)=>`<i class="${state.bosses[i+1]?'on':''}"></i>`).join('')}</div>${completed} / 60강 학습 완료</div></aside><div class="content"><header class="topbar"><span class="greeting">나의 샤시 트레이닝</span><div class="stats"><span class="stat fire" title="한국 시간 기준 연속 학습일">${icon('fire')}${E.streak(state)}일</span><span class="stat energy" title="하루에 같은 문제로 XP를 중복 획득하지 않아요">${icon('bolt')}${xp} XP</span><span class="stat" title="학습 활동 레벨">${icon('gem')}Lv. ${level}</span></div></header><main id="main" tabindex="-1">${view==='path'?renderPath():view==='review'?renderReview():view==='lab'?renderLab():renderProgress()}</main></div></div>`;
@@ -67,16 +82,56 @@
     const due=dueIds(),all=Object.entries(state.cards),future=all.filter(([,c])=>c.due>E.today()).sort((a,b)=>a[1].due.localeCompare(b[1].due));
     return `<div class="page-intro"><h1>오답 정비소</h1><p>틀린 문제는 학습의 출발점이에요. 해설을 확인하고, 다음에는 스스로 설명해보세요.</p></div>${due.length?`<div class="page-actions"><button class="primary" data-action="review">복습 ${Math.min(5,due.length)}문제 시작</button><span class="muted">오늘 복습 대상 ${due.length}개</span></div><div class="review-list">${due.map(id=>{const q=bank.get(id),card=state.cards[id];return `<article class="review-item"><span class="day-badge">Day ${q.day}</span><div class="copy"><h3>${esc(q.prompt)}</h3><p>${q.type==='recall'?'자기평가 회상':'객관식'} · ${card.lapses?'다시 다질 개념':'기억 점검'} · ${esc(card.due)} 복습</p></div><button class="secondary" data-action="review-one" data-id="${esc(id)}">풀기</button></article>`;}).join('')}</div>`:`<div class="empty"><div class="empty-icon">${icon('wrench')}</div><h2>오늘 정비는 끝!</h2><p>${future.length?`다음 복습은 ${future[0][1].due}에 열려요. 원하면 지금 기억을 점검할 수도 있어요.`:'미션을 풀면 나만의 복습 카드가 생겨요. 틀린 문제는 당일, 익힌 문제는 1·3·7·14·30일 뒤 다시 만나요.'}</p><button class="primary" data-action="${all.length?'practice':'start'}" data-day="${nextDay()}">${all.length?'배운 내용 미리 복습':'첫 미션 시작'}</button></div>`}<p class="source-note">같은 날의 재도전은 복습 간격을 늘리지 않아요. XP는 문제당 하루 한 번만 쌓이며, 자기평가 회상은 객관식 정답률과 별도로 기록해요.</p>`;
   }
-  function renderLab(){return `<div class="page-intro"><h1>손으로 익히는 진동</h1><p>먼저 예측하고, 슬라이더를 움직여 확인해보세요. 질량·강성·감쇠가 움직임을 어떻게 바꿀까요?</p></div><div class="lab-grid"><div class="lab-controls">${[['mass','질량 m',100,600,10,'kg'],['stiffness','강성 k',5000,40000,500,'N/m'],['damping','감쇠 c',0,10000,100,'N·s/m']].map(([key,label,min,max,step,unit])=>`<label><div><span>${label}</span><b id="${key}-value">${lab[key].toLocaleString()} ${unit}</b></div><input aria-label="${label}" type="range" data-lab="${key}" min="${min}" max="${max}" step="${step}" value="${lab[key]}"></label>`).join('')}</div><div class="lab-plot"><div class="lab-values"><div><small>고유진동수 fₙ</small><strong id="lab-fn"></strong></div><div><small>감쇠비 ζ</small><strong id="lab-zeta"></strong></div><div><small>응답 종류</small><strong style="font-size:19px" id="lab-regime"></strong></div></div><svg class="plot" id="lab-svg" viewBox="0 0 620 240" role="img" aria-label="4초 동안의 자유진동 변위 응답 그래프"></svg><p id="lab-observation" aria-live="polite"></p></div></div><section class="lab-task"><h3>예측 미션: 질량만 두 배로 하면?</h3><p>강성과 감쇠계수를 고정한 채 질량을 150 kg에서 300 kg으로 바꿔보세요. 고유진동수는 어떻게 달라질까요?</p><details><summary>실험 후 원리 확인</summary><p>fₙ = √(k/m) / (2π)이므로 원래의 1/√2배가 됩니다. c를 고정하면 ζ = c/(2√km)도 1/√2배로 감소합니다. 질량을 바꾸면 진동수와 감쇠비가 함께 바뀌는 점을 구별하세요.</p></details></section><p class="source-note">선형 1자유도 자유진동의 해석해입니다. 초기 변위 10 mm, 초기 속도 0, 노면 입력 없음. 실제 차량 승차감이나 쿼터카의 예측 모델은 아닙니다. 실험실 탐색에는 XP를 부여하지 않아요.</p>`;}
+  function renderLab(){return `<div class="page-intro"><h1>손으로 익히는 진동</h1><p>먼저 예측하고, 슬라이더를 움직여 확인해보세요. 질량·강성·감쇠가 움직임을 어떻게 바꿀까요?</p></div><div class="lab-grid"><div class="lab-controls">${[['mass','질량 m',100,600,10,'kg'],['stiffness','강성 k',5000,40000,500,'N/m'],['damping','감쇠 c',0,10000,100,'N·s/m']].map(([key,label,min,max,step,unit])=>`<label><div><span>${label}</span><b id="${key}-value">${lab[key].toLocaleString()} ${unit}</b></div><input aria-label="${label}" type="range" data-lab="${key}" min="${min}" max="${max}" step="${step}" value="${lab[key]}"></label>`).join('')}</div><div class="lab-plot"><div class="lab-values"><div><small>고유진동수 fₙ</small><strong id="lab-fn"></strong></div><div><small>감쇠비 ζ</small><strong id="lab-zeta"></strong></div><div><small>응답 종류</small><strong style="font-size:19px" id="lab-regime"></strong></div></div><div class="motion-lab"><svg viewBox="0 0 440 200" role="img" aria-label="고정 지면에 연결된 질량, 스프링, 댐퍼의 자유진동 모형"><path d="M95 170h250" stroke="#95a3bb" stroke-width="3"/><g id="lab-mass"><rect x="145" y="28" width="150" height="50" rx="13" fill="#455bdb"/><text x="220" y="59" text-anchor="middle" fill="white" font-size="18">질량 m</text></g><path id="lab-spring" fill="none" stroke="#cf9810" stroke-width="4" stroke-linejoin="round"/><path id="lab-rod" stroke="#16836e" stroke-width="4"/><path d="M249 110v38h22v-38m-11 38v22" fill="none" stroke="#16836e" stroke-width="4"/><text x="124" y="132" fill="#826116" font-size="14">k</text><text x="292" y="132" fill="#16836e" font-size="14">c</text><path d="M326 74V31m-5 6 5-6 5 6" fill="none" stroke="#69768d" stroke-width="2"/><text x="338" y="53" fill="#69768d" font-size="13">+x</text></svg><div class="motion-controls"><button class="secondary" data-action="lab-play">움직임 재생</button><output id="lab-time" aria-live="off" aria-label="현재 모형 시간">0.00 s</output></div><p>버튼을 누르면 그래프와 같은 4초의 움직임을 볼 수 있어요. 모형의 움직임은 보기 쉽게 확대했어요.</p></div><svg class="plot" id="lab-svg" viewBox="0 0 620 240" role="img" aria-label="4초 동안의 자유진동 변위 응답 그래프"></svg><p id="lab-observation" aria-live="polite"></p></div></div><section class="lab-task"><h3>예측 미션: 질량만 두 배로 하면?</h3><p>강성과 감쇠계수를 고정한 채 질량을 150 kg에서 300 kg으로 바꿔보세요. 고유진동수는 어떻게 달라질까요?</p><details><summary>실험 후 원리 확인</summary><p>fₙ = √(k/m) / (2π)이므로 원래의 1/√2배가 됩니다. c를 고정하면 ζ = c/(2√km)도 1/√2배로 감소합니다. 질량을 바꾸면 진동수와 감쇠비가 함께 바뀌는 점을 구별하세요.</p></details></section><p class="source-note">선형 1자유도 자유진동의 해석해입니다. 초기 변위 10 mm, 초기 속도 0, 노면 입력 없음. 실제 차량 승차감이나 쿼터카의 예측 모델은 아닙니다. 실험실 탐색에는 XP를 부여하지 않아요.</p>`;}
   function updateLab(){
     const {mass:m,stiffness:k,damping:c}=lab,wn=Math.sqrt(k/m),z=c/(2*Math.sqrt(k*m));
     document.getElementById('lab-fn').textContent=(wn/(2*Math.PI)).toFixed(2)+' Hz';
     document.getElementById('lab-zeta').textContent=z.toFixed(2);
     document.getElementById('lab-regime').textContent=c===0?'비감쇠':Math.abs(z-1)<1e-8?'임계감쇠':z<1?'부족감쇠':'과감쇠';
-    const displacement=t=>{if(Math.abs(z-1)<1e-8)return .01*(1+wn*t)*Math.exp(-wn*t);if(z<1){const wd=wn*Math.sqrt(1-z*z);return .01*Math.exp(-z*wn*t)*(Math.cos(wd*t)+z*wn/wd*Math.sin(wd*t));}const root=Math.sqrt(z*z-1),r1=-wn/(z+root),r2=-wn*(z+root);return .01*(-r2*Math.exp(r1*t)+r1*Math.exp(r2*t))/(r1-r2);};
-    const points=Array.from({length:401},(_,i)=>`${45+i/400*555},${115-displacement(i/100)*8000}`).join(' ');
-    document.getElementById('lab-svg').innerHTML=`${[-10,0,10].map(mm=>`<path d="M45 ${115-mm*8}h555" stroke="#e3e8f2"/><text x="4" y="${119-mm*8}" fill="#718099" font-size="12">${mm}</text>`).join('')}<text x="5" y="17" fill="#718099" font-size="11">mm</text>${[0,1,2,3,4].map(s=>`<text x="${40+s/4*555}" y="225" fill="#718099" font-size="12">${s}s</text>`).join('')}<polyline points="${points}" fill="none" stroke="#455bdb" stroke-width="3" stroke-linejoin="round"/>`;
+    stopLabMotion();labMoment=0;
+    const points=Array.from({length:401},(_,i)=>`${45+i/400*555},${115-labDisplacement(i/100)*8000}`).join(' ');
+    document.getElementById('lab-svg').innerHTML=`${[-10,0,10].map(mm=>`<path d="M45 ${115-mm*8}h555" stroke="#e3e8f2"/><text x="4" y="${119-mm*8}" fill="#718099" font-size="12">${mm}</text>`).join('')}<text x="5" y="17" fill="#718099" font-size="11">mm</text>${[0,1,2,3,4].map(s=>`<text x="${40+s/4*555}" y="225" fill="#718099" font-size="12">${s}s</text>`).join('')}<polyline points="${points}" fill="none" stroke="#455bdb" stroke-width="3" stroke-linejoin="round"/><circle id="lab-marker" r="5" fill="#cf9810" stroke="#fff" stroke-width="2"/>`;
+    updateLabMotion(0);
     document.getElementById('lab-observation').textContent=c===0?'에너지 손실이 없어 진폭이 유지됩니다.':z<1?'진동하면서 에너지를 잃습니다. 감쇠비가 커지면 출렁임이 줄어드는지 관찰하세요.':'진동 없이 평형으로 돌아옵니다. 감쇠를 아주 크게 하면 복귀가 오히려 느려질 수 있어요.';
+  }
+  function labDisplacement(t){
+    const {mass:m,stiffness:k,damping:c}=lab,wn=Math.sqrt(k/m),z=c/(2*Math.sqrt(k*m));
+    if(Math.abs(z-1)<1e-8)return .01*(1+wn*t)*Math.exp(-wn*t);
+    if(z<1){const wd=wn*Math.sqrt(1-z*z);return .01*Math.exp(-z*wn*t)*(Math.cos(wd*t)+z*wn/wd*Math.sin(wd*t));}
+    const root=Math.sqrt(z*z-1),r1=-wn/(z+root),r2=-wn*(z+root);
+    return .01*(-r2*Math.exp(r1*t)+r1*Math.exp(r2*t))/(r1-r2);
+  }
+  function stopLabMotion(){
+    if(labFrame!==null)cancelAnimationFrame(labFrame);
+    labFrame=null;
+    const button=app.querySelector('[data-action="lab-play"]');
+    if(button){button.textContent=matchMedia('(prefers-reduced-motion: reduce)').matches?'다음 순간 보기':'움직임 재생';button.setAttribute('aria-pressed','false');}
+  }
+  function updateLabMotion(t){
+    const mass=document.getElementById('lab-mass');if(!mass)return;
+    const x=labDisplacement(t),offset=-x*1600,top=78+offset;
+    mass.setAttribute('transform',`translate(0 ${offset})`);
+    const spring=Array.from({length:8},(_,i)=>`${i%2?190:170} ${top+14+i*(156-top-14)/7}`).join(' L');
+    document.getElementById('lab-spring').setAttribute('d',`M180 ${top} V${top+9} L${spring} L180 161 V170`);
+    const pistonY=130+offset;
+    document.getElementById('lab-rod').setAttribute('d',`M260 ${top} V${pistonY} M251 ${pistonY}h18`);
+    document.getElementById('lab-time').textContent=t.toFixed(2)+' s';
+    const marker=document.getElementById('lab-marker');
+    marker.setAttribute('cx',45+t/4*555);marker.setAttribute('cy',115-x*8000);
+  }
+  function playLabMotion(){
+    if(labFrame!==null){stopLabMotion();return;}
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const moments=[0,.25,.5,1,2,4];labMoment=(labMoment+1)%moments.length;updateLabMotion(moments[labMoment]);return;
+    }
+    const button=app.querySelector('[data-action="lab-play"]'),start=performance.now();
+    button.textContent='멈추기';button.setAttribute('aria-pressed','true');
+    function tick(now){
+      if(view!=='lab'||active||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches){stopLabMotion();return;}
+      const t=Math.min(4,(now-start)/1000);updateLabMotion(t);
+      if(t<4)labFrame=requestAnimationFrame(tick);else stopLabMotion();
+    }
+    labFrame=requestAnimationFrame(tick);
   }
   function renderProgress(){
     const done=Object.values(state.completed),correct=done.reduce((s,c)=>s+c.correct,0),total=done.reduce((s,c)=>s+c.total,0),self=done.reduce((s,c)=>s+c.selfChecks,0);
@@ -113,11 +168,22 @@
       }
       body+=`<p class="study-tip">${esc(q.sourceLabel||'강의 기반 학습 문제')}</p>`;
     }
-    if(s.feedback){footer=`<div class="feedback-copy" role="status"><h3>${s.feedback.correct?(q.type==='recall'?'좋아요, 기억을 다시 점검할게요.':'맞았어요! 원리까지 챙겨가세요.'):'괜찮아요. 이 지점을 다시 익혀봐요.'}</h3><p>${esc(q.explanation)}</p><small>${q.type==='recall'?'자기평가로 기록 · 객관식 정답률에서 제외':'정답: '+esc(q.options[q.answer])} · 복습 ${state.cards[q.id].due}</small></div><button class="primary" data-action="next">계속</button>`;}
+    if(s.feedback){
+      body+=renderCoaching(q,s);
+      footer=`<div class="feedback-copy"><strong>${s.feedback.correct?'원리까지 챙겼어요.':'이유를 읽고 다시 도전해요.'}</strong><small>${q.type==='recall'?'자기평가 · ':''}복습 ${state.cards[q.id].due}</small></div><button class="primary" data-action="next">계속</button>`;
+    }
     app.innerHTML=`<div class="study"><header class="study-top"><button class="exit" data-action="pause" aria-label="저장하고 학습 경로로">${icon('close')}</button><div class="meter" role="progressbar" aria-label="미션 진행" aria-valuemin="0" aria-valuemax="${s.queue.length}" aria-valuenow="${s.index}"><span style="width:${s.index/s.queue.length*100}%"></span></div><small>${s.stage==='brief'?'워밍업':`${s.index+1} / ${s.queue.length}`}</small></header><main id="main" class="study-body">${body}</main><footer class="study-footer ${s.feedback?'feedback '+(s.feedback.correct?'good':'bad'):q.type==='recall'&&s.revealed?'recall-footer':''}"><div class="footer-inner">${footer}</div></footer></div>`;
-    const focusTarget = s.feedback ? '.feedback-copy' : s.revealed ? '.model-answer' : s.selection !== null ? `[data-action="select"][data-index="${s.selection}"]` : '.study-body h1';
+    const focusTarget = s.feedback ? '.coach-heading' : s.revealed ? '.model-answer' : s.selection !== null ? `[data-action="select"][data-index="${s.selection}"]` : '.study-body h1';
     const focusElement = app.querySelector(focusTarget);
     if(focusElement){if(focusElement.tagName!=='BUTTON')focusElement.tabIndex=-1;focusElement.focus({preventScroll:true});}
+  }
+  function renderCoaching(q,s){
+    const good=s.feedback.correct,day=coaching[q.day],guide=day?.questions[q.id],choice=q.type==='choice';
+    const why=choice?(guide?.why[s.selection]||q.explanation):q.explanation;
+    const definitions=day?.definitions||[],steps=choice?(guide?.steps||[]):[];
+    const detail=`${definitions.length?`<section class="coach-definitions"><h3>먼저 필요한 정의</h3><dl>${definitions.map(d=>`<div><dt>${esc(d.term)}</dt><dd>${esc(d.meaning)}</dd></div>`).join('')}</dl></section>`:''}${steps.length?`<section class="coach-steps"><h3>이렇게 접근해요</h3><ol>${steps.map(step=>`<li>${esc(step)}</li>`).join('')}</ol></section>`:''}${day?.intuition?`<p class="coach-takeaway"><b>한 줄로 기억</b>${esc(day.intuition)}</p>`:''}<div class="coach-source">${sourceLink(q.day)}</div>`;
+    const joke=garageLines[chapterOf(q.day)-1][good?0:1];
+    return `<section class="coach-panel ${good?'coach-good':'coach-repair'}" aria-labelledby="coach-title"><div class="coach-reaction"><div class="coach-mascot" aria-hidden="true">${mascot()}</div><div><span class="coach-label">${good?'이해 한 칸 충전':'개념 정비 타임'}</span><h2 id="coach-title" class="coach-heading" tabindex="-1">${good?'맞았어요. 이유도 확인해요.':choice?'어디서 갈렸는지 볼까요?':'정의부터 다시 연결해요.'}</h2><p class="garage-joke">${esc(joke)}</p></div></div>${choice?`<div class="answer-comparison">${!good?`<p><span>내 선택</span>${esc(q.options[s.selection])}</p>`:''}<p><span>정답</span>${esc(q.options[q.answer])}</p></div>`:''}<section class="coach-diagnosis"><h3>${choice?(good?'이 답이 맞는 이유':'내 선택이 다른 이유'):'모범 답안의 핵심'}</h3><p>${esc(why)}</p></section>${good?`<details class="coach-more"><summary>정의와 접근법까지 보기</summary>${detail}</details>`:detail}</section>`;
   }
   function answer(correct){
     const s=state.session;if(!s||s.feedback||s.stage!=='question')return;
@@ -126,6 +192,7 @@
     E.grade(state,q.id,correct);
     if(!correct&&!s.retried.includes(q.id)&&!s.queue.slice(s.index+1).includes(q.id))s.queue.push(q.id);
     s.feedback={correct};save();renderStudy();
+    app.querySelector('.coach-panel')?.scrollIntoView({block:'start',behavior:'auto'});
   }
   function finishSession(){
     const s=state.session,first=s.answers.filter(a=>!a.retry),objective=first.filter(a=>a.type==='choice');
@@ -157,6 +224,7 @@
     else if(action==='finish'){state.session=null;active=false;selectedChapter=chapterOf(nextDay());save();render();}
     else if(action==='next-lesson'){state.session=null;startLesson(Number(button.dataset.day));}
     else if(action==='export'){const blob=new Blob([JSON.stringify({...state,session:null},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='chassis-quest-'+E.today()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('학습 기록 백업 파일을 만들었어요.');}
+    else if(action==='lab-play')playLabMotion();
     else if(action==='import')document.getElementById('import-file').click();
   });
   app.addEventListener('input',event=>{
@@ -180,5 +248,6 @@
     const s=state.session,q=bank.get(s.queue[s.index]);
     if(s.stage==='question'&&q?.type==='choice'&&!s.feedback&&/^[1-4]$/.test(event.key)){const index=s.order[q.id][Number(event.key)-1];if(index!==undefined){s.selection=index;save();renderStudy();}}
   });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopLabMotion();});
   render();
 })();

@@ -8,3 +8,41 @@
 .node-title,.hero-copy p,.note-card p,.note-card h3{word-break:keep-all;overflow-wrap:anywhere}
 @media(max-width:740px){.hero{display:block;min-height:320px}.hero h1{font-size:32px}.hero-art{width:150px;height:150px;right:0;bottom:8px}.hero-copy p{max-width:240px}.hero .primary{font-size:14px;padding:12px 17px}.hero .tiny{max-width:190px}.side-stack{grid-template-columns:1fr}.side-stack .goal{grid-column:auto}.lesson-node{margin-left:calc(50% - 80px)}.roadmap:before{left:calc(50% - 51px)}.node-title{max-width:min(150px,34vw)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* A roomy repair sheet keeps explanation out of the fixed controls. */
+.coach-panel{margin-top:30px;border-top:3px solid var(--blue);padding-top:25px;scroll-margin-top:20px;overflow-wrap:anywhere}
+.coach-repair{border-color:#d29a38}.coach-good{border-color:var(--mint)}
+.coach-reaction{display:flex;gap:15px;align-items:center;margin-bottom:23px}
+.coach-reaction>div:last-child{min-width:0;flex:1}
+.coach-mascot{width:105px;flex:none}.coach-mascot svg{display:block;width:100%;height:auto;transform-origin:50% 90%}
+.coach-label{font-size:12px;font-weight:800;color:#826116}.coach-good .coach-label{color:var(--mint)}
+.coach-heading{font-size:23px;line-height:1.45;margin:4px 0 10px;letter-spacing:-.5px}
+.coach-heading:focus-visible{outline:2px solid var(--blue);outline-offset:5px;border-radius:3px}
+.garage-joke{display:inline-block;font-size:12px;line-height:1.65;color:#735515;background:#fff5cf;padding:8px 12px;border-radius:3px 12px 12px 12px;word-break:keep-all}
+.answer-comparison{padding:15px 18px;background:#f6f8fc;border-radius:13px;margin-bottom:24px}
+.answer-comparison p{display:grid;grid-template-columns:60px minmax(0,1fr);gap:12px;font-size:14px;line-height:1.65}
+.answer-comparison p+p{margin-top:9px}.answer-comparison span{color:var(--muted);font-size:12px;font-weight:700;padding-top:2px}
+.answer-comparison p:last-child span{color:var(--mint)}
+.coach-diagnosis h3,.coach-definitions h3,.coach-steps h3{font-size:16px;margin:0 0 11px}
+.coach-diagnosis p{font-size:16px;line-height:1.85;white-space:pre-line;word-break:keep-all}
+.coach-definitions,.coach-steps{margin-top:28px}.coach-definitions dl{margin:0;border-left:3px solid #e4e9f6;padding-left:17px}
+.coach-definitions dl>div+div{margin-top:16px}.coach-definitions dt{font-size:14px;font-weight:800;color:#334ca7}
+.coach-definitions dd{font-size:14px;line-height:1.8;margin:4px 0 0;color:#40546a;word-break:keep-all}
+.coach-steps ol{margin:0;padding-left:24px}.coach-steps li{font-size:15px;line-height:1.85;padding-left:5px;margin:10px 0;word-break:keep-all}
+.coach-steps li::marker{color:var(--blue);font-weight:800}
+.coach-takeaway{background:#edf6f2;border-left:4px solid var(--mint);padding:16px 19px;margin-top:26px;font-size:15px;line-height:1.8;word-break:keep-all}
+.coach-takeaway b{display:block;font-size:12px;color:var(--mint);margin-bottom:4px}.coach-source{margin:22px 0 5px}
+.coach-more{margin-top:22px}.coach-more summary{cursor:pointer;font-size:14px;font-weight:800;color:var(--blue);padding:12px 0}
+.study-footer.feedback .footer-inner{display:flex;gap:16px}.study-footer.feedback .primary{width:auto;margin:0;min-width:108px;flex:none}
+.feedback-copy strong{display:block;font-size:14px}.feedback-copy small{margin-top:3px}
+.study:has(.feedback) .study-body{padding-bottom:170px}
+.coach-good .coach-mascot svg{animation:coach-celebrate .75s ease-out 1}
+.coach-repair .coach-mascot svg{animation:coach-think .65s ease-out 1}
+@keyframes coach-celebrate{0%,100%{transform:translateY(0)}35%{transform:translateY(-13px) rotate(5deg)}65%{transform:translateY(0) scaleY(.95)}}
+@keyframes coach-think{0%,100%{transform:rotate(0)}35%{transform:rotate(-9deg)}70%{transform:rotate(4deg)}}
+.motion-lab{background:#f6f8fd;border-radius:15px;padding:12px 16px 15px;margin-bottom:18px}
+.motion-lab>svg{display:block;width:100%;max-height:200px}.motion-controls{display:flex;justify-content:center;align-items:center;gap:20px}
+.motion-controls .secondary{font-size:13px;padding:8px 14px;min-height:42px}.motion-controls output{font-variant-numeric:tabular-nums;font-size:14px;min-width:55px;color:var(--muted)}
+.motion-lab p{font-size:12px;line-height:1.7;margin-top:12px}
+@media(max-width:740px){.coach-reaction{gap:10px}.coach-mascot{width:78px}.coach-heading{font-size:21px}.garage-joke{font-size:11px;padding:7px 9px}.coach-diagnosis p{font-size:15px}.study-footer.feedback{padding:14px 20px}.feedback-copy strong{font-size:12px}.feedback-copy small{font-size:10px}.study-footer.feedback .primary{min-width:89px;padding:10px 17px}.study:has(.feedback) .study-body{padding-bottom:150px}}
+@media(prefers-reduced-motion:reduce){.coach-mascot svg{animation:none!important}}
