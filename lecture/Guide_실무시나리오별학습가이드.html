@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>실무 시나리오별 학습 가이드 | Vehicle Dynamics Notes</title>
+
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="hero" style="animation:fadeUp .8s ease both">
+  <div class="hero-icon">🧭</div>
+  <h1 class="hero-title">실무 시나리오별 학습 가이드</h1>
+  <p class="hero-subtitle">Practical Engineering Scenario Guide — 60+ Scenarios</p>
+  <p class="hero-desc">
+    현장에서 마주치는 실무 이슈별로 어떤 강좌를 학습하면 되는지 안내합니다.<br>
+    10개 카테고리, 60개 이상의 실무 시나리오를 체계적으로 정리했습니다.<br>
+    <strong style="color:var(--cyan)">사이안 테두리</strong> 강좌가 핵심(Core), 나머지는 보조(Support) 학습입니다.
+  </p>
+</div>
+
+<div class="cat-tabs" id="scenarios">
+  <a class="cat-tab active" href="#cat-ride">🛤️ 승차감</a>
+  <a class="cat-tab" href="#cat-handling">🏎️ 조종안정성</a>
+  <a class="cat-tab" href="#cat-braking">🛑 제동</a>
+  <a class="cat-tab" href="#cat-kinematics">📐 기구학</a>
+  <a class="cat-tab" href="#cat-component">⚙️ 부품동특성</a>
+  <a class="cat-tab" href="#cat-nvh">🔊 NVH</a>
+  <a class="cat-tab" href="#cat-field">⚠️ 현장이슈</a>
+  <a class="cat-tab" href="#cat-sim">💻 시뮬레이션</a>
+  <a class="cat-tab" href="#cat-ev">⚡ EV</a>
+  <a class="cat-tab" href="#cat-process">📋 설계프로세스</a>
+</div>
+
+<!-- ═══════════ 1. 승차감 · Ride Comfort ═══════════ -->
+<div class="scenario-group" id="cat-ride">
+  <div class="group-header">
+    <span class="group-icon">🛤️</span>
+    <div>
+      <div class="group-title">승차감 · Ride Comfort <span class="scenario-count">10</span></div>
+      <div class="group-desc">노면 입력 → 차체 응답 → 인체 가속도 평가</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">댐퍼 튜닝 (감쇠력 세팅)</div>
+      <span class="scenario-badge badge-tuning">TUNING</span>
+    </div>
+    <p class="scenario-desc">저속 험로 승차감 vs 고속 안정성 밸런스를 맞추기 위한 감쇠력 최적화. C/Cc 비율 조정, FRF 분석으로 실차 상관성 확보.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day03_감쇠비정의.html"><span class="chip-day">D03</span> 감쇠비 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day17_댐퍼모델.html"><span class="chip-day">D17</span> 댐퍼 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 쿼터카 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day31_FRF상관성.html"><span class="chip-day">D31</span> FRF 상관성</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 리바운드/컴프레션 비율(R/C ratio)은 보통 2.5~3.5:1. D17에서 바이리니어 모델 확인 후 D31에서 실차-시뮬 상관성을 잡는 흐름이 핵심.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">스프링 레이트 최적화</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">바운스/피치 고유진동수를 타겟팅하여 차체 자세 안정과 1차 승차감을 동시에 확보하는 스프링 설계.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">노면 입력 분석 · PSD 평가</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">벨기 블록, 조약돌 등 다양한 노면에서의 가진 특성을 ISO 8608 기반으로 분석·평가.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day23_푸리에변환.html"><span class="chip-day">D23</span> 푸리에 변환</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day12_전달함수유도.html"><span class="chip-day">D12</span> 전달함수</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">과속방지턱 충격 저감</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">과도 충격 입력에 대한 범프스톱/댐퍼 최적화. 과속방지턱, 포트홀 등 단발성 충격 저감 전략.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day17_댐퍼모델.html"><span class="chip-day">D17</span> 댐퍼 모델</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 범프스톱 간극(jounce clearance)이 부족하면 2차 충격 발생. 범프스톱 프로그레시브 강성 설계가 핵심.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">공차/적차 승차감 차이 해소</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">승차 인원에 따른 고유진동수 변화 최소화. 공차↔적차 조건에서 일관된 승차감 확보 전략.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 적차 시 ωn이 20% 이상 변화하면 별도 세팅 필요. 에어 스프링 또는 자동 레벨링 검토.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">뒷좌석 승차감 개선</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">피치 모드 절점(node) 위치 최적화를 통한 뒷좌석 체감 승차감 개선.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 피치 절점이 뒷좌석에 가까울수록 피치 체감 감소. 전후 스프링 레이트 비율로 절점 위치 제어.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">저주파 멀미(Motion Sickness) 저감</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">0.1~0.5 Hz 피치/히브 모드 제어를 통한 저주파 멀미 저감. 자율주행 시대 핵심 이슈.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day06_위상각유도.html"><span class="chip-day">D06</span> 위상각 유도</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 0.2 Hz 부근이 멀미 유발 피크. 피치 모드와 바운스 모드의 주파수 분리가 핵심 전략.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">타이어 사이즈 변경 시 승차감 영향</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">편평비 변경 → 타이어 강성 변화 → 언스프렁 고유진동수 영향 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day20_TireHop.html"><span class="chip-day">D20</span> TireHop</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 편평비 10% 감소 → 타이어 수직강성 ~30% 증가. 대구경 휠 적용 시 승차감 악화 필연.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">고속 직진 미세진동</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">타이어 유니포미티/언스프렁 공진 구간 분석. 고속 직진 시 미세 떨림 원인 추적.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day20_TireHop.html"><span class="chip-day">D20</span> TireHop</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 60~120 km/h 대역은 휠 1차 회전수와 타이어홉 공진 구간이 겹침. 주파수-차속 맵핑이 진단 핵심.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">에어 스프링 차량 레벨링</div>
+      <span class="scenario-badge badge-ride">RIDE</span>
+    </div>
+    <p class="scenario-desc">하중 변화에 따른 차고 유지 및 에어 스프링 강성 변화 특성 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 2. 조종안정성 · Handling ═══════════ -->
+<div class="scenario-group" id="cat-handling">
+  <div class="group-header">
+    <span class="group-icon">🏎️</span>
+    <div>
+      <div class="group-title">조종안정성 · Handling <span class="scenario-count">10</span></div>
+      <div class="group-desc">조향 입력 → 차량 횡방향 응답 → 드라이버 피드백</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">스티어링 튜닝 (EPS 조향감)</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">온센터 필링, 반응성 등 조향감 종합 튜닝. 킹핀 기하학 → 토크 피드백 → EPS 어시스트맵 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day41_애커만기하학.html"><span class="chip-day">D41</span> 애커만 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day42_랙피니언역학.html"><span class="chip-day">D42</span> 랙피니언 역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day43_전동파워스티어링.html"><span class="chip-day">D43</span> EPS</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — KPI·캐스터 트레일이 온센터 필링을 지배. D37→D43 순서로 기하학적 기본기를 잡은 후 EPS 맵 튜닝.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">언더/오버스티어 밸런스</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">전후 코너링 스티프니스 밸런스 → 안정성 여유(Stability Margin) 확보. ISO 4138 정상원선회 연계.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day39_순간중심롤스티어.html"><span class="chip-day">D39</span> 롤스티어</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">고속 차선변경 안정성</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">과도 요응답 최적화. 고속 차선변경 시 요 오버슈트, 정착시간 제어.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day39_순간중심롤스티어.html"><span class="chip-day">D39</span> 롤스티어</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 요 오버슈트 10% 이하, 정착시간 0.3s 이내가 일반적 타겟. D46 전달함수에서 감쇠비 확인.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">긴급회피 (Elk Test / ISO 3888)</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">비상 회피 시 차량 자세 안정성. ESC 개입 전 고유 안정성 확보가 우선.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — ESC 개입 전 고유 안정성 확보가 우선. 한계 영역 U/O 밸런스가 Elk Test 성패를 좌우.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">횡풍(Cross Wind) 안정성</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">측면 돌풍 시 요잉/풀링 최소화. 공력 중심과 CG 관계, 요 감쇠 특성 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">요 댐핑 부족 문제</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">선회 후 잔진동(Yaw Oscillation), 피시테일 현상 분석 및 대책.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day17_댐퍼모델.html"><span class="chip-day">D17</span> 댐퍼 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 요 감쇠비 0.3 미만이면 "피시테일" 체감. 후축 코너링 스티프니스 증대가 1차 대책.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">선회 진입/탈출 과도 응답</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">스텝 조향 입력에 대한 과도 응답 최적화. 응답 지연, 오버슈트, 정착시간 제어.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day39_순간중심롤스티어.html"><span class="chip-day">D39</span> 롤스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day57_컴플라이언스스티어.html"><span class="chip-day">D57</span> 컴플라이언스</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">고속 직진안정성</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">미세 핸들 보정 최소화. 토 인, 캐스터 트레일, 컴플라이언스 스티어 종합 검토.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day57_컴플라이언스스티어.html"><span class="chip-day">D57</span> 컴플라이언스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day43_전동파워스티어링.html"><span class="chip-day">D43</span> EPS</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 토 인 0.05°~0.15° 범위가 직진안정성-타이어마모 밸런스. 캐스터 트레일 20~40 mm 타겟.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">롤 거동 최적화</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">롤각/롤속도 제어. 안티롤바, 롤센터 높이, 스프링 레이트 종합 튜닝.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day39_순간중심롤스티어.html"><span class="chip-day">D39</span> 롤스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 롤 그라디언트 3~5°/g가 일반 승용 타겟. SUV는 5~7°/g까지 허용.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">트레일러 토잉 시 안정성</div>
+      <span class="scenario-badge badge-handling">HANDLING</span>
+    </div>
+    <p class="scenario-desc">연결 차량 요잉 안정성. 스네이킹(snaking) 현상 분석과 히치 볼 하중 영향.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 3. 제동 · Braking ═══════════ -->
+<div class="scenario-group" id="cat-braking">
+  <div class="group-header">
+    <span class="group-icon">🛑</span>
+    <div>
+      <div class="group-title">제동 · Braking <span class="scenario-count">8</span></div>
+      <div class="group-desc">페달 입력 → 제동력 생성 → 차량 감속·안정성</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">제동 안정성 · ABS/ESC 검토</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">하중이동 → 제동력 배분 → ABS/ESC 개입 로직. 제동 시 차량 자세 안정성 확보.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day47_디스크브레이크열역학.html"><span class="chip-day">D47</span> 브레이크 열역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day48_유압제동시스템.html"><span class="chip-day">D48</span> 유압 제동</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">브레이크 사이징 (디스크/패드 선정)</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">열용량, 마찰계수, 제동토크 산출을 통한 디스크/패드 사이징.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day47_디스크브레이크열역학.html"><span class="chip-day">D47</span> 브레이크 열역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day48_유압제동시스템.html"><span class="chip-day">D48</span> 유압 제동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 디스크 질량 1 kg 감소 → 언스프렁 질량 효과 1 kg 감소. 경량화와 열용량의 트레이드오프.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">제동거리 단축 최적화</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">최대 감속도 활용 전략. 타이어-노면 마찰 한계, 하중이동, ABS 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">ABS 캘리브레이션</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">슬립률 타겟, 펌핑 주기 최적화. 노면별 최적 슬립률 제어 전략.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 최적 슬립률 10~15%. 노면별(건조/습윤/빙판) 편차 고려하여 적응 제어 필요.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">ESC 요모먼트 제어 튜닝</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">차량 자세 제어를 위한 ESC 요모먼트 생성 전략. 선택적 제동으로 요잉 제어.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">경사로 제동 안정성</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">경사로에서의 전후 하중 재배분 고려한 제동력 배분 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day48_유압제동시스템.html"><span class="chip-day">D48</span> 유압 제동</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 구배 10%에서 전축 하중 5~8% 증가. 내리막 반복 제동 시 페이드 리스크 병행 검토.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">고온 제동 성능(페이드) 개선</div>
+      <span class="scenario-badge badge-braking">BRAKING</span>
+    </div>
+    <p class="scenario-desc">반복 제동 시 열관리. 디스크 열용량, 냉각 설계, 패드 마찰계수 온도 특성.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day47_디스크브레이크열역학.html"><span class="chip-day">D47</span> 브레이크 열역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day48_유압제동시스템.html"><span class="chip-day">D48</span> 유압 제동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">회생제동 블렌딩 최적화</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">회생+유압 협조 제어. 에너지 회수 최대화와 제동 안정성 양립.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day51_회생제동시스템.html"><span class="chip-day">D51</span> 회생 제동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day52_통합브레이크시스템.html"><span class="chip-day">D52</span> 통합 브레이크</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 저μ 노면에서 회생제동 제한 필수. 회생 토크 > 타이어 접지력이면 슬립 발생.</div>
+  </div>
+</div>
+
+<!-- ═══════════ 4. 서스펜션 기구학 · Kinematics ═══════════ -->
+<div class="scenario-group" id="cat-kinematics">
+  <div class="group-header">
+    <span class="group-icon">📐</span>
+    <div>
+      <div class="group-title">서스펜션 기구학 · Kinematics <span class="scenario-count">8</span></div>
+      <div class="group-desc">기하학적 배치 → 운동학적 특성 → 주행 거동</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">캠버·토 사양 변경</div>
+      <span class="scenario-badge badge-alignment">ALIGNMENT</span>
+    </div>
+    <p class="scenario-desc">타이어 마모 패턴 개선, 직진성 확보를 위한 정적 얼라인먼트 사양 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">롤센터·안티지오메트리 설계</div>
+      <span class="scenario-badge badge-geometry">GEOMETRY</span>
+    </div>
+    <p class="scenario-desc">선회 롤각 제어, 스쿼트/다이브 거동 최적화를 위한 서스펜션 지오메트리 설계.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터·안티</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day39_순간중심롤스티어.html"><span class="chip-day">D39</span> 롤스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">안티롤바(스태빌라이저) 튜닝</div>
+      <span class="scenario-badge badge-tuning">TUNING</span>
+    </div>
+    <p class="scenario-desc">전후 롤강성 배분을 통한 U/O 밸런스 최적화. 안티롤바 강성 → 하중이동 제어.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — F/R 롤 강성비가 U/O 밸런스에 직결. 전축 비율 높이면 언더스티어 증가.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">서스펜션 형식 비교</div>
+      <span class="scenario-badge badge-design">DESIGN</span>
+    </div>
+    <p class="scenario-desc">맥퍼슨 vs 더블위시본 vs 멀티링크. 형식별 기구학적 장단점 비교 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">주행고(Ride Height) 변경 영향</div>
+      <span class="scenario-badge badge-geometry">GEOMETRY</span>
+    </div>
+    <p class="scenario-desc">차고 변경 시 롤센터, 캠버 변화율, 안티 비율 변화 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">컴플라이언스 스티어 검토</div>
+      <span class="scenario-badge badge-compliance">COMPLIANCE</span>
+    </div>
+    <p class="scenario-desc">부싱 변형에 의한 토/캠버 변화 분석. 횡력·종력 입력 시 서스펜션 변형 거동.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day57_컴플라이언스스티어.html"><span class="chip-day">D57</span> 컴플라이언스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 횡력 컴플라이언스 토가 언더스티어 특성을 지배. 후축 토 아웃 컴플라이언스는 오버스티어 유발.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">휠베이스/트레드 변경 영향</div>
+      <span class="scenario-badge badge-design">DESIGN</span>
+    </div>
+    <p class="scenario-desc">선회 기하학, 하중 배분, 요 관성 모멘트 변화 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day41_애커만기하학.html"><span class="chip-day">D41</span> 애커만 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">KC 시험 결과 해석</div>
+      <span class="scenario-badge badge-test">TEST</span>
+    </div>
+    <p class="scenario-desc">K&C 리그 데이터 분석 방법. 측정 데이터 → 기구학 파라미터 추출 → 설계 반영.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 5. 부품 동특성 · Component ═══════════ -->
+<div class="scenario-group" id="cat-component">
+  <div class="group-header">
+    <span class="group-icon">⚙️</span>
+    <div>
+      <div class="group-title">부품 동특성 · Component <span class="scenario-count">6</span></div>
+      <div class="group-desc">개별 부품의 비선형 동특성 이해와 최적화</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">부싱 국산화 (부싱 변경 검토)</div>
+      <span class="scenario-badge badge-localization">LOCALIZATION</span>
+    </div>
+    <p class="scenario-desc">해외 부싱 → 국산 부싱 대체 시 동/정 비율, 손실계수 매칭. KC 특성 변화 평가.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day29_수식Simpack매핑.html"><span class="chip-day">D29</span> Simpack 매핑</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 정강성 매칭만으로는 부족. Kd/Ks ≈ 1.2~1.8, 손실계수(tan δ)까지 확인 필수. 주파수별 특성 비교가 핵심.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">탑마운트 강성 최적화</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">전달률 제어와 방진 설계. 탑마운트 고유진동수 설정과 휠홉 공진 회피.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 탑마운트 fn이 휠홉(~12 Hz)과 겹치면 공진. 전달률 > 1 구간 회피가 최우선.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">서브프레임 마운트 강성 검토</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">차체-서브프레임 절연 설계. 진동 전달 경로 차단과 강성 확보 밸런스.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">댐퍼 밸브 특성 튜닝</div>
+      <span class="scenario-badge badge-tuning">TUNING</span>
+    </div>
+    <p class="scenario-desc">바이리니어/트리리니어 댐퍼 특성 최적화. 니 포인트 속도 설정.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day17_댐퍼모델.html"><span class="chip-day">D17</span> 댐퍼 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day03_감쇠비정의.html"><span class="chip-day">D03</span> 감쇠비 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day31_FRF상관성.html"><span class="chip-day">D31</span> FRF 상관성</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 니 포인트 속도(~0.05 m/s)에서 승차감 체감이 지배됨. 저속 감쇠력이 승차감의 80%를 결정.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">범프스톱/리바운드스톱 설계</div>
+      <span class="scenario-badge badge-design">DESIGN</span>
+    </div>
+    <p class="scenario-desc">프로그레시브 강성 설계. 풀바운드 시 충격 저감과 스트로크 제한.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">스프링 타입별 특성 비교</div>
+      <span class="scenario-badge badge-design">DESIGN</span>
+    </div>
+    <p class="scenario-desc">코일/에어/리프 스프링의 강성 특성, 비선형성, 적용 차종별 비교.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 6. NVH · 소음진동 ═══════════ -->
+<div class="scenario-group" id="cat-nvh">
+  <div class="group-header">
+    <span class="group-icon">🔊</span>
+    <div>
+      <div class="group-title">NVH · 소음진동 <span class="scenario-count">6</span></div>
+      <div class="group-desc">가진원 → 전달경로 → 응답점 체계적 분석</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">로드노이즈(Road Noise) 저감</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">노면 가진 → 서스펜션 → 차체 전달 경로 분석. 구조 전달 소음 저감 전략.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 160~300 Hz 대역이 로드노이즈 핵심. 부싱 손실계수(tan δ) 최적화가 1차 대책.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">서스펜션 이음(Squeak & Rattle)</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">부싱 슬립, 스프링 접촉, 볼조인트 유격 등에 의한 이음 원인 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">브레이크 스퀼(Squeal)</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">마찰 자려진동, 모드 커플링에 의한 제동 시 고주파 소음 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day47_디스크브레이크열역학.html"><span class="chip-day">D47</span> 브레이크 열역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 패드-디스크 접촉 모드가 캘리퍼 모드와 결합(mode coupling) 시 스퀼 발생. 심 추가로 모드 분리.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">엔진 아이들 진동 전달</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">엔진 마운트 → 서브프레임 → 차체 전달 경로. 아이들 시 스티어링/시트 진동.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">타이어 패턴 소음 분석</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">타이어 피치 시퀀스와 소음 주파수 관계. 패턴 소음 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day23_푸리에변환.html"><span class="chip-day">D23</span> 푸리에 변환</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">험로 현가 충격음(Bottom Hit)</div>
+      <span class="scenario-badge badge-nvh">NVH</span>
+    </div>
+    <p class="scenario-desc">풀바운드 충격 전달 경로 분석. 범프스톱 간극, 댐퍼 힘, 전달 경로 최적화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day16_스프링특성.html"><span class="chip-day">D16</span> 스프링 특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day17_댐퍼모델.html"><span class="chip-day">D17</span> 댐퍼 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 7. 현장 이슈 대응 · Field Issues ═══════════ -->
+<div class="scenario-group" id="cat-field">
+  <div class="group-header">
+    <span class="group-icon">⚠️</span>
+    <div>
+      <div class="group-title">현장 이슈 대응 · Field Issues <span class="scenario-count">9</span></div>
+      <div class="group-desc">시험장/필드 이슈의 물리적 원인 분석과 대책</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">스파이더(Steering Shimmy)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">60~120 km/h 핸들 떨림. 언스프렁 질량 회전 불균형 → 킹핀축 중심 진동 → 스티어링 칼럼 전달.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day20_TireHop.html"><span class="chip-day">D20</span> TireHop</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day42_랙피니언역학.html"><span class="chip-day">D42</span> 랙피니언 역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 휠 1차 vs 킹핀 주변 fn 교차 분석. 스파이더 주파수가 휠 회전 1차와 일치하면 타이어 밸런스 원인.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">풀링(Steering Pull)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">직진 주행 시 좌/우 쏠림. 캠버 스러스트, 노면 크라운, 좌우 캐스터 차이 등 원인 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 캐스터 좌우 차이 0.5° 이상 → 풀링 급증. 주행 풀링은 캠버(D35), 제동 풀링은 좌우 차압(D49).</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">타이어 편마모 이슈</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">안쪽/바깥쪽/톱니 마모 패턴별 원인 분석과 얼라인먼트 대책.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day44_코너링포스슬립각.html"><span class="chip-day">D44</span> 코너링포스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day57_컴플라이언스스티어.html"><span class="chip-day">D57</span> 컴플라이언스</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 안쪽마모 = 과다 네거티브 캠버, 톱니마모 = 토 과다. 컴플라이언스 토 변화도 확인 필수.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">요잉/원더(Wander)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">미세 방향 불안정. 노면 홈, 컴플라이언스 스티어, EPS 제어 복합 원인.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day57_컴플라이언스스티어.html"><span class="chip-day">D57</span> 컴플라이언스</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day43_전동파워스티어링.html"><span class="chip-day">D43</span> EPS</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">고속 핸들 떨림(Wheel Imbalance)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">타이어/휠 밸런스 불량에 의한 고속 핸들 진동. 1차 불균형력 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day20_TireHop.html"><span class="chip-day">D20</span> TireHop</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day42_랙피니언역학.html"><span class="chip-day">D42</span> 랙피니언 역학</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">제동 시 쏠림(Brake Pull)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">좌우 제동력 차이에 의한 제동 쏠림. 캘리퍼 차압, 디스크 DTV, 얼라인먼트 원인.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">브레이크 저더(Brake Judder)</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">DTV(Disc Thickness Variation) → 제동토크 변동 → 핸들/차체 진동.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day47_디스크브레이크열역학.html"><span class="chip-day">D47</span> 브레이크 열역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day37_킹핀기하학.html"><span class="chip-day">D37</span> 킹핀 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day42_랙피니언역학.html"><span class="chip-day">D42</span> 랙피니언 역학</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — DTV 10 μm 초과 시 저더 체감 시작. 열변형에 의한 DTV 성장 메커니즘 이해가 핵심.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">선회 중 이상 소음</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">스태빌라이저 링크/부싱 마모, 볼조인트 유격에 의한 선회 시 이음.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day54_안티롤바설계.html"><span class="chip-day">D54</span> 안티롤바</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day18_부싱복소강성.html"><span class="chip-day">D18</span> 부싱 복소강성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day42_랙피니언역학.html"><span class="chip-day">D42</span> 랙피니언 역학</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">시운전 이상 진동 원인 진단</div>
+      <span class="scenario-badge badge-issue">ISSUE</span>
+    </div>
+    <p class="scenario-desc">주파수 분석 기반 원인 추적. 엔진 기원 vs 타이어/구동계 기원 판별.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day07_공진조건분석.html"><span class="chip-day">D07</span> 공진 조건</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day23_푸리에변환.html"><span class="chip-day">D23</span> 푸리에 변환</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day05_강제조화진동.html"><span class="chip-day">D05</span> 강제 조화진동</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 엔진 rpm 비례 = 엔진 기원, 차속 비례 = 타이어/구동계 기원. 오더 트래킹이 진단의 첫 단계.</div>
+  </div>
+</div>
+
+<!-- ═══════════ 8. 시뮬레이션 · Simulation ═══════════ -->
+<div class="scenario-group" id="cat-sim">
+  <div class="group-header">
+    <span class="group-icon">💻</span>
+    <div>
+      <div class="group-title">시뮬레이션 · Simulation <span class="scenario-count">5</span></div>
+      <div class="group-desc">수식 → 시뮬레이션 모델 → 실차 상관성 → 디지털 트윈</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">Simpack 쿼터카 모델 구축</div>
+      <span class="scenario-badge badge-sim">SIM</span>
+    </div>
+    <p class="scenario-desc">기본 진동 모델 → Simpack 파라미터 매핑 → 실차 FRF 상관성 확보 전체 플로우.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day29_수식Simpack매핑.html"><span class="chip-day">D29</span> Simpack 매핑</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day30_QuarterCar구현.html"><span class="chip-day">D30</span> QuarterCar 구현</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day31_FRF상관성.html"><span class="chip-day">D31</span> FRF 상관성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day32_CoSimulation.html"><span class="chip-day">D32</span> Co-Simulation</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day33_디지털트윈완성.html"><span class="chip-day">D33</span> 디지털 트윈</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">KC 시뮬레이션 (기구학 검증)</div>
+      <span class="scenario-badge badge-sim">SIM</span>
+    </div>
+    <p class="scenario-desc">서스펜션 기구학 설계 → KC 시뮬레이션 → 실차 KC 데이터 상관성 검증.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day35_캠버기하학.html"><span class="chip-day">D35</span> 캠버 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day36_토기하학.html"><span class="chip-day">D36</span> 토 기하학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">실차-시뮬 상관성 분석</div>
+      <span class="scenario-badge badge-sim">SIM</span>
+    </div>
+    <p class="scenario-desc">FRF 기반 모델 튜닝. 실차 측정 데이터와 시뮬레이션 결과 비교·보정.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day31_FRF상관성.html"><span class="chip-day">D31</span> FRF 상관성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day30_QuarterCar구현.html"><span class="chip-day">D30</span> QuarterCar 구현</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day29_수식Simpack매핑.html"><span class="chip-day">D29</span> Simpack 매핑</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 위상차 ±10° 이내, 진폭비 ±3 dB 이내 = 양호 상관성. 벗어나면 파라미터 재튜닝 필요.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">풀카 시뮬레이션 구축</div>
+      <span class="scenario-badge badge-sim">SIM</span>
+    </div>
+    <p class="scenario-desc">7-DOF+ 풀카 모델 구축. 바운스/피치/롤/요 커플링 모델링.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day29_수식Simpack매핑.html"><span class="chip-day">D29</span> Simpack 매핑</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day30_QuarterCar구현.html"><span class="chip-day">D30</span> QuarterCar 구현</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day33_디지털트윈완성.html"><span class="chip-day">D33</span> 디지털 트윈</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">Co-Simulation 워크플로우</div>
+      <span class="scenario-badge badge-sim">SIM</span>
+    </div>
+    <p class="scenario-desc">Simpack + MATLAB/Simulink 연동. 제어 로직과 플랜트 모델 동시 시뮬레이션.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day32_CoSimulation.html"><span class="chip-day">D32</span> Co-Simulation</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day33_디지털트윈완성.html"><span class="chip-day">D33</span> 디지털 트윈</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day30_QuarterCar구현.html"><span class="chip-day">D30</span> QuarterCar 구현</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day29_수식Simpack매핑.html"><span class="chip-day">D29</span> Simpack 매핑</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 9. EV 전기차 동역학 ═══════════ -->
+<div class="scenario-group" id="cat-ev">
+  <div class="group-header">
+    <span class="group-icon">⚡</span>
+    <div>
+      <div class="group-title">EV 전기차 동역학 <span class="scenario-count">6</span></div>
+      <div class="group-desc">배터리 팩 질량·무게중심 변화 → 서스펜션 재설계</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">EV 전환 시 서스펜션 재설계</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">배터리 팩 탑재로 +300~500 kg 질량 증가. 스프링 레이트, 댐퍼, 범프스톱 전면 재설정.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day51_회생제동시스템.html"><span class="chip-day">D51</span> 회생 제동</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 질량 증가 → 스프링 레이트 재설정 필수. 고유진동수 타겟(1.0~1.3 Hz)은 유지하면서 스프링 강성 증대.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">배터리 팩 무게중심 영향</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">낮은 CG → 롤/피치 거동 변화. 롤 그라디언트 감소, 언더스티어 특성 변화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day38_롤센터안티지오메트리.html"><span class="chip-day">D38</span> 롤센터</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">인휠 모터 언스프렁 질량</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">모터 탑재로 언스프렁 질량 대폭 증가. 타이어홉 고유진동수 하강, 승차감 악화 분석.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day20_TireHop.html"><span class="chip-day">D20</span> TireHop</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day19_타이어수직동특성.html"><span class="chip-day">D19</span> 타이어 동특성</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 언스프렁 질량 2배 → 타이어홉 fn 약 30% 하강. 접지력 변동 증가로 핸들링도 악화.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">원페달 드라이빙 튜닝</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">감속 느낌과 회생량 밸런스. 운전자 기대 감속도와 실제 회생 토크 매칭.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day51_회생제동시스템.html"><span class="chip-day">D51</span> 회생 제동</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day52_통합브레이크시스템.html"><span class="chip-day">D52</span> 통합 브레이크</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day49_제동력배분하중이동.html"><span class="chip-day">D49</span> 제동력 배분</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">EV NVH (마스킹 소실)</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">엔진 소음 없이 로드노이즈/모터 와인이 부각되는 EV 고유 NVH 이슈.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day13_전달률방진설계.html"><span class="chip-day">D13</span> 전달률·방진</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">토크 벡터링 제어</div>
+      <span class="scenario-badge badge-ev">EV</span>
+    </div>
+    <p class="scenario-desc">좌우 모터 독립 제어 → 요모먼트 최적화. 선회 성능 향상과 안정성 양립.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day53_EV차량동역학.html"><span class="chip-day">D53</span> EV 동역학</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day50_ABS_ESC제어.html"><span class="chip-day">D50</span> ABS/ESC</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 10. 설계 프로세스 · Engineering Process ═══════════ -->
+<div class="scenario-group" id="cat-process">
+  <div class="group-header">
+    <span class="group-icon">📋</span>
+    <div>
+      <div class="group-title">설계 프로세스 · Engineering Process <span class="scenario-count">6</span></div>
+      <div class="group-desc">개발 단계별 업무 플로우와 분석 방법론</div>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">신차 서스펜션 사양 확정 플로우</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">전체 개발 프로세스. 콘셉트 → 타겟 설정 → 시뮬레이션 → 시작차 → 양산 확정.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day08_쿼터카모델.html"><span class="chip-day">D08</span> 쿼터카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day34_서스펜션기구학기초.html"><span class="chip-day">D34</span> 기구학 기초</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day33_디지털트윈완성.html"><span class="chip-day">D33</span> 디지털 트윈</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">벤치마킹 분석 방법</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">경쟁사 차량 측정·분석. FRF, KC, 주행 시험 데이터 기반 역설계.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day40_KC시뮬레이션통합.html"><span class="chip-day">D40</span> KC 시뮬레이션</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">FRF 시험/분석 플로우</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">가진-응답 측정 방법론. 임팩트 해머, 가진기(shaker) 활용 전략.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day23_푸리에변환.html"><span class="chip-day">D23</span> 푸리에 변환</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day24_PSD정의.html"><span class="chip-day">D24</span> PSD 정의</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day31_FRF상관성.html"><span class="chip-day">D31</span> FRF 상관성</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 임팩트 해머 vs 가진기(shaker) 선택은 주파수 대역에 따라. 저주파(< 50 Hz)는 가진기, 고주파는 해머가 유리.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">4포스트 리그 시험 활용</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">실내 승차감 재현 시험. 노면 프로파일 재현 → 차체 응답 측정 → 평가.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day25_FRF측정.html"><span class="chip-day">D25</span> FRF 측정</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day10_하프카모델.html"><span class="chip-day">D10</span> 하프카 모델</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day11_하프카모드해석.html"><span class="chip-day">D11</span> 모드 해석</a>
+    </div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">차량 동역학 성능 목표 설정</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">KPI 정의와 목표값 설정. 승차감, 핸들링, 제동 성능 지표 체계화.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day45_언더오버스티어.html"><span class="chip-day">D45</span> U/O스티어</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day46_요응답전달함수.html"><span class="chip-day">D46</span> 요 응답</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day14_노면스펙트럼승차감.html"><span class="chip-day">D14</span> 노면 스펙트럼</a>
+    </div>
+    <div class="scenario-tip">💡 <strong>실무 팁</strong> — 바운스 fn 1.0~1.3 Hz, 요 응답시간 < 0.3s, 롤 그라디언트 3~5°/g 등이 일반적 승용 타겟.</div>
+  </div>
+
+  <div class="scenario-card">
+    <div class="scenario-head">
+      <div class="scenario-name">서스펜션 파라미터 감도 분석</div>
+      <span class="scenario-badge badge-process">PROCESS</span>
+    </div>
+    <p class="scenario-desc">DoE(Design of Experiments) 기반 파라미터 최적화. 주요 인자 식별과 최적 조합 탐색.</p>
+    <div class="lecture-flow">
+      <a class="lecture-chip chip-core" href="Day09_쿼터카고유진동수.html"><span class="chip-day">D09</span> 고유진동수</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day21_승차감트레이드오프.html"><span class="chip-day">D21</span> 트레이드오프</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip chip-core" href="Day30_QuarterCar구현.html"><span class="chip-day">D30</span> QuarterCar 구현</a>
+      <span class="flow-arrow">→</span>
+      <a class="lecture-chip" href="Day33_디지털트윈완성.html"><span class="chip-day">D33</span> 디지털 트윈</a>
+    </div>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

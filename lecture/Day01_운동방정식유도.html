@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 01 — 운동방정식 유도 | Vehicle Dynamics Notes</title>
+
+
+
+<!-- KaTeX Math Rendering -->
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ ① STICKY HEADER ═══════════ -->
+
+
+<div class="container">
+
+<!-- Series Info -->
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 01 —</div>
+  <h1 class="hero-title">운동방정식 유도</h1>
+  <p class="hero-title-en">Equation of Motion — Derivation from Newton's 2nd Law</p>
+  <div class="hero-equation"><span class="hero-math">mẍ + cẋ + kx = F(t)</span></div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:246.5;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">2%</text>
+      <text class="gauge-label" x="50" y="62">DAY 1 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>5단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★☆☆☆</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- ═══════════ ③ 뇌과학 학습 전략 박스 ═══════════ -->
+<div class="section">
+  <div class="section-label">INTUITION</div>
+  <h2 class="section-title">왜 이 수식이 필요한가?</h2>
+    <div style="background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,229,255,.03));border:1px solid rgba(26,82,118,.2);border-radius:10px;padding:14px 20px;margin:20px 0;font-size:13px;">
+      <strong style="color:var(--cyan);">💡 수식 유도 읽는 법</strong> — 각 STEP의 <span style="color:var(--blue);">파란색 라벨</span>은 "왜 이 변환을 하는가"를 설명합니다. 수식만 보지 말고 <span style="color:var(--cyan-light);">동기 $\rightarrow$ 변환 $\rightarrow$ 의미</span> 순서로 읽으세요. 눈으로 3번 읽는 것보다 <strong>손으로 1번 쓰는 것</strong>이 기억에 4배 효과적입니다.
+    </div>
+
+
+  <div class="intuition-card">
+    <p>당신이 10년간 다뤄온 서스펜션 시스템을 가장 단순하게 추상화하면 <span class="highlight">질량(m) 하나, 스프링(k) 하나, 댐퍼(c) 하나</span>로 귀결됩니다. K&C 시험에서 측정하는 스프링 레이트, 쇽업쇼버 다이노에서 뽑는 속도-하중 선도(F-v curve) — 이 모든 데이터가 결국 하나의 2차 상미분방정식에 수렴합니다.</p>
+    <p>차가 노면 요철을 만났을 때, 차체(스프렁 매스)가 어떻게 반응하는가? 이 질문에 대한 수학적 답이 바로 오늘 유도할 <span class="highlight">mẍ + cẋ + kx = F(t)</span>입니다.</p>
+    <p>이 하나의 식을 완전히 이해하면, 이후 2DOF Quarter Car, Half Car, Full Vehicle 모델은 모두 이 식의 "확장판"일 뿐입니다. 오늘이 33일 여정의 가장 중요한 주춧돌입니다.</p>
+  </div>
+
+  <!-- SVG Diagram A: 1DOF 물리계 모식도 -->
+  <div class="diagram-wrap">
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 380" width="500" height="380" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <!-- Ground / Base -->
+      <rect x="100" y="340" width="300" height="8" rx="2" fill="rgba(0,229,255,0.15)"/>
+      <line x1="110" y1="348" x2="100" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="140" y1="348" x2="130" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="170" y1="348" x2="160" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="200" y1="348" x2="190" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="230" y1="348" x2="220" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="260" y1="348" x2="250" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="290" y1="348" x2="280" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="320" y1="348" x2="310" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="350" y1="348" x2="340" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+      <line x1="380" y1="348" x2="370" y2="360" stroke="#7A7A8A" stroke-width="1.5"/>
+
+      <!-- Spring (left side) -->
+      <line x1="190" y1="340" x2="190" y2="310" stroke="#1e7e34" stroke-width="2"/>
+      <polyline points="190,310 175,300 205,285 175,270 205,255 175,240 205,225 190,215"
+        fill="none" stroke="#1e7e34" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="190" y1="215" x2="190" y2="180" stroke="#1e7e34" stroke-width="2"/>
+      <text x="145" y="270" font-family="JetBrains Mono" font-size="16" fill="#1e7e34" font-weight="500">k</text>
+
+      <!-- Damper (right side) -->
+      <line x1="310" y1="340" x2="310" y2="305" stroke="#2471a3" stroke-width="2"/>
+      <rect x="295" y="270" width="30" height="35" rx="2" fill="none" stroke="#2471a3" stroke-width="2"/>
+      <line x1="310" y1="270" x2="310" y2="240" stroke="#2471a3" stroke-width="2"/>
+      <line x1="302" y1="240" x2="318" y2="240" stroke="#2471a3" stroke-width="2.5"/>
+      <line x1="310" y1="240" x2="310" y2="180" stroke="#2471a3" stroke-width="2"/>
+      <text x="335" y="280" font-family="JetBrains Mono" font-size="16" fill="#2471a3" font-weight="500">c</text>
+
+      <!-- Mass block -->
+      <rect x="155" y="140" width="190" height="40" rx="6" fill="rgba(0,229,255,0.06)" stroke="url(#cyberGrad)" stroke-width="2"/>
+      <text x="250" y="166" font-family="JetBrains Mono" font-size="18" fill="#2471a3" text-anchor="middle" font-weight="500">m</text>
+
+      <!-- x(t) displacement arrow -->
+      <line x1="370" y1="180" x2="370" y2="110" stroke="#2471a3" stroke-width="2" marker-end="url(#arrowGold)"/>
+      <text x="385" y="145" font-family="JetBrains Mono" font-size="14" fill="#2471a3">x(t)</text>
+
+      <!-- F(t) external force arrow -->
+      <line x1="250" y1="100" x2="250" y2="140" stroke="#ff9100" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+      <text x="260" y="95" font-family="JetBrains Mono" font-size="14" fill="#ff9100">F(t)</text>
+
+      <!-- Coordinate label -->
+      <text x="50" y="330" font-family="Noto Sans KR" font-size="11" fill="#4a6a8a">기준: 정적평형점</text>
+      <text x="50" y="345" font-family="Noto Sans KR" font-size="11" fill="#4a6a8a">↑ x 양(+) 방향</text>
+
+      <!-- Labels -->
+      <text x="155" y="376" font-family="Noto Sans KR" font-size="11" fill="#4a6a8a">스프링(복원력)</text>
+      <text x="290" y="376" font-family="Noto Sans KR" font-size="11" fill="#4a6a8a">댐퍼(감쇠력)</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrowGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#2471a3"/>
+        </marker>
+        <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ff9100"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+<!-- ═══════════ ⑤ 수식 단계별 풀이 섹션 ═══════════ -->
+<div class="section">
+  <div class="section-label">DERIVATION</div>
+  <h2 class="section-title">수식 한 줄씩 유도</h2>
+
+  <!-- STEP 1 -->
+  <div class="deriv-card" style="animation: fadeUp 0.5s ease both; animation-delay:0.1s">
+    <div class="deriv-step-num">STEP 1 — 뉴턴 제2법칙 선언</div>
+    <div class="deriv-equation"><span class="katex-eq">$$ΣF = ma = mẍ$$</span>
+    </div>
+    <div class="deriv-explain">
+      <p><span class="label">이 항의 의미:</span> 질량 m에 작용하는 모든 힘의 합(ΣF)은 질량 $\times$ 가속도와 같다. 여기서 ẍ은 변위 x를 시간 t로 두 번 미분한 가속도입니다.</p>
+      <p><span class="label">왜 여기서 시작하는가:</span> 뉴턴 제2법칙은 모든 동역학의 출발점입니다. 서스펜션 시스템에서 스프렁 매스(차체)에 어떤 힘들이 작용하는지 하나씩 규명하면, 이 법칙이 자동으로 운동방정식을 만들어줍니다.</p>
+    </div>
+  </div>
+
+  <div class="arrow-connector">↓</div>
+
+  <!-- STEP 2 -->
+  <div class="deriv-card" style="animation: fadeUp 0.5s ease both; animation-delay:0.2s">
+    <div class="deriv-step-num">STEP 2 — 스프링 복원력 정의</div>
+    <div class="deriv-equation"><span class="katex-eq">$$F_{\text{spring}} = −kx$$</span>
+    </div>
+    <div class="deriv-explain">
+      <p><span class="label">이 항의 의미:</span> 스프링이 변위 x만큼 늘어나거나 압축되면, 원래 위치로 되돌아가려는 복원력을 발생시킵니다. 크기는 스프링 상수 k에 변위 x를 곱한 것입니다.</p>
+      <p><span class="label">부호가 (−)인 이유:</span> 변위 방향과 반대로 힘이 작용합니다. x가 양(+) 방향(위쪽)으로 움직이면 스프링은 아래쪽(−)으로 당깁니다. 이것이 "복원"의 본질입니다.</p>
+      <p><span class="label">현업 연결:</span> K&C 시험에서 측정하는 Wheel Rate가 바로 이 k입니다. 일반적인 승용차 프론트 서스펜션: k $\approx$ 15~30 N/mm.</p>
+    </div>
+  </div>
+
+  <div class="arrow-connector">↓</div>
+
+  <!-- STEP 3 -->
+  <div class="deriv-card" style="animation: fadeUp 0.5s ease both; animation-delay:0.3s">
+    <div class="deriv-step-num">STEP 3 — 댐퍼 감쇠력 정의</div>
+    <div class="deriv-equation"><span class="katex-eq">$$F_{\text{damper}} = −cẋ$$</span>
+    </div>
+    <div class="deriv-explain">
+      <p><span class="label">이 항의 의미:</span> 댐퍼(쇽업쇼버)는 속도에 비례하는 저항력을 생성합니다. ẋ은 변위를 시간으로 한 번 미분한 속도입니다. c는 감쇠계수(damping coefficient)입니다.</p>
+      <p><span class="label">부호가 (−)인 이유:</span> 댐퍼는 항상 운동을 저항합니다. 질량이 위로 올라가면(ẋ > 0) 아래로 끌어내리고, 내려가면(ẋ < 0) 위로 밀어줍니다. 항상 속도의 반대 방향입니다.</p>
+      <p><span class="label">현업 연결:</span> 쇽업쇼버 다이노에서 측정하는 F-v 선도(속도-하중 다이어그램)에서 기울기가 바로 이 c입니다. 실제로는 비선형이지만, 선형 근사의 출발점이 이 항입니다. 바운드(compression) c $\approx$ 1.0~2.0 kN·s/m, 리바운드(extension) c $\approx$ 2.0~4.0 kN·s/m이 일반적입니다.</p>
+    </div>
+  </div>
+
+  
+    <div class="checkpoint"><strong>✓ 물리적 직관 체크:</strong> 이 수식에서 각 항의 물리적 의미를 손가락으로 짚으며 설명할 수 있나요? "이 항은 ___를 의미하고, 저 항은 ___의 영향"이라고 말해보세요.</div>
+    <div class="arrow-connector">↓</div>
+
+  <div class="checkpoint">✓ 여기까지: 3가지 힘을 모두 정의했습니다 — 관성력(mẍ), 복원력(−kx), 감쇠력(−cẋ). 이제 합산합니다.</div>
+
+  <!-- STEP 4 -->
+  <div class="deriv-card" style="animation: fadeUp 0.5s ease both; animation-delay:0.4s">
+    <div class="deriv-step-num">STEP 4 — 힘의 합산 (Newton's 2nd Law 적용)</div>
+    <div class="deriv-equation"><span class="katex-eq">$$F(t) + (−kx) + (−cẋ) = mẍ$$</span>
+    </div>
+    <div class="deriv-explain">
+      <p><span class="label">이 항의 의미:</span> 질량 m에 작용하는 모든 힘을 좌변에 나열합니다. 외력 F(t), 스프링 복원력 −kx, 댐퍼 감쇠력 −cẋ. 이 합이 관성력 mẍ과 같습니다.</p>
+      <p><span class="label">이전 줄에서 변환된 이유:</span> STEP 1의 ΣF = mẍ에서, ΣF를 구체적으로 풀어 쓴 것입니다. STEP 2와 3에서 정의한 각각의 힘을 대입했습니다.</p>
+      <p><span class="label">물리적 의미:</span> 외력 F(t)가 노면 입력이라면, 이것이 스프링과 댐퍼에 의해 어떻게 "걸러지는지"를 기술합니다.</p>
+    </div>
+  </div>
+
+  <div class="arrow-connector">↓</div>
+
+  <!-- STEP 5 -->
+  <div class="deriv-card" style="animation: fadeUp 0.5s ease both; animation-delay:0.5s">
+    <div class="deriv-step-num">STEP 5 — 표준형 정리</div>
+    <div class="deriv-equation"><span class="katex-eq">$$mẍ + cẋ + kx = F(t)$$</span>
+    </div>
+    <div class="deriv-explain">
+      <p><span class="label">이 항의 의미:</span> STEP 4의 양변을 정리하여 "시스템 특성(좌변) = 외부 입력(우변)" 형태로 만들었습니다. 이것이 <strong>1자유도 강제진동의 운동방정식</strong>, 즉 오늘의 최종 결과입니다.</p>
+      <p><span class="label">이전 줄에서 변환된 이유:</span> STEP 4에서 −kx와 −cẋ을 우변(mẍ 쪽)으로 이항하면, 부호가 바뀌어 +kx, +cẋ이 됩니다. mẍ + cẋ + kx = F(t).</p>
+      <p><span class="label">각 항의 역할 정리:</span></p>
+      <p>· <span style="color:var(--cyan-light);">mẍ</span> — 관성항: 질량이 가속에 저항하는 성질. 무거울수록 잘 안 움직임</p>
+      <p>· <span style="color:var(--cyan-light);">cẋ</span> — 감쇠항: 에너지를 소산(열로 변환). 진동을 죽이는 역할</p>
+      <p>· <span style="color:var(--cyan-light);">kx</span> — 강성항: 변위에 비례하는 복원력. 진동의 주파수를 결정</p>
+      <p>· <span style="color:var(--cyan-light);">F(t)</span> — 외력: 노면 입력, 엔진 진동 등 시스템 외부에서 들어오는 힘</p>
+    </div>
+  </div>
+
+  <div class="checkpoint">✓ 유도 완료! 뉴턴 제2법칙에서 출발하여, 5단계 만에 1DOF 운동방정식을 완성했습니다. 이 식이 앞으로 33일의 모든 출발점입니다.</div>
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① 뉴턴 제2법칙에서 1-DOF 운동방정식</p>
+    <div class="sub-eq">$$m\ddot{x} + c\dot{x} + kx = F(t)$$</div>
+    <div class="sub-eq">$$\text{자유물체도: } \sum F = F_{ext} - F_{spring} - F_{damper} = m\ddot{x}$$</div>
+    <div class="sub-eq">$$F_{spring} = kx, \quad F_{damper} = c\dot{x}$$</div>
+    <p class="sub-note">모든 차량 동역학의 출발점. 스프링=복원력(위치 비례), 댐퍼=감쇠력(속도 비례)</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 고유진동수와 감쇠비 정의</p>
+    <div class="sub-eq">$$\omega_n = \sqrt{\frac{k}{m}} \quad [\text{rad/s}], \quad f_n = \frac{\omega_n}{2\pi} \quad [\text{Hz}]$$</div>
+    <div class="sub-eq">$$\zeta = \frac{c}{2\sqrt{km}} = \frac{c}{c_{cr}}$$</div>
+    <div class="sub-eq">$$c_{cr} = 2\sqrt{km} = 2m\omega_n$$</div>
+    <p class="sub-note">승용차 서스펜션: $f_n$ $\approx$ 1.0-1.5 Hz, $\zeta \approx$ 0.2-0.4. 스포츠카: $\zeta \approx$ 0.4-0.6</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ 표준형 변환</p>
+    <div class="sub-eq">$$\ddot{x} + 2\zeta\omega_n\dot{x} + \omega_n^2 x = \frac{F(t)}{m}$$</div>
+    <div class="sub-eq">$$\text{양변을 } m \text{으로 나누어 무차원화}$$</div>
+    <p class="sub-note">표준형은 시스템 특성을 $\omega_n$ 과 $\zeta$ 두 파라미터로 완전히 기술. 모든 교과서의 출발점</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ 에너지 관점 검증</p>
+    <div class="sub-eq">$$E_{total} = \frac{1}{2}m\dot{x}^2 + \frac{1}{2}kx^2$$</div>
+    <div class="sub-eq">$$\frac{dE}{dt} = -c\dot{x}^2 \leq 0 \quad (\text{에너지 소산 확인})$$</div>
+    <p class="sub-note">감쇠 시스템의 총 에너지는 항상 감소 $\rightarrow$ 안정성의 물리적 근거. Lyapunov 안정성과 연결</p>
+  </div>
+</div>
+
+
+</div>
+<!-- ═══════════ ⑥ 수식 파라미터 완전 해부 테이블 ═══════════ -->
+<div class="section">
+  <div class="section-label">PARAMETERS</div>
+  <h2 class="section-title">수식 파라미터 완전 해부</h2>
+
+  <div class="param-table-wrap">
+    <table class="param-table">
+      <thead>
+        <tr>
+          <th>기호</th>
+          <th>명칭 (한/영)</th>
+          <th>단위</th>
+          <th>물리적 의미</th>
+          <th>차량 부품</th>
+          <th>전형적 범위</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sym">m</span></td>
+          <td>질량 / Mass</td>
+          <td>kg</td>
+          <td>관성의 크기. 클수록 가속에 저항</td>
+          <td>스프렁 매스(차체+탑승자) 또는 언스프렁 매스(너클+휠+타이어)</td>
+          <td>스프렁: 250~500 kg (1/4 차량)<br>언스프렁: 30~60 kg</td>
+        </tr>
+        <tr>
+          <td><span class="sym">k</span></td>
+          <td>강성계수 / Spring Rate</td>
+          <td>N/m<br>(N/mm)</td>
+          <td>변위 1단위당 복원력. 클수록 딱딱함</td>
+          <td>코일 스프링, 에어 스프링, 토션바</td>
+          <td>프론트: 15~30 N/mm<br>리어: 18~35 N/mm</td>
+        </tr>
+        <tr>
+          <td><span class="sym">c</span></td>
+          <td>감쇠계수 / Damping Coeff.</td>
+          <td>N·s/m<br>(kN·s/m)</td>
+          <td>속도 1단위당 저항력. 에너지 소산</td>
+          <td>쇽업쇼버(모노튜브/트윈튜브)</td>
+          <td>바운드: 1.0~2.5 kN·s/m<br>리바운드: 2.0~5.0 kN·s/m</td>
+        </tr>
+        <tr>
+          <td><span class="sym">x</span></td>
+          <td>변위 / Displacement</td>
+          <td>m (mm)</td>
+          <td>정적평형점으로부터의 이동 거리</td>
+          <td>서스펜션 스트로크, 차체 수직 변위</td>
+          <td>$\pm$30~80 mm (정상 주행)</td>
+        </tr>
+        <tr>
+          <td><span class="sym">ẋ</span></td>
+          <td>속도 / Velocity</td>
+          <td>m/s</td>
+          <td>변위의 시간 미분 = 운동 속도</td>
+          <td>쇽업쇼버 피스톤 속도</td>
+          <td>0~2.0 m/s (일반 노면)</td>
+        </tr>
+        <tr>
+          <td><span class="sym">ẍ</span></td>
+          <td>가속도 / Acceleration</td>
+          <td>m/s²</td>
+          <td>속도의 시간 미분 = 가속도</td>
+          <td>차체 수직가속도 (승차감 지표)</td>
+          <td>0~5 m/s² (ISO 2631 기준)</td>
+        </tr>
+        <tr>
+          <td><span class="sym">F(t)</span></td>
+          <td>외력 / External Force</td>
+          <td>N</td>
+          <td>시간에 따라 변하는 외부 입력 힘</td>
+          <td>노면 가진, 엔진/드라이브트레인 진동</td>
+          <td>노면 가진: 0~수천 N</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- ═══════════ ⑦ SVG 다이어그램 B — 응답 곡선 ═══════════ -->
+<div class="section">
+  <div class="section-label">DIAGRAMS</div>
+  <h2 class="section-title">핵심 다이어그램</h2>
+  <div class="diagram-wrap">
+    <div class="diagram-label">1자유도 질량-스프링-댐퍼 시스템</div>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+  <text x="210" y="20" text-anchor="middle" fill="#4a6a8a" font-size="12" font-family="JetBrains Mono">1-DOF Mass-Spring-Damper</text>
+  <!-- Wall -->
+  <line x1="60" y1="60" x2="60" y2="220" stroke="#7A7A8A" stroke-width="3"/>
+  <line x1="40" y1="60" x2="60" y2="80" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="80" x2="60" y2="100" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="100" x2="60" y2="120" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="120" x2="60" y2="140" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="140" x2="60" y2="160" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="160" x2="60" y2="180" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="180" x2="60" y2="200" stroke="#7A7A8A" stroke-width="1.5"/>
+  <line x1="40" y1="200" x2="60" y2="220" stroke="#7A7A8A" stroke-width="1.5"/>
+  <!-- Spring -->
+  <line x1="60" y1="110" x2="90" y2="110" stroke="#1e7e34" stroke-width="2"/>
+  <path d="M90,110 L100,90 L120,130 L140,90 L160,130 L180,90 L200,130 L210,110" fill="none" stroke="#1e7e34" stroke-width="2"/>
+  <line x1="210" y1="110" x2="250" y2="110" stroke="#1e7e34" stroke-width="2"/>
+  <text x="150" y="80" text-anchor="middle" fill="#1e7e34" font-size="13" font-weight="bold">k</text>
+  <!-- Damper -->
+  <line x1="60" y1="170" x2="110" y2="170" stroke="#6c3483" stroke-width="2"/>
+  <rect x="110" y="155" width="60" height="30" fill="none" stroke="#6c3483" stroke-width="2" rx="2"/>
+  <line x1="140" y1="155" x2="140" y2="185" stroke="#6c3483" stroke-width="1.5"/>
+  <line x1="170" y1="170" x2="250" y2="170" stroke="#6c3483" stroke-width="2"/>
+  <text x="140" y="205" text-anchor="middle" fill="#6c3483" font-size="13" font-weight="bold">c</text>
+  <!-- Mass -->
+  <rect x="250" y="90" width="80" height="100" rx="8" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <text x="290" y="145" text-anchor="middle" fill="#2471a3" font-size="16" font-weight="bold">m</text>
+  <!-- Displacement arrow -->
+  <line x1="290" y1="200" x2="360" y2="200" stroke="#ff9100" stroke-width="2"/>
+  <polygon points="360,195 370,200 360,205" fill="#ff9100"/>
+  <text x="370" y="205" fill="#ff9100" font-size="12">x(t)</text>
+  <!-- Force arrow -->
+  <line x1="330" y1="140" x2="390" y2="140" stroke="#2471a3" stroke-width="2"/>
+  <polygon points="390,135 400,140 390,145" fill="#2471a3"/>
+  <text x="395" y="145" fill="#2471a3" font-size="12">F(t)</text>
+</svg>
+  </div>
+  <div class="diagram-wrap">
+    <div class="diagram-label">자유물체도 (FBD)</div>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 380 260" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+  <text x="190" y="20" text-anchor="middle" fill="#4a6a8a" font-size="12" font-family="JetBrains Mono">Free Body Diagram</text>
+  <!-- Mass block -->
+  <rect x="130" y="80" width="100" height="80" rx="8" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <text x="180" y="125" text-anchor="middle" fill="#2471a3" font-size="16" font-weight="bold">m</text>
+  <!-- Spring force (left) -->
+  <line x1="130" y1="100" x2="50" y2="100" stroke="#1e7e34" stroke-width="2"/>
+  <polygon points="55,95 45,100 55,105" fill="#1e7e34"/>
+  <text x="70" y="90" fill="#1e7e34" font-size="12">−kx</text>
+  <!-- Damper force (left) -->
+  <line x1="130" y1="140" x2="50" y2="140" stroke="#6c3483" stroke-width="2"/>
+  <polygon points="55,135 45,140 55,145" fill="#6c3483"/>
+  <text x="70" y="165" fill="#6c3483" font-size="12">−cẋ</text>
+  <!-- External force (right) -->
+  <line x1="230" y1="120" x2="330" y2="120" stroke="#ff9100" stroke-width="2.5"/>
+  <polygon points="325,115 335,120 325,125" fill="#ff9100"/>
+  <text x="300" y="110" fill="#ff9100" font-size="13" font-weight="bold">F(t)</text>
+  <!-- Acceleration -->
+  <line x1="180" y1="160" x2="180" y2="220" stroke="#2471a3" stroke-width="2"/>
+  <polygon points="175,215 180,225 185,215" fill="#2471a3"/>
+  <text x="195" y="230" fill="#2471a3" font-size="12">mẍ</text>
+  <!-- Equation -->
+  <text x="190" y="255" text-anchor="middle" fill="#c0d8ef" font-size="12">mẍ + cẋ + kx = F(t)</text>
+</svg>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">SIMPACK</div>
+  <h2 class="section-title">Simpack 입력 매핑</h2>
+
+  <div class="simpack-module">
+    <div class="simpack-header">
+      <span class="simpack-badge">SIMPACK</span>
+      <span>1DOF 진동계 파라미터 입력 가이드</span>
+    </div>
+    <div class="simpack-body">
+
+      <div class="sp-workflow">
+        <div class="sp-wf-step">
+          <span class="wf-num">①</span>
+          <span class="wf-title">모델 생성</span>
+          <span class="wf-desc">Body + Joint + Force 정의</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">②</span>
+          <span class="wf-title">해석 실행</span>
+          <span class="wf-desc">시간영역/주파수영역 선택</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">③</span>
+          <span class="wf-title">결과 검증</span>
+          <span class="wf-desc">해석해와 수치 비교</span>
+        </div>
+      </div>
+
+
+      <!-- m -->
+      <div class="simpack-row">
+        <div class="sp-sym">m — 질량 (Mass Body)</div>
+        <div class="sp-path">Bodies $\rightarrow$ Add Body $\rightarrow$ Rigid Body $\rightarrow$ Properties $\rightarrow$ Mass</div>
+        <div class="sp-detail">
+          <strong>입력 필드:</strong> Mass [kg]<br>
+          <strong>단위:</strong> kg (Simpack 기본 SI 단위계)<br>
+          <strong>전형적 범위:</strong> 스프렁 매스 1/4 차량 기준 250~500 kg<br>
+          <strong>클릭 시퀀스:</strong> Model Tree $\rightarrow$ Bodies $\rightarrow$ 우클릭 "Add" $\rightarrow$ Rigid Body $\rightarrow$ "Properties" 탭 $\rightarrow$ Mass 필드에 값 입력
+        </div>
+        <div class="sp-warn">⚠ 관성 모멘트(Ixx, Iyy, Izz)도 함께 정의해야 합니다. 1DOF 수직 운동만 다룰 때는 질량만 중요하지만, Simpack은 3D Body이므로 모멘트도 필수 입력입니다. 임의의 작은 값(예: 1 kg·m²)을 넣어두세요.</div>
+      </div>
+
+      <!-- k -->
+      <div class="simpack-row">
+        <div class="sp-sym">k — 스프링 강성 (Spring Force Element)</div>
+        <div class="sp-path">Force Elements $\rightarrow$ Add $\rightarrow$ Spring-Damper (Type 04) $\rightarrow$ Stiffness</div>
+        <div class="sp-detail">
+          <strong>입력 필드:</strong> Stiffness [N/m]<br>
+          <strong>단위:</strong> N/m (주의: N/mm 아님! 변환 필요)<br>
+          <strong>전형적 범위:</strong> 15,000~35,000 N/m (= 15~35 N/mm)<br>
+          <strong>클릭 시퀀스:</strong> Model Tree $\rightarrow$ Force Elements $\rightarrow$ 우클릭 "Add" $\rightarrow$ Spring Damper Parallel (Type 04) $\rightarrow$ "Parameters" 탭 $\rightarrow$ Stiffness 필드
+        </div>
+        <div class="sp-warn">⚠ 단위 주의! 현업에서 N/mm을 쓰지만 Simpack은 N/m입니다. 반드시 $\times$1000 변환하세요. 20 N/mm $\rightarrow$ 20,000 N/m.</div>
+      </div>
+
+      <!-- c -->
+      <div class="simpack-row">
+        <div class="sp-sym">c — 감쇠계수 (Damper Force Element)</div>
+        <div class="sp-path">Force Elements $\rightarrow$ Spring-Damper (Type 04) $\rightarrow$ Damping</div>
+        <div class="sp-detail">
+          <strong>입력 필드:</strong> Damping [N·s/m]<br>
+          <strong>단위:</strong> N·s/m<br>
+          <strong>전형적 범위:</strong> 1,000~5,000 N·s/m (= 1.0~5.0 kN·s/m)<br>
+          <strong>클릭 시퀀스:</strong> (위 Spring-Damper와 동일 Force Element 내) "Parameters" 탭 $\rightarrow$ Damping 필드
+        </div>
+        <div class="sp-warn">⚠ Simpack의 Type 04 Spring-Damper는 k와 c를 하나의 Force Element에 병렬로 정의합니다. 직렬 모델(Maxwell)이 필요하면 별도 User Force Element을 사용해야 합니다.</div>
+      </div>
+
+      <!-- F(t) -->
+      <div class="simpack-row">
+        <div class="sp-sym">F(t) — 외력 (Excitation)</div>
+        <div class="sp-path">Excitations $\rightarrow$ Add $\rightarrow$ Force Excitation 또는 Road Profile</div>
+        <div class="sp-detail">
+          <strong>입력 필드:</strong> Force [N] 또는 Time History 데이터 파일(.dat)<br>
+          <strong>단위:</strong> N (힘 직접 입력) 또는 m (노면 프로파일 높이)<br>
+          <strong>클릭 시퀀스:</strong> Model Tree $\rightarrow$ Excitations $\rightarrow$ 우클릭 "Add" $\rightarrow$ 가진 유형 선택 $\rightarrow$ Time History의 경우 .dat 파일 경로 지정
+        </div>
+        <div class="sp-warn">⚠ 노면 입력을 모델링할 때는 "Base Excitation"(지반 가진) 방식을 사용합니다. 이 경우 F(t) 대신 지면 변위 y(t)를 입력하며, 운동방정식이 약간 달라집니다 (Day 09에서 다룸).</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ═══════════ ⑨ Deep Dive (Accordion) ═══════════ -->
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">심화 학습</h2>
+
+  <!-- Deep Dive 1: 정적평형점 좌표계 (enhanced) -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>💡 왜 자중(mg)이 운동방정식에 없는가?</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive1">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">정적평형점 기준 좌표계의 핵심</h4>
+        <p>운동방정식 mẍ + cẋ + kx = F(t)를 보면, 중력 mg 항이 없습니다. "무거운 차체가 아래로 당겨지는 힘은 어디 갔지?" — 이것이 많은 엔지니어가 처음 갖는 의문입니다.</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">정적 평형: $mg = k \cdot x_{st} \rightarrow$ 동적 변위 $x(t)$ 는 평형점 기준이므로 $m\ddot{x} + c\dot{x} + kx = F(t)$ 에 $mg$ 없음</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">정적 처짐: $x_{st} = \frac{mg}{k}$, &nbsp; 고유진동수: $\omega_n = \sqrt{\frac{k}{m}} = \sqrt{\frac{g}{x_{st}}}$</p>
+        <p><strong style="color:var(--cyan-light);">핵심:</strong> x의 기준점을 "정적평형점(Static Equilibrium Position)"으로 잡았기 때문입니다.</p>
+        <p>차가 가만히 서 있을 때, 스프링은 이미 차체 무게만큼 압축되어 있습니다:</p>
+        <div class="deriv-equation"><span class="katex-eq">$$mg = kx_st \rightarrow x_st = mg/k$$</span></div>
+        <p>실제 변위 X를 X = $x_{st}$ + x로 놓고 대입하면:</p>
+        <div class="deriv-equation"><span class="katex-eq">$$m\ddot{x} + c\dot{x} + k(x_st + x) = F(t) + mg$$</span></div>
+        <p>kx_st = mg이므로 양변에서 상쇄:</p>
+        <div class="deriv-equation"><span class="katex-eq">$$m\ddot{x} + c\dot{x} + kx = F(t) ✓$$</span></div>
+
+        <h4 style="color:var(--blue);margin:20px 0 12px;">레퍼런스 차량 수치 예제</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:rgba(41,121,255,.08);padding:12px;border-radius:8px;border-left:3px solid var(--blue);">
+            <strong style="color:var(--blue);">프론트 (1/4 차량)</strong><br>
+            $m_s = 340$ kg, $k_s = 22$ N/mm<br>
+            $x_{st}$ = (340 $\times$ 9.81) / 22,000<br>
+            <span style="color:var(--cyan-light);">= 0.1517 m $\approx$ 152 mm</span>
+          </div>
+          <div style="background:rgba(41,121,255,.08);padding:12px;border-radius:8px;border-left:3px solid var(--blue);">
+            <strong style="color:var(--blue);">리어 (1/4 차량)</strong><br>
+            $m_s = 280$ kg, $k_s = 25$ N/mm<br>
+            $x_{st}$ = (280 $\times$ 9.81) / 25,000<br>
+            <span style="color:var(--cyan-light);">= 0.1099 m $\approx$ 110 mm</span>
+          </div>
+        </div>
+        <p style="color:var(--green);margin-top:12px;">💡 실무에서 정적 처짐량($x_{st}$)은 서스펜션 설계의 출발점입니다. 이 값이 스트로크 범위를 결정하고, 범프스톱/리바운드스톱 세팅의 기준이 됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 2: 라그랑지 방정식 대안 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🔬 뉴턴 vs 라그랑지 — 두 가지 유도법 비교</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive2">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">라그랑지 방정식으로 같은 결과 얻기</h4>
+        <p>뉴턴의 제2법칙(Force Balance)은 직관적이지만, 다자유도계(Multi-DOF)에서는 좌표 변환이 복잡해집니다. 라그랑지 방정식은 <strong>에너지 기반 접근</strong>으로 같은 결과를 더 체계적으로 얻습니다.</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">뉴턴: $\sum F = m\ddot{x} \rightarrow$ 직접 힘 합산 &nbsp;|&nbsp; 라그랑지: $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}} - \frac{\partial L}{\partial q} = Q$</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">라그랑지안: $L = T - V = \frac{1}{2}m\dot{x}^2 - \frac{1}{2}kx^2$, &nbsp; 소산함수: $D = \frac{1}{2}c\dot{x}^2$</p>
+<p style="margin:10px 0;color:var(--cyan-light);"><strong>르노코리아 실무 Tip:</strong> Simpack은 내부적으로 라그랑지 방정식을 사용합니다. 구속조건이 많은 멀티바디에선 뉴턴법보다 라그랑지가 효율적입니다.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;">
+          <div style="background:rgba(26,82,118,.06);padding:14px;border-radius:8px;border-left:3px solid var(--gold);">
+            <strong style="color:var(--cyan-light);">뉴턴 접근 (오늘 사용)</strong><br>
+            <span style="font-family:'JetBrains Mono';font-size:13px;">ΣF = ma $\rightarrow$ 힘 나열 $\rightarrow$ 합산</span><br>
+            ✅ 직관적, FBD와 연계<br>
+            ❌ 구속력 처리 복잡
+          </div>
+          <div style="background:rgba(179,136,255,.06);padding:14px;border-radius:8px;border-left:3px solid var(--purple);">
+            <strong style="color:var(--purple);">라그랑지 접근</strong><br>
+            <span style="font-family:'JetBrains Mono';font-size:13px;">L = T − V $\rightarrow$ d/dt(∂L/∂q̇) − ∂L/∂q = Q</span><br>
+            ✅ 에너지만으로 유도, 좌표 자유<br>
+            ❌ 물리적 직관 약함
+          </div>
+        </div>
+
+        <h4 style="color:var(--purple);margin:16px 0 8px;">1DOF 라그랑지 유도</h4>
+        <p><strong>1단계:</strong> 운동에너지 T, 위치에너지 V 정의</p>
+        <div class="deriv-equation"><span class="katex-eq">$$T = \frac{1}{2}m\dot{x}^2, V = \frac{1}{2}kx^2$$</span></div>
+        <p><strong>2단계:</strong> 라그랑지안 L = T − V 구성</p>
+        <div class="deriv-equation"><span class="katex-eq">$$L = \frac{1}{2}m\dot{x}^2 - \frac{1}{2}kx^2$$</span></div>
+        <p><strong>3단계:</strong> 오일러-라그랑지 방정식 적용</p>
+        <div class="deriv-equation"><span class="katex-eq">$$d/dt(\partialL/\partial\dot{x}) - \partialL/\partialx + \partialD/\partial\dot{x} = F(t)$$</span></div>
+        <p>여기서 D = ½cẋ² (레일리 소산함수)</p>
+        <p><strong>4단계:</strong> 편미분 계산</p>
+        <div class="deriv-equation"><span class="katex-eq">$$\partialL/\partial\dot{x} = m\dot{x} \rightarrow d/dt(m\dot{x}) = m\ddot{x}$$</span></div>
+        <div class="deriv-equation"><span class="katex-eq">$$\partialL/\partialx = -kx, \partialD/\partial\dot{x} = c\dot{x}$$</span></div>
+        <p><strong>5단계:</strong> 결과</p>
+        <div class="deriv-equation"><span class="katex-eq">$$m\ddot{x} + c\dot{x} + kx = F(t) ✓$$</span></div>
+        <p style="color:var(--green);">💡 뉴턴과 완전히 동일한 결과! 1DOF에서는 뉴턴이 빠르지만, Day 17~20의 다자유도계에서 라그랑지가 빛을 발합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 3: 비선형 효과 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>⚙️ 실차에서의 비선형 — 왜 선형 근사를 쓰는가?</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive3">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">현업의 비선형 vs 교과서의 선형</h4>
+        <p>mẍ + cẋ + kx = F(t)는 <strong>선형 모델</strong>입니다. 하지만 실제 서스펜션은 비선형 요소로 가득합니다:</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">비선형 스프링력: $F_s = k_1 x + k_2 x^2 + k_3 x^3 \rightarrow$ 선형화: $F_s \approx k_1 x$ (소변위 가정)</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">테일러 전개: _f(x_0 + \Delta x)$ \approx f(x_0) + f'(x_0)\Delta x \rightarrow$ 등가 강성: $k_{eq} = \left.\frac{dF}{dx}\right|_{x_0}$</p>
+
+        <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+          <thead>
+            <tr style="background:rgba(26,82,118,.1);">
+              <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);color:var(--cyan-light);">요소</th>
+              <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);color:var(--cyan-light);">선형 모델</th>
+              <th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);color:var(--cyan-light);">실제 거동</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:8px;border-bottom:1px solid var(--border);">스프링</td><td style="padding:8px;border-bottom:1px solid var(--border);">F = kx (상수 k)</td><td style="padding:8px;border-bottom:1px solid var(--border);">Progressive rate, 범프스톱 접촉 시 급격한 강성 증가</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid var(--border);">댐퍼</td><td style="padding:8px;border-bottom:1px solid var(--border);">F = cẋ (상수 c)</td><td style="padding:8px;border-bottom:1px solid var(--border);">속도 의존 비선형, 바운드/리바운드 비대칭 (통상 리바운드 c $\approx$ 2~3$\times$ 바운드 c)</td></tr>
+            <tr><td style="padding:8px;border-bottom:1px solid var(--border);">부시</td><td style="padding:8px;border-bottom:1px solid var(--border);">무시</td><td style="padding:8px;border-bottom:1px solid var(--border);">고무 히스테리시스, 주파수 의존 강성</td></tr>
+            <tr><td style="padding:8px;">타이어</td><td style="padding:8px;">무시 또는 상수 $k_t$</td><td style="padding:8px;">하중 의존 강성, 접지면 비선형, 열 효과</td></tr>
+          </tbody>
+        </table>
+
+        <h4 style="color:var(--green);margin:16px 0 8px;">그럼에도 선형 모델을 먼저 배우는 이유</h4>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+          <div style="background:rgba(0,230,118,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--green);">해석적 해</strong><br>
+            <span style="font-size:13px;">닫힌 형태(closed-form) 해가 존재 $\rightarrow$ 물리적 직관 형성</span>
+          </div>
+          <div style="background:rgba(0,230,118,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--green);">중첩 원리</strong><br>
+            <span style="font-size:13px;">Superposition 가능 $\rightarrow$ 복잡한 입력을 단순 입력의 합으로 분해</span>
+          </div>
+          <div style="background:rgba(0,230,118,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--green);">설계 기준점</strong><br>
+            <span style="font-size:13px;">비선형 해석의 출발점 & 결과 검증용 기준(baseline)</span>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);margin-top:12px;font-size:13px;">📌 Simpack에서는 비선형 스프링/댐퍼를 F-x / F-v 곡선(Lookup Table)으로 정의합니다. Day 28~30에서 비선형 모델링을 다룹니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 4: 에너지 관점 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>⚡ 에너지 관점에서 본 운동방정식 — 각 항의 에너지 역할</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive4">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">에너지 보존/소산 관점</h4>
+        <p>운동방정식의 양변에 ẋ(속도)를 곱하면 <strong>파워 밸런스(Power Balance)</strong>가 됩니다:</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">운동에너지: $T = \frac{1}{2}m\dot{x}^2$, &nbsp; 탄성에너지: $V = \frac{1}{2}kx^2$, &nbsp; 소산에너지: $P_d = c\dot{x}^2$</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">에너지 보존: $\frac{d}{dt}(T + V) = -P_d + P_{ext} \rightarrow$ 감쇠가 없으면 $T + V = \text{const}$</p>
+<p style="margin:10px 0;color:var(--cyan-light);"><strong>르노코리아 실무 Tip:</strong> 에너지 밸런스는 시뮬레이션 검증의 핵심입니다. Simpack에서 에너지 출력을 확인하여 수치 안정성을 판단합니다.</p>
+        <div class="deriv-equation"><span class="katex-eq">$$m\ddot{x}\cdot \dot{x} + c\dot{x}\cdot \dot{x} + kx\cdot \dot{x} = F(t)\cdot \dot{x}$$</span></div>
+        <p>각 항을 에너지 변화율(파워)로 해석하면:</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;">
+          <div style="background:rgba(232,201,106,.06);padding:12px;border-radius:8px;border-left:3px solid var(--gold);">
+            <strong style="color:var(--cyan-light);">mẍ·ẋ = d(½mẋ²)/dt</strong><br>
+            운동에너지 T의 시간변화율<br>
+            <span style="color:var(--text-dim);font-size:13px;">질량이 가속하면 운동에너지 증가</span>
+          </div>
+          <div style="background:rgba(0,230,118,.06);padding:12px;border-radius:8px;border-left:3px solid var(--green);">
+            <strong style="color:var(--green);">kx·ẋ = d(½kx²)/dt</strong><br>
+            위치에너지 V의 시간변화율<br>
+            <span style="color:var(--text-dim);font-size:13px;">스프링이 압축되면 위치에너지 저장</span>
+          </div>
+          <div style="background:rgba(41,121,255,.06);padding:12px;border-radius:8px;border-left:3px solid var(--blue);">
+            <strong style="color:var(--blue);">cẋ² $\geq$ 0 (항상 양수)</strong><br>
+            에너지 소산율 (열 발생)<br>
+            <span style="color:var(--text-dim);font-size:13px;">댐퍼는 기계적 에너지를 열로 변환</span>
+          </div>
+          <div style="background:rgba(255,145,0,.06);padding:12px;border-radius:8px;border-left:3px solid var(--orange);">
+            <strong style="color:var(--orange);">F(t)·ẋ</strong><br>
+            외력이 시스템에 공급하는 파워<br>
+            <span style="color:var(--text-dim);font-size:13px;">노면 입력이 에너지를 주입</span>
+          </div>
+        </div>
+
+        <p>에너지 보존 정리로 정리하면:</p>
+        <div class="deriv-equation"><span class="katex-eq">$$d/dt(T + V) + c\dot{x}^2 = F(t)\cdot \dot{x}$$</span></div>
+        <p style="color:var(--green);">💡 <strong>승차감의 에너지 해석:</strong> 좋은 서스펜션 = 노면 입력 에너지(F·ẋ)를 댐퍼의 열(cẋ²)로 빠르게 소산시키면서, 차체의 운동에너지(T)와 위치에너지(V)의 변동을 최소화하는 것입니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ═══════════ ⑨-b Vehicle Example ═══════════ -->
+<div class="section">
+  <div class="section-label">EXAMPLE</div>
+  <h2 class="section-title">레퍼런스 차량 적용 예제 — 1DOF 파라미터 산출</h2>
+
+  <div class="vehicle-example" style="background:linear-gradient(135deg,rgba(0,229,255,.04),rgba(41,121,255,.04));border:1px solid rgba(26,82,118,.15);border-radius:16px;padding:24px;margin:20px 0;">
+    <h4 style="color:var(--cyan-light);margin-bottom:16px;">🚗 레퍼런스 C-SUV — 프론트 1/4 차량</h4>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:12px;">스프렁 매스 (1/4)</div>
+        <div style="color:var(--cyan-light);font-size:22px;font-family:'JetBrains Mono';font-weight:500;">340 kg</div>
+        <div style="color:var(--text-dim);font-size:11px;">공차중량 1,360 kg 기준</div>
+      </div>
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:12px;">서스펜션 스프링 레이트</div>
+        <div style="color:var(--green);font-size:22px;font-family:'JetBrains Mono';font-weight:500;">22 N/mm</div>
+        <div style="color:var(--text-dim);font-size:11px;">McPherson Strut</div>
+      </div>
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:12px;">감쇠계수 (등가)</div>
+        <div style="color:var(--blue);font-size:22px;font-family:'JetBrains Mono';font-weight:500;">2.8 kN·s/m</div>
+        <div style="color:var(--text-dim);font-size:11px;">바운드/리바운드 평균</div>
+      </div>
+    </div>
+
+    <h4 style="color:var(--blue);margin-bottom:8px;">계산 결과</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="background:var(--surface);padding:12px;border-radius:10px;">
+        <span style="color:var(--text-dim);font-size:12px;">고유진동수 $\omega_n$<br>
+        <span class="calc-code" style="color:var(--cyan-light);">$\omega_n$ = $\sqrt{k/m}$ = $\sqrt{22000/340} = 8.04$ rad/s</span><br>
+        <span class="calc-code" style="color:var(--cyan-light);">fₙ = $\omega_n$/(2$\pi$) = 1.28 Hz</span><br>
+        <span style="color:var(--green);font-size:12px;">✅ Ride Comfort 최적 범위 (1.0~1.5 Hz)</span>
+      </div>
+      <div style="background:var(--surface);padding:12px;border-radius:10px;">
+        <span style="color:var(--text-dim);font-size:12px;">감쇠비 $\zeta$<br>
+        <span class="calc-code" style="color:var(--cyan-light);">cᵪ = 2$\sqrt{km} = 2$$\sqrt{22000 \times 340} = 5$,469 N·s/m</span><br>
+        <span class="calc-code" style="color:var(--cyan-light);">$\zeta$ = c/cᵪ = 2800/5469 = 0.512</span><br>
+        <span style="color:var(--green);font-size:12px;">✅ 부족감쇠 ($\zeta$ < 1) — 진동하며 수렴</span>
+      </div>
+    </div>
+
+    <p style="color:var(--text-dim);font-size:13px;margin-top:12px;">📌 이 파라미터들은 Day 02 이후 모든 계산의 기준값으로 반복 사용됩니다. 기억해두세요!</p>
+  </div>
+</div>
+<!-- ═══════════ ⑨-c Memory Hook ═══════════ -->
+  <div class="memory-hook" style="background:linear-gradient(135deg,rgba(179,136,255,.08),rgba(179,136,255,.02));border:1px solid rgba(179,136,255,.2);border-radius:16px;padding:24px;margin:20px 0;">
+    <h3 style="color:var(--purple);margin-bottom:12px;">🧠 기억 앵커: "MCK 삼총사"</h3>
+    <p style="font-size:15px;line-height:1.9;">운동방정식의 세 주인공을 기억하는 이미지:</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:16px 0;text-align:center;">
+      <div style="background:var(--surface);padding:16px;border-radius:12px;">
+        <div style="font-size:32px;margin-bottom:8px;">🦏</div>
+        <div style="color:var(--cyan-light);font-family:'JetBrains Mono';font-size:18px;font-weight:500;">m (Mass)</div>
+        <div style="color:var(--text-dim);font-size:13px;margin-top:4px;">코뿔소처럼 무거워서<br>쉽게 안 움직임 = <strong>관성</strong></div>
+      </div>
+      <div style="background:var(--surface);padding:16px;border-radius:12px;">
+        <div style="font-size:32px;margin-bottom:8px;">🧲</div>
+        <div style="color:var(--green);font-family:'JetBrains Mono';font-size:18px;font-weight:500;">k (Stiffness)</div>
+        <div style="color:var(--text-dim);font-size:13px;margin-top:4px;">자석처럼 원래 위치로<br>되돌리는 힘 = <strong>복원력</strong></div>
+      </div>
+      <div style="background:var(--surface);padding:16px;border-radius:12px;">
+        <div style="font-size:32px;margin-bottom:8px;">🏊</div>
+        <div style="color:var(--blue);font-family:'JetBrains Mono';font-size:18px;font-weight:500;">c (Damping)</div>
+        <div style="color:var(--text-dim);font-size:13px;margin-top:4px;">수영장에서 팔 저어보면<br>느끼는 저항 = <strong>감쇠</strong></div>
+      </div>
+    </div>
+    <p style="color:var(--purple);font-size:14px;">💡 <strong>연상법:</strong> "무거운 코뿔소(m)가 자석 스프링(k) 위에서 수영장(c) 같은 저항을 받으며 위아래 진동한다"<br>이 이미지를 30초 동안 머릿속에 그리면, mẍ + cẋ + kx = F(t)의 물리적 의미가 자동으로 떠오릅니다.</p>
+  </div>
+
+<!-- ══════ INTERACTIVE SIMULATION ══════ -->
+<div class="section-card" style="margin-top:32px">
+  <div class="section-label">INTERACTIVE SIMULATION</div>
+  <h2 class="section-title">🎮 1-DOF 자유진동 시뮬레이터</h2>
+  <div class="sim-container">
+    <div class="sim-canvas-wrap">
+      <canvas id="sim-day01" width="700" height="350"></canvas>
+    </div>
+    <div id="sim-day01-controls" class="sim-controls"></div>
+    <div id="sim-day01-metrics" class="sim-metrics"></div>
+  </div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('sim-day01');
+    const ctx = canvas.getContext('2d');
+    const W = 700, H = 350;
+    const ctrlBox = document.getElementById('sim-day01-controls');
+    const metricBox = document.getElementById('sim-day01-metrics');
+    
+    function addSlider(label, min, max, value, step, id) {
+      const g = document.createElement('div');
+      g.className = 'sim-slider-group';
+      g.innerHTML = '<label>' + label + '</label><input type="range" min="'+min+'" max="'+max+'" value="'+value+'" step="'+step+'" id="'+id+'"><div class="sim-readout" id="'+id+'-val">'+value+'</div>';
+      ctrlBox.appendChild(g);
+      const inp = document.getElementById(id);
+      inp.oninput = function(){ document.getElementById(id+'-val').textContent = this.value; draw(); };
+      return inp;
+    }
+    function addBtn(label, fn) {
+      const b = document.createElement('button');
+      b.className = 'sim-btn'; b.textContent = label; b.onclick = fn;
+      ctrlBox.appendChild(b);
+    }
+    function setMetrics(arr) {
+      metricBox.innerHTML = arr.map(m => '<div class="sim-metric"><strong>'+m[0]+':</strong>&nbsp;'+m[1]+'</div>').join('');
+    }
+    
+    const sl_m = addSlider('질량 m (kg)', 1, 50, 10, 1, 'sim01-m');
+    const sl_k = addSlider('강성 k (N/m)', 100, 5000, 1000, 100, 'sim01-k');
+    const sl_z = addSlider('감쇠비 ζ', 0, 2, 0.1, 0.01, 'sim01-z');
+    const sl_x0 = addSlider('초기변위 x₀ (m)', 0.01, 0.1, 0.05, 0.005, 'sim01-x0');
+    function draw() {
+      ctx.fillStyle='#020510'; ctx.fillRect(0,0,W,H);
+      const m=+sl_m.value, k=+sl_k.value, z=+sl_z.value, x0=+sl_x0.value;
+      const wn=Math.sqrt(k/m), wd=wn*Math.sqrt(Math.max(0,1-z*z));
+      const T=4*Math.PI/(wd||1), dt=T/500;
+      ctx.strokeStyle='#2471a3'; ctx.lineWidth=2; ctx.beginPath();
+      const scX=W/T, scY=H*0.4/x0;
+      for(let i=0;i<500;i++){
+        const t=i*dt;
+        let x;
+        if(z<1) x=x0*Math.exp(-z*wn*t)*Math.cos(wd*t);
+        else if(z===1) x=x0*(1+wn*t)*Math.exp(-wn*t);
+        else { const s1=wn*(-z+Math.sqrt(z*z-1)),s2=wn*(-z-Math.sqrt(z*z-1)); x=x0*(s1*Math.exp(s2*t)-s2*Math.exp(s1*t))/(s1-s2); }
+        const px=i*(W/500), py=H/2-x*scY;
+        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      // Envelope
+      if(z>0&&z<1){ctx.strokeStyle='rgba(41,121,255,0.5)';ctx.setLineDash([5,5]);ctx.lineWidth=1;ctx.beginPath();
+        for(let i=0;i<500;i++){const t=i*dt;const env=x0*Math.exp(-z*wn*t);const px=i*(W/500);ctx.moveTo(px,H/2-env*scY);ctx.lineTo(px,H/2-env*scY);}
+        for(let i=0;i<500;i++){const t=i*dt;const env=x0*Math.exp(-z*wn*t);const px=i*(W/500);i===0?ctx.moveTo(px,H/2-env*scY):ctx.lineTo(px,H/2-env*scY);}ctx.stroke();
+        ctx.beginPath();for(let i=0;i<500;i++){const t=i*dt;const env=-x0*Math.exp(-z*wn*t);const px=i*(W/500);i===0?ctx.moveTo(px,H/2-env*scY):ctx.lineTo(px,H/2-env*scY);}ctx.stroke();
+        ctx.setLineDash([]);}
+      // Axis
+      ctx.strokeStyle='rgba(0,229,255,0.07)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+      ctx.fillStyle='#3d6080'; ctx.font='12px Share Tech Mono,monospace'; ctx.fillText('t (s)',W-40,H/2+15); ctx.fillText('x(t)',5,20);
+      setMetrics([['$\omega_n$',wn.toFixed(2)+' rad/s'],['fₙ',(wn/2/Math.PI).toFixed(2)+' Hz'],['ωd',(z<1?wd:0).toFixed(2)+' rad/s'],['τ',(z>0?(1/(z*wn)).toFixed(3):'∞')+' s']]);
+    }
+
+    draw();
+  })();
+  </script>
+</div>
+
+<!-- ═══════════ ⑩ 즉시 복습 퀴즈 ═══════════ -->
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 01 — 뉴턴 법칙</div>
+      <p class="quiz-q">1자유도 질량-스프링-댐퍼 시스템의 운동방정식 mẍ + cẋ + kx = F(t)에서 cẋ 항이 의미하는 것은?</p>
+      <div class="quiz-options" id="q1">
+        <div class="quiz-opt">A. 관성력</div>
+        <div class="quiz-opt">B. 점성 감쇠력</div>
+        <div class="quiz-opt">C. 복원력</div>
+        <div class="quiz-opt">D. 외력</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 02 — 자유물체도</div>
+      <p class="quiz-q">자유물체도(FBD)를 그릴 때 스프링 힘의 방향이 변위 x와 반대인 이유는?</p>
+      <div class="quiz-options" id="q2">
+        <div class="quiz-opt">A. 뉴턴 제3법칙</div>
+        <div class="quiz-opt">B. 복원력은 평형 위치로 되돌리려 하므로</div>
+        <div class="quiz-opt">C. 관성의 법칙</div>
+        <div class="quiz-opt">D. 감쇠력과 상쇄하기 위해</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 03 — 라그랑주 방법</div>
+      <p class="quiz-q">라그랑주 방정식 d/dt(∂T/∂q̇) - ∂T/∂q + ∂V/∂q = Q에서 T는?</p>
+      <div class="quiz-options" id="q3">
+        <div class="quiz-opt">A. 위치에너지</div>
+        <div class="quiz-opt">B. 운동에너지</div>
+        <div class="quiz-opt">C. 산일함수</div>
+        <div class="quiz-opt">D. 일반화 힘</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+</div>
+
+<!-- ══════ FORMULA EXPLORER ══════ -->
+
+
+<!-- Footer -->
+
+
+</div><!-- /container -->
+
+
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:40px 0;max-width:960px;margin-left:auto;margin-right:auto;padding:0 16px;">
+    <span></span>
+    <a href="Day02_비감쇠자유진동.html" class="nav-btn" style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center;text-decoration:none;color:var(--cyan);font-weight:500;">Day 2: 비감쇠자유진동 $\rightarrow$</a>
+</div>
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

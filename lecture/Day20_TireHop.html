@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 20 — 언스프렁 질량 &amp; Tire Hop | Vehicle Dynamics Notes</title>
+
+
+
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- ① STICKY HEADER -->
+
+
+<div class="container">
+
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 20 —</div>
+  <h1 class="hero-title">언스프렁 질량 &amp; Tire Hop</h1>
+  <p class="hero-title-en">Unsprung Mass &amp; Tire Hop Frequency</p>
+  <div class="hero-equation"><span class="katex-eq">$$f_{hop} = \frac{1}{2\pi}\sqrt{\frac{k_s+k_t}{m_u}}$$</span></div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:154.7;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">38%</text>
+      <text class="gauge-label" x="50" y="62">DAY 20 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>4단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★★☆☆</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- ③ 뇌과학 학습 전략 -->
+<div class="section">
+  <div class="section-label">INTUITION</div>
+  <h2 class="section-title">왜 이 수식이 필요한가?</h2>
+    <div style="background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,229,255,.03));border:1px solid rgba(26,82,118,.2);border-radius:10px;padding:14px 20px;margin:20px 0;font-size:13px;">
+      <strong style="color:var(--cyan);">💡 수식 유도 읽는 법</strong> — 각 STEP의 <span style="color:var(--blue);">파란색 라벨</span>은 "왜 이 변환을 하는가"를 설명합니다. 수식만 보지 말고 <span style="color:var(--cyan-light);">동기 $\rightarrow$ 변환 $\rightarrow$ 의미</span> 순서로 읽으세요. 눈으로 3번 읽는 것보다 <strong>손으로 1번 쓰는 것</strong>이 기억에 4배 효과적입니다.
+    </div>
+
+  <div class="intuition-card">
+    <p>언스프렁 질량(unsprung mass)은 '스프링 아래의 모든 것' — 휠, 타이어, 브레이크, 너클, 로어암 일부 등이다. 이 질량이 작을수록 타이어가 노면을 잘 추종하여 접지력이 좋아진다. tire hop 주파수는 언스프렁 질량과 타이어+스프링 강성의 함수이며, 보통 10~15Hz 범위다. 이 주파수가 바디 바운스(1~2Hz)와 충분히 분리되어야 좋은 승차감을 얻는다.</p>
+  </div>
+  
+  <div class="diagram-wrap">
+    <div class="diagram-label">Diagram A — 물리계 도해</div>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 440 300" width="440" height="300" xmlns="http://www.w3.org/2000/svg">
+    
+  <defs>
+    <marker id="arrowGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2471a3"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1e7e34"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2471a3"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#ff9100"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6c3483"/>
+    </marker>
+    <marker id="arrowDim" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a6a8a"/>
+    </marker>
+  </defs>
+
+    <!-- Ground -->
+    <rect x="80" y="260" width="280" height="6" rx="2" fill="rgba(0,229,255,0.15)"/>
+    <line x1="90" y1="266" x2="82" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="115" y1="266" x2="107" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="140" y1="266" x2="132" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="165" y1="266" x2="157" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="190" y1="266" x2="182" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="215" y1="266" x2="207" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="240" y1="266" x2="232" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="265" y1="266" x2="257" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="290" y1="266" x2="282" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="315" y1="266" x2="307" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="340" y1="266" x2="332" y2="274" stroke="#7A7A8A" stroke-width="1.2"/>
+    <!-- Tire spring -->
+    <polyline points="170,200 185,206.875 155,213.75 185,220.625 155,227.5 185,234.375 155,241.25 170,255" fill="none" stroke="#1e7e34" stroke-width="2" stroke-linejoin="round"/>
+    <text x="148" y="231.5" font-family="JetBrains Mono" font-size="14" fill="#1e7e34">kₜ</text>
+    <!-- Unsprung mass -->
+    <rect x="150" y="170" width="80" height="30" rx="6" fill="rgba(0,229,255,0.06)" stroke="#ff9100" stroke-width="2"/>
+    <text x="190.0" y="190.0" font-family="JetBrains Mono" font-size="16" fill="#2471a3" text-anchor="middle">mᵤ</text>
+    <!-- Suspension spring + damper -->
+    <polyline points="150,90 165,100.0 135,110.0 165,120.0 135,130.0 165,140.0 135,150.0 150,170" fill="none" stroke="#1e7e34" stroke-width="2" stroke-linejoin="round"/>
+    <text x="128" y="134.0" font-family="JetBrains Mono" font-size="14" fill="#1e7e34">kₛ</text>
+    <line x1="240" y1="90" x2="240" y2="116.0" stroke="#2471a3" stroke-width="2"/>
+    <rect x="228" y="116.0" width="24" height="28" rx="2" fill="none" stroke="#2471a3" stroke-width="2"/>
+    <line x1="240" y1="116.0" x2="240" y2="106.0" stroke="#2471a3" stroke-width="2"/>
+    <line x1="232" y1="106.0" x2="248" y2="106.0" stroke="#2471a3" stroke-width="2.5"/>
+    <line x1="240" y1="106.0" x2="240" y2="170" stroke="#2471a3" stroke-width="2"/>
+    <text x="258" y="134.0" font-family="JetBrains Mono" font-size="14" fill="#2471a3">c_s</text>
+    <!-- Sprung mass -->
+    <rect x="130" y="60" width="120" height="30" rx="6" fill="rgba(0,229,255,0.06)" stroke="#2471a3" stroke-width="2"/>
+    <text x="190.0" y="80.0" font-family="JetBrains Mono" font-size="16" fill="#2471a3" text-anchor="middle">mₛ</text>
+    <!-- Hop mode arrow -->
+    <line x1="320" y1="185" x2="320" y2="145" stroke="#ff9100" stroke-width="2" marker-end="url(#arrowOrange)"/>
+    <line x1="320" y1="185" x2="320" y2="225" stroke="#ff9100" stroke-width="2" marker-end="url(#arrowOrange)"/>
+    <text x="345" y="190" font-family="JetBrains Mono" font-size="10" fill="#ff9100">Tire Hop</text>
+    <text x="345" y="205" font-family="JetBrains Mono" font-size="10" fill="#ff9100">~12 Hz</text>
+    <!-- Title -->
+    <text x="220" y="25" font-family="Noto Sans KR" font-size="13" fill="#2471a3" text-anchor="middle">Tire Hop 모드 (언스프렁 질량)</text>
+  </svg>
+  </div>
+</div>
+<!-- ⑤ 수식 단계별 풀이 -->
+<div class="section">
+  <div class="section-label">DERIVATION</div>
+  <h2 class="section-title">수식 한 줄씩 유도</h2>
+  
+    <div class="deriv-card">
+      <div class="deriv-step-num">Step 1: 언스프렁 질량 구성</div>
+      <div class="deriv-equation"><span class="katex-eq">$$m_u = m_wheel + m_tire + m_brake + m_knuckle + f_arm \cdot m_arm$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 서스펜션 암(arm)은 한쪽이 차체에, 한쪽이 너클에 연결되므로 전체 질량의 일부($f_{\text{arm}}$ $\approx$ 1/3~1/2)만 언스프렁에 기여한다.</p>
+        <p><span class="label">부호/변환 이유:</span> 모든 항이 양수. 일반 승용차에서 $m_u$ $\approx$ 30~50 kg/코너.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 08 쿼터카에서 $m_u$ 를 사용했지만 구성을 다루지 않았다. 여기서 분해한다.</p>
+      </div>
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">Step 2: Tire Hop 고유진동수 유도</div>
+      <div class="deriv-equation"><span class="katex-eq">$$f_{hop} = \frac{1}{2\pi}\sqrt{\frac{k_s + k_t}{m_u}}$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 언스프렁 질량은 위에서 서스펜션 스프링 $k_s$, 아래에서 타이어 스프링 $k_t$ 로 지지된다. 바디 질량이 충분히 커서 고정점(anti-node)으로 근사하면 두 스프링이 병렬이 된다.</p>
+        <p><span class="label">부호/변환 이유:</span> $k_t$ &gt;&gt; $k_s$ 이므로 f_{hop} $\approx$ (1/2$\pi$)$\sqrt{kₜ/mᵤ}$ 로 근사 가능. $k_t$ 가 지배적이다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 09에서 쿼터카 2개 고유진동수를 구했다. 여기서는 wheel hop 모드에 집중한다.</p>
+      </div>
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">Step 3: 스프렁/언스프렁 질량비의 영향</div>
+      <div class="deriv-equation"><span class="katex-eq">$$μ = m_u / m_s$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 질량비 $\mu$ 가 작을수록(언스프렁이 가벼울수록) (1) tire hop 주파수와 body bounce 주파수의 분리가 커지고, (2) 접지력 변동이 감소한다.</p>
+        <p><span class="label">부호/변환 이유:</span> 이상적 $\mu$ &lt; 0.15. 일반 승용차 $\mu \approx$ 0.10~0.15, SUV $\approx$ 0.15~0.25.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 09에서 두 고유진동수 비가 $\sqrt{kₜ/kₛ}$ · $\sqrt{1+\mu}$ 형태임을 보였다.</p>
+      </div>
+    </div>
+    
+    <div class="checkpoint"><strong>✓ 물리적 직관 체크:</strong> 이 수식에서 각 항의 물리적 의미를 손가락으로 짚으며 설명할 수 있나요? "이 항은 ___를 의미하고, 저 항은 ___의 영향"이라고 말해보세요.</div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">Step 4: 접지력 변동과 언스프렁 질량</div>
+      <div class="deriv-equation"><span class="katex-eq">$$\Delta F_z / F_{z,static} \propto m_u / k_t$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 동적 접지력 변동($\Delta F_z$)은 언스프렁 질량에 비례하고 타이어 강성에 반비례한다. 접지력 변동이 크면 타이어 그립이 불안정해진다.</p>
+        <p><span class="label">부호/변환 이유:</span> $m_u$ 감소 $\rightarrow \Delta$F_z 감소 $\rightarrow$ 안정적 접지. 알루미늄 휠이 스틸 휠보다 좋은 이유.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 14의 ISO 2631 승차감 지표와 별개로, 접지력 변동은 조종안정성 지표다.</p>
+      </div>
+    </div>
+</div>
+
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① Tire Hop 1-DOF 모델</p>
+    <div class="sub-eq">$$m_{us}\ddot{z}_{us} + (c_s + c_t)\dot{z}_{us} + (k_s + k_t)z_{us} = k_t z_{road} + c_t \dot{z}_{road}$$</div>
+    <p class="sub-note">언스프렁 질량($m_{us}$)만 고려한 단순 모델. 차체는 매우 무거워 정지로 가정</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 고유진동수 유도</p>
+    <div class="sub-eq">$$f_{hop} = \frac{1}{2\pi}\sqrt{\frac{k_s + k_t}{m_{us}}}$$</div>
+    <div class="sub-eq">$$\text{일반값: } m_{us} \approx 40\text{kg}, \; k_s \approx 25\text{kN/m}, \; k_t \approx 200\text{kN/m}$$</div>
+    <div class="sub-eq">$$f_{hop} = \frac{1}{2\pi}\sqrt{\frac{225000}{40}} \approx 11.9\text{ Hz}$$</div>
+    <p class="sub-note"><strong>$k_t$ >> $k_s$</strong>이므로 타이어 강성이 Hop 주파수를 지배. 경량 알루미늄 휠($m_{us}$↓) $\rightarrow$ f_{hop}↑ $\rightarrow$ 고주파 영역으로 이동</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ 접지력 변동과 그립 손실</p>
+    <div class="sub-eq">$$\Delta F_z = (k_s + k_t) z_{us,max}$$</div>
+    <div class="sub-eq">$$\text{접지력 유지 조건: } \Delta F_z < F_{z,static} \quad \Rightarrow \quad z_{us,max} < \frac{m_{us} g}{k_s + k_t}$$</div>
+    <p class="sub-note"><strong>안전 한계:</strong> 타이어가 노면에서 떨어지면($F_z$ = 0) 제동/코너링 불가. Tire Hop 억제는 안전의 핵심!</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ 감쇠 최적화</p>
+    <div class="sub-eq">$$c_{opt,hop} = 2\zeta_{opt}\sqrt{(k_s+k_t)m_{us}}$$</div>
+    <div class="sub-eq">$$\zeta_{opt} \approx 0.3 \sim 0.4 \text{ (Tire Hop 모드)}$$</div>
+    <p class="sub-note">Tire Hop 감쇠는 주로 리바운드 감쇠가 담당. <strong>튜닝 순서:</strong> 1) 언스프렁 질량 최소화 $\rightarrow$ 2) 리바운드 감쇠 최적화</p>
+  </div>
+</div>
+
+<!-- ⑥ 파라미터 테이블 -->
+<div class="section">
+  <div class="section-label">PARAMETERS</div>
+  <h2 class="section-title">수식 파라미터 완전 해부</h2>
+  
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr>
+          <th>기호</th><th>명칭 (한/영)</th><th>단위</th><th>물리적 의미</th><th>차량 부품</th><th>전형적 범위</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="sym">$m_u$</td>
+          <td>언스프렁 질량 / Unsprung Mass</td>
+          <td>kg</td>
+          <td>스프링 아래 총 질량</td>
+          <td>휠+타이어+브레이크+너클+암 일부</td>
+          <td>30~55</td>
+        </tr>
+        <tr>
+          <td><span class="sym">$\mu$</td>
+          <td>질량비 / Mass Ratio (unsprung/sprung)</td>
+          <td>—</td>
+          <td>언스프렁/스프렁 비</td>
+          <td>경량화 지표</td>
+          <td>0.08~0.25</td>
+        </tr>
+        <tr>
+          <td><span class="sym">f_{hop}</span></td>
+          <td>타이어 홉 주파수 / Tire Hop Frequency</td>
+          <td>Hz</td>
+          <td>언스프렁 질량의 공진</td>
+          <td>일반 승용차</td>
+          <td>10~15</td>
+        </tr>
+        <tr>
+          <td><span class="sym">$\Delta F_z$</td>
+          <td>접지력 변동 / Dynamic Load Variation</td>
+          <td>N</td>
+          <td>정적 대비 동적 접지력 변화</td>
+          <td>주행 시 타이어 하중 변동</td>
+          <td>50~500</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+</div>
+<!-- ⑦ SVG 다이어그램 B -->
+
+<!-- ══════ DIAGRAMS ══════ -->
+<div class="section">
+    <div class="section-label">DIAGRAMS</div>
+    <h2 class="section-title">핵심 다이어그램</h2>
+    <div class="diagram-wrap">
+        <div class="diagram-label">타이어 홉 모드 (Wheel Hop)</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+<defs>
+<marker id="d20g" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#1e7e34"/></marker>
+<marker id="d20b" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+<marker id="d20p" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#6c3483"/></marker>
+<marker id="d20o" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#ff9100"/></marker>
+<marker id="d20d" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+</defs>
+<text x="240" y="20" text-anchor="middle" fill="#4a6a8a" font-size="12" font-family="JetBrains Mono">Tire Hop — Unsprung Mass Resonance</text>
+<!-- Left: Physical model -->
+<text x="120" y="50" text-anchor="middle" fill="#2471a3" font-size="11" font-weight="bold">물리 모델</text>
+<!-- Fixed body (quasi-static at this freq) -->
+<rect x="60" y="65" width="120" height="20" rx="4" fill="none" stroke="#7A7A8A" stroke-width="1.5"/>
+<text x="120" y="80" text-anchor="middle" fill="#4a6a8a" font-size="9">차체 (정적)</text>
+<!-- Suspension spring -->
+<path d="M120,85 L120,95 L108,100 L132,108 L108,116 L132,124 L120,129 L120,138" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+<text x="80" y="115" fill="#1e7e34" font-size="9" font-family="JetBrains Mono">k_s</text>
+<!-- Damper -->
+<rect x="140" y="98" width="15" height="28" rx="1" fill="none" stroke="#6c3483" stroke-width="1"/>
+<line x1="147" y1="86" x2="147" y2="98" stroke="#6c3483" stroke-width="1.5"/>
+<line x1="147" y1="126" x2="147" y2="138" stroke="#6c3483" stroke-width="1.5"/>
+<text x="170" y="115" fill="#6c3483" font-size="9" font-family="JetBrains Mono">c_s</text>
+<!-- Wheel mass (vibrating!) -->
+<rect x="85" y="140" width="70" height="25" rx="6" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<text x="120" y="158" text-anchor="middle" fill="#2471a3" font-size="10" font-weight="bold">mᵤ</text>
+<!-- Bouncing arrows -->
+<line x1="120" y1="136" x2="120" y2="118" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<polygon points="114,123 126,123 120,112" fill="#2471a3"/>
+<line x1="120" y1="168" x2="120" y2="185" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<polygon points="114,180 126,180 120,191" fill="#2471a3"/>
+<!-- Tire spring -->
+<path d="M120,165 L120,178 L108,182 L132,190 L108,198 L132,206 L120,210 L120,220" fill="none" stroke="#2471a3" stroke-width="1.5"/>
+<text x="80" y="200" fill="#2471a3" font-size="9" font-family="JetBrains Mono">k_t</text>
+<line x1="80" y1="225" x2="160" y2="225" stroke="#7A7A8A" stroke-width="2"/>
+<!-- Right: Frequency response -->
+<rect x="260" y="45" width="200" height="220" rx="6" fill="#161922" stroke="#7A7A8A" stroke-width="0.5"/>
+<text x="360" y="65" text-anchor="middle" fill="#4a6a8a" font-size="10" font-family="JetBrains Mono">휠 수직 가속도 FRF</text>
+<line x1="280" y1="235" x2="440" y2="235" stroke="#7A7A8A" stroke-width="1" marker-end="url(#d20d)"/>
+<line x1="280" y1="240" x2="280" y2="80" stroke="#7A7A8A" stroke-width="1" marker-end="url(#d20d)"/>
+<text x="440" y="250" fill="#4a6a8a" font-size="8" font-family="JetBrains Mono">f[Hz]</text>
+<!-- Body mode (small) -->
+<path d="M280,220 Q295,215 305,210 Q310,200 312,195 Q315,200 320,210 Q330,218 345,222" fill="none" stroke="#2471a3" stroke-width="1.5"/>
+<text x="312" y="190" text-anchor="middle" fill="#2471a3" font-size="8" font-family="JetBrains Mono">~1.5Hz</text>
+<!-- Tire hop (BIG peak) -->
+<path d="M345,222 Q370,218 390,200 Q400,160 405,100 Q407,90 410,100 Q415,160 420,200 Q430,220 440,225" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<text x="407" y="85" text-anchor="middle" fill="#2471a3" font-size="9" font-weight="bold" font-family="JetBrains Mono">Tire Hop!</text>
+<text x="407" y="250" text-anchor="middle" fill="#2471a3" font-size="8" font-family="JetBrains Mono">10~15Hz</text>
+</svg>
+    </div>
+</div>
+<div class="section">
+  <div class="section-label">SIMPACK</div>
+  <h2 class="section-title">Simpack 입력 매핑</h2>
+  
+    <div class="simpack-module">
+      <div class="simpack-header">
+        <span class="simpack-badge">SIMPACK</span>
+        <span>Day 20 파라미터 입력 가이드</span>
+      </div>
+      <div class="simpack-body">
+
+      <div class="sp-workflow">
+        <div class="sp-wf-step">
+          <span class="wf-num">①</span>
+          <span class="wf-title">모델 생성</span>
+          <span class="wf-desc">Body + Joint + Force 정의</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">②</span>
+          <span class="wf-title">해석 실행</span>
+          <span class="wf-desc">시간영역/주파수영역 선택</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">③</span>
+          <span class="wf-title">결과 검증</span>
+          <span class="wf-desc">해석해와 수치 비교</span>
+        </div>
+      </div>
+
+      <div class="simpack-row">
+        <div class="sp-sym">$m_u$</div>
+        <div class="sp-path">Body &gt; Unsprung &gt; Mass</div>
+        <div class="sp-detail"><strong>필드:</strong> Mass [kg]<br><strong>단위:</strong> kg</div>
+        <div class="sp-warn">⚠ 암(control arm)의 관성 분배를 정확히 모델링 — Simpack에서는 각 바디별 질량/관성을 입력</div>
+      </div>
+      <div class="simpack-row">
+        <div class="sp-sym">f_{hop}</div>
+        <div class="sp-path">Analysis &gt; Eigenvalue</div>
+        <div class="sp-detail"><strong>필드:</strong> Wheel Hop Mode [Hz]<br><strong>단위:</strong> Hz</div>
+        <div class="sp-warn">⚠ 고유값 해석 후 모드 형상(mode shape)에서 언스프렁 질량의 수직 운동이 지배적인 모드를 확인</div>
+      </div>
+      </div>
+    </div>
+</div>
+<!-- ⑨ Deep Dive -->
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">심화 학습</h2>
+  
+    <div class="accordion">
+      <button class="accordion-toggle">
+        <span>💡 경량 휠의 효과: 알루미늄 vs 탄소섬유 — 클릭하여 펼치기</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-content">
+        <div class="accordion-inner">
+        <p>언스프렁 질량 1kg 감소는 스프렁 질량 4~15kg 감소와 동등한 승차감/접지력 개선 효과가 있다(차속·노면 의존). 알루미늄 휠은 스틸 대비 2~4kg 경량, 탄소섬유(CFRP) 휠은 추가 3~5kg 경량이다. 포르쉐 918, BMW M 시리즈에서 CFRP 휠을 옵션으로 제공하는 이유다. 다만 비용이 10배 이상이므로, OEM 양산에서는 알루미늄 단조 휠이 현실적 선택이다.</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">$m_u$ 10% 감소 $\rightarrow f_{hop}$ 약 5% 증가: $f_{hop} = \frac{1}{2\pi}\sqrt{\frac{k_s + k_t}{m_u}}$</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">접지 하중 변동: $\Delta F_z \propto m_u \rightarrow$ 경량 휠 $\rightarrow \Delta F_z$↓ $\rightarrow$ 그립 향상</p>
+        </div>
+      </div>
+    
+    <div class="accordion" style="margin-top:12px">
+      <button class="accordion-toggle">
+        <span>💡 경량화 트렌드 — 알루미늄 너클과 Tire Hop</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-content" id="deepdive2">
+        <div class="accordion-inner">
+        <p><strong>■ 언스프렁 질량 구성</strong></p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">알루미늄 너클: $m_u$ 약 $2\text{~}3$ kg 감소 $\rightarrow f_{hop}$ 약 $0.5\text{~}1$ Hz 변화</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">언스프링 질량비: $\mu = \frac{m_u}{m_s} \rightarrow \mu$↓ $\rightarrow$ 승차감/조종안정성 모두 개선</p>
+<p style="margin:10px 0;color:var(--cyan-light);"><strong>르노코리아 실무 Tip:</strong> EV는 배터리로 $m_s$ 증가 $\rightarrow \mu$ 자동 감소. 그러나 인휠 모터는 $m_u$ 급증 $\rightarrow$ Tire Hop 악화에 주의해야 합니다.</p>
+<p>타이어+휠: ~20 kg / 너클: ~8 kg / 브레이크: ~10 kg / 링크: ~5 kg</p>
+<p>합계: 약 43~50 kg/corner</p>
+<p><strong>■ 경량화 효과</strong></p>
+<p>알루미늄 너클: 철 대비 -3 kg $\rightarrow \mu$ 약 7% 감소</p>
+<p>f_{hop} = (1/2$\pi$)$\sqrt{(kₛ+kₜ}$/$m_u$) $\rightarrow$ $m_u$↓ $\rightarrow$ f_{hop}↑</p>
+<p>바디바운스(약 1.3 Hz)와 더 멀어짐 $\rightarrow$ 모드 분리 개선!</p>
+<p><strong>■ 접지력 변동</strong></p>
+<p>$\Delta F_tire$ ∝ $m_u$ $\rightarrow$ $m_u$↓ $\rightarrow$ 접지력 변동↓ $\rightarrow$ 그립 안정성↑</p>
+<p>레이싱카가 언스프렁 질량 최소화에 집착하는 이유!</p>
+<p><strong>■ 레퍼런스 차량 경량화</strong></p>
+<p>후축 토션빔: 빔 자체가 스프렁과 언스프렁 사이 $\rightarrow$ 질량 배분 해석 필요</p>
+        </div>
+      </div>
+    </div>
+</div>
+</div>
+<!-- Vehicle Example -->
+<div class="section">
+  <div class="section-label">EXAMPLE</div>
+  <h2 class="section-title">실차 적용</h2>
+  <div class="vehicle-example">
+  <h4>🚗 레퍼런스 차량 Tire Hop 분석</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0">
+    <div><p>$m_u = 45$ kg/corner</p><p>$k_s = 22$,000 N/m</p><p>$k_t = 220$,000 N/m</p></div>
+    <div><p>$m_s = 340$ kg/corner</p><p>$\mu$ = $m_u$/$m_s = 0.132$</p></div>
+  </div>
+  <p><strong>Tire Hop 주파수:</strong></p>
+  <div class="calc">f_{hop} = (1/2$\pi$)$\sqrt{(22000+220000}/45$) = 11.0 Hz</div>
+  <p><strong>바디 바운스 대비 분리도:</strong></p>
+  <div class="calc">f_{hop}/f_bounce = 11.0/1.28 = 8.6배 $\rightarrow$ 충분한 모드 분리 ✓</div>
+</div>
+</div>
+<!-- Memory Hook -->
+
+<!-- ══════ FORMULA EXPLORER ══════ -->
+
+
+
+<!-- ══════ INTERACTIVE SIMULATION ══════ -->
+<div class="section-card" style="margin-top:32px">
+  <div class="section-label">INTERACTIVE SIMULATION</div>
+  <h2 class="section-title">🎮 타이어 홉 주파수 분석</h2>
+  <div class="sim-container">
+    <div class="sim-canvas-wrap">
+      <canvas id="sim-day20" width="700" height="350"></canvas>
+    </div>
+    <div id="sim-day20-controls" class="sim-controls"></div>
+    <div id="sim-day20-metrics" class="sim-metrics"></div>
+  </div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('sim-day20');
+    const ctx = canvas.getContext('2d');
+    const W = 700, H = 350;
+    const ctrlBox = document.getElementById('sim-day20-controls');
+    const metricBox = document.getElementById('sim-day20-metrics');
+    
+    function addSlider(label, min, max, value, step, id) {
+      const g = document.createElement('div');
+      g.className = 'sim-slider-group';
+      g.innerHTML = '<label>' + label + '</label><input type="range" min="'+min+'" max="'+max+'" value="'+value+'" step="'+step+'" id="'+id+'"><div class="sim-readout" id="'+id+'-val">'+value+'</div>';
+      ctrlBox.appendChild(g);
+      const inp = document.getElementById(id);
+      inp.oninput = function(){ document.getElementById(id+'-val').textContent = this.value; draw(); };
+      return inp;
+    }
+    function addBtn(label, fn) {
+      const b = document.createElement('button');
+      b.className = 'sim-btn'; b.textContent = label; b.onclick = fn;
+      ctrlBox.appendChild(b);
+    }
+    function setMetrics(arr) {
+      metricBox.innerHTML = arr.map(m => '<div class="sim-metric"><strong>'+m[0]+':</strong>&nbsp;'+m[1]+'</div>').join('');
+    }
+    
+    const sl_mu = addSlider('비현가질량 $m_u$ (kg)', 20, 80, 40, 5, 'sim20-mu');
+    const sl_kt = addSlider('kt (kN/m)', 100, 350, 200, 10, 'sim20-kt');
+    const sl_ks = addSlider('ks (kN/m)', 15, 40, 20, 1, 'sim20-ks');
+    function draw() {
+      ctx.fillStyle='#020510'; ctx.fillRect(0,0,W,H);
+      const mu=+sl_mu.value, kt=+sl_kt.value*1000, ks=+sl_ks.value*1000;
+      const fHop=Math.sqrt((kt+ks)/mu)/(2*Math.PI);
+      // Sweep frequency and show wheel hop FRF
+      ctx.strokeStyle='#2471a3'; ctx.lineWidth=2; ctx.beginPath();
+      const wHop=2*Math.PI*fHop, zEff=0.05;
+      for(let i=1;i<=400;i++){
+        const f=i*30/400;
+        const r=f/fHop;
+        const mag=1/Math.sqrt((1-r*r)**2+(2*zEff*r)**2);
+        const px=i*W/400, py=H-30-Math.min(mag,15)*(H-50)/15;
+        i===1?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      } ctx.stroke();
+      // Mark hop frequency
+      ctx.strokeStyle='#922b21';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(fHop*W/30/400*400,0);ctx.lineTo(fHop*W/30/400*400,H);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#922b21';ctx.font='12px Share Tech Mono,monospace';ctx.fillText('f_{hop} = '+fHop.toFixed(1)+' Hz',fHop*W/30+5,30);
+      ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.beginPath();ctx.moveTo(0,H-30);ctx.lineTo(W,H-30);ctx.stroke();
+      ctx.fillStyle='#3d6080';ctx.font='11px Share Tech Mono,monospace';ctx.fillText('주파수 (Hz)',W-90,H-10);
+      setMetrics([['타이어홉 주파수',fHop.toFixed(1)+' Hz'],['$m_u$',mu+' kg'],['kt+ks',((kt+ks)/1000).toFixed(0)+' kN/m'],['목표: 10~15 Hz','']]);
+    }
+
+    draw();
+  })();
+  </script>
+</div>
+
+<!-- ⑩ 퀴즈 -->
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+    <div class="quiz-card" data-correct="3">
+      <div class="quiz-num">QUESTION 01 — Tire Hop 주파수</div>
+      <p class="quiz-q">일반 승용차의 Tire Hop(Wheel Hop) 공진 주파수 범위는?</p>
+      <div class="quiz-options" id="q1">
+        <div class="quiz-opt">A. 1~2 Hz</div>
+        <div class="quiz-opt">B. 5~8 Hz</div>
+        <div class="quiz-opt">C. 10~15 Hz</div>
+        <div class="quiz-opt">D. 30~50 Hz</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 02 — 질량비 영향</div>
+      <p class="quiz-q">언스프렁 질량 대 스프렁 질량 비율($\mu$ = $m_u$/$m_s$)이 작을수록 유리한 이유는?</p>
+      <div class="quiz-options" id="q2">
+        <div class="quiz-opt">A. 롤 강성이 증가하므로</div>
+        <div class="quiz-opt">B. Tire Hop 모드가 Body 모드에 미치는 영향이 감소하므로</div>
+        <div class="quiz-opt">C. 조향 응답이 빨라지므로</div>
+        <div class="quiz-opt">D. 타이어 마모가 줄어들므로</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 03 — Simpack 고유값</div>
+      <p class="quiz-q">Simpack 고유값 해석에서 Tire Hop 모드를 식별하는 핵심 지표는?</p>
+      <div class="quiz-options" id="q3">
+        <div class="quiz-opt">A. 바디 질량의 모드 기여도</div>
+        <div class="quiz-opt">B. 휠(언스프렁 질량)의 수직 방향 모드 셰이프</div>
+        <div class="quiz-opt">C. 조향 입력 응답</div>
+        <div class="quiz-opt">D. 롤 각도 변화</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+</div>
+
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:40px 0;">
+    <a href="Day19_타이어수직동특성.html" class="nav-btn prev">$\leftarrow$ Day 19: 타이어수직동특성</a>
+    <a href="Day21_승차감트레이드오프.html" class="nav-btn next">Day 21: 승차감트레이드오프 $\rightarrow$</a>
+</div>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer" style="text-align:center;padding:40px 0;border-top:1px solid var(--border);margin-top:60px;color:var(--text-dim);font-size:12px;">
+    <p>Vehicle Dynamics & Simulation | Part 3: 서스펜션 부품</p>
+    <p>Day 20/60</p>
+</footer>
+
+</div><!-- /container -->
+
+<!-- ══════ SCRIPTS ══════ -->
+
+
+<style>
+.nav-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 40px 0; }
+.nav-btn { padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-align: center; text-decoration: none; color: var(--gold); font-weight: 500; transition: all 0.3s; }
+.nav-btn:hover { background: var(--surface2); border-color: var(--gold); }
+@media (max-width: 640px) {
+    .nav-section { grid-template-columns: 1fr; }
+}
+
+/* === Enhanced: Simulation & Sub-step Styles === */
+
+/* ╔══════════════════════════════════════════════════╗
+   ║  CYBER COCKPIT — SIMULATION MODULE v2.0         ║
+   ╚══════════════════════════════════════════════════╝ */
+
+/* ── Container: HUD Frame ── */
+.sim-container{
+  background:linear-gradient(135deg,rgba(245,242,236,0.92),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.25);
+  border-radius:4px;
+  padding:0;margin:28px 0;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 30px rgba(0,229,255,0.08),inset 0 0 60px rgba(0,229,255,0.02)
+}
+.sim-container::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#2471a3 30%,#922b21 70%,transparent);
+  box-shadow:0 0 12px rgba(0,229,255,0.5);z-index:2
+}
+.sim-container::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+
+/* ── HUD Corner Brackets ── */
+.sim-container .sim-hud-corners{
+  position:absolute;inset:0;pointer-events:none;z-index:3
+}
+.sim-container .sim-hud-corners span{
+  position:absolute;width:16px;height:16px;
+  border-color:#2471a3;border-style:solid;border-width:0;
+  opacity:0.6
+}
+.sim-container .sim-hud-corners span:nth-child(1){top:4px;left:4px;border-top-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(2){top:4px;right:4px;border-top-width:2px;border-right-width:2px}
+.sim-container .sim-hud-corners span:nth-child(3){bottom:4px;left:4px;border-bottom-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(4){bottom:4px;right:4px;border-bottom-width:2px;border-right-width:2px}
+
+/* ── Title Bar: System Header ── */
+.sim-title,.sim-container>h3{
+  font-family:'Noto Serif KR',serif!important;
+  font-weight:700;font-size:14px;
+  color:#2471a3;
+  letter-spacing:3px;text-transform:uppercase;
+  background:linear-gradient(90deg,rgba(0,229,255,0.1),rgba(0,229,255,0.03));
+  padding:14px 24px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.15);
+  display:flex;align-items:center;gap:12px;
+  position:relative
+}
+.sim-title::before,.sim-container>h3::before{
+  content:'◆';color:#922b21;font-size:10px;
+  animation:simTitleBlink 2s ease-in-out infinite;
+  text-shadow:0 0 8px rgba(255,45,120,0.6)
+}
+.sim-title::after,.sim-container>h3::after{
+  content:'SIMULATION MODULE';
+  position:absolute;right:24px;
+  font-size:9px;letter-spacing:4px;
+  color:rgba(26,82,118,0.3);font-weight:400
+}
+@keyframes simTitleBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Canvas Viewport: Cockpit Window ── */
+.sim-canvas-wrap{
+  background:linear-gradient(180deg,#020510,#050d20);
+  border:none;border-radius:0;
+  padding:2px;margin:0;
+  position:relative;overflow:hidden;
+  border-top:1px solid rgba(26,82,118,0.1);
+  border-bottom:1px solid rgba(26,82,118,0.1)
+}
+.sim-canvas-wrap::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.015) 3px,rgba(0,229,255,0.015) 4px),
+    linear-gradient(180deg,rgba(0,229,255,0.04),transparent 15%,transparent 85%,rgba(0,229,255,0.04));
+  border-radius:0
+}
+.sim-canvas-wrap::after{
+  content:'REC ●';position:absolute;top:12px;right:16px;z-index:2;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:#922b21;letter-spacing:2px;
+  animation:recBlink 1.5s step-end infinite;
+  text-shadow:0 0 6px rgba(255,45,120,0.5)
+}
+@keyframes recBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.sim-canvas-wrap canvas{
+  max-width:100%;border-radius:0;display:block;
+  position:relative;z-index:0
+}
+
+/* ── Controls Panel: Cockpit Instruments ── */
+.sim-controls{
+  display:flex;flex-wrap:wrap;gap:2px;
+  background:rgba(26,82,118,0.03);
+  padding:16px 20px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.08)
+}
+
+/* ── Slider Group: Boost Lever ── */
+.sim-slider-group{
+  flex:1;min-width:180px;
+  background:linear-gradient(135deg,rgba(245,242,236,0.8),rgba(250,248,244,0.9));
+  border:1px solid rgba(26,82,118,0.12);
+  border-radius:4px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-slider-group:hover{border-color:rgba(26,82,118,0.35)}
+.sim-slider-group::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+.sim-slider-group label{
+  display:block;font-size:10px;color:#5a7a9a;
+  margin-bottom:8px;font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase
+}
+.sim-slider-group .sim-value,.sim-slider-group .sim-readout{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:18px;color:#2471a3;text-align:right;
+  text-shadow:0 0 8px rgba(0,229,255,0.5);
+  margin-top:4px;
+  transition:color .2s,text-shadow .2s
+}
+
+/* ── Custom Range Slider ── */
+.sim-slider-group input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;margin:8px 0;
+  background:linear-gradient(90deg,rgba(0,229,255,0.15),rgba(0,229,255,0.08));
+  border-radius:3px;outline:none;
+  border:1px solid rgba(26,82,118,0.1)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(0,229,255,0.6),0 0 24px rgba(0,229,255,0.2);
+  border:2px solid rgba(255,255,255,0.3);
+  transition:box-shadow .2s,transform .1s
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:hover{
+  box-shadow:0 0 18px rgba(0,229,255,0.8),0 0 36px rgba(0,229,255,0.3);
+  transform:scale(1.15)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:active{
+  background:linear-gradient(135deg,#922b21,#2471a3);
+  box-shadow:0 0 20px rgba(255,45,120,0.6),0 0 40px rgba(0,229,255,0.3)
+}
+.sim-slider-group input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;border:2px solid rgba(255,255,255,0.3);
+  box-shadow:0 0 12px rgba(0,229,255,0.6)
+}
+
+/* ── Buttons: Ignition Keys ── */
+.sim-btn{
+  background:linear-gradient(135deg,#2471a3,#0097a7)!important;
+  color:#faf8f4!important;
+  border:none!important;border-radius:4px!important;
+  padding:12px 28px!important;
+  font-family:'Noto Serif KR',serif!important;
+  font-size:12px!important;font-weight:700!important;
+  letter-spacing:2px!important;text-transform:uppercase!important;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all .3s!important;
+  box-shadow:0 0 16px rgba(0,229,255,0.3),inset 0 1px 0 rgba(0,229,255,0.07)!important
+}
+.sim-btn:hover{
+  background:linear-gradient(135deg,#67f0ff,#2471a3)!important;
+  transform:translateY(-2px)!important;
+  box-shadow:0 4px 20px rgba(0,229,255,0.5),0 0 30px rgba(0,229,255,0.2)!important
+}
+.sim-btn:active{
+  transform:translateY(0) scale(0.98)!important;
+  box-shadow:0 0 24px rgba(0,229,255,0.6),inset 0 0 12px rgba(0,229,255,0.3)!important
+}
+.sim-btn::after{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(0,229,255,0.06),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none
+}
+.sim-btn:hover::after{opacity:1}
+
+/* ── Secondary Button: System Command ── */
+.sim-btn-secondary{
+  background:rgba(245,242,236,0.8)!important;
+  color:#5a7a9a!important;
+  border:1px solid rgba(26,82,118,0.2)!important;
+  box-shadow:none!important;
+  letter-spacing:2px!important
+}
+.sim-btn-secondary:hover{
+  background:rgba(26,82,118,0.08)!important;
+  color:#2471a3!important;
+  border-color:rgba(26,82,118,0.4)!important;
+  box-shadow:0 0 12px rgba(0,229,255,0.15)!important
+}
+
+/* ── Button Container ── */
+.sim-btn-group{
+  display:flex;gap:10px;padding:16px 20px;
+  background:rgba(26,82,118,0.02);
+  border-bottom:1px solid rgba(26,82,118,0.06)
+}
+
+/* ── Readout: Telemetry Display ── */
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:2px;margin:0;
+  background:rgba(26,82,118,0.03);padding:12px 20px
+}
+.sim-metric,.sim-metrics>div{
+  background:linear-gradient(135deg,rgba(245,242,236,0.9),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.1);
+  border-radius:4px;padding:12px 14px;text-align:center;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-metric:hover{border-color:rgba(26,82,118,0.3)}
+.sim-metric::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.2),transparent)
+}
+.sim-metric .sm-label,.sim-metric strong{
+  font-size:9px!important;color:#4a6a8a;
+  font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase;
+  font-weight:400!important;display:block;margin-bottom:4px
+}
+.sim-metric .sm-value{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:20px;color:#2471a3;
+  font-weight:500;display:block;
+  text-shadow:0 0 10px rgba(0,229,255,0.5);
+  letter-spacing:1px;
+  transition:color .3s,text-shadow .3s
+}
+
+/* ── Metrics Container (Pattern B) ── */
+.sim-metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:4px;padding:12px 20px;
+  background:rgba(26,82,118,0.02)
+}
+
+/* ── Running State Animation ── */
+@keyframes simRunning{
+  0%{border-color:rgba(26,82,118,0.25)}
+  50%{border-color:rgba(255,45,120,0.4)}
+  100%{border-color:rgba(26,82,118,0.25)}
+}
+@keyframes simRunningGlow{
+  0%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+  50%{box-shadow:0 0 40px rgba(26,82,118,0.15),0 0 60px rgba(255,45,120,0.05)}
+  100%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+}
+@keyframes telemetryFlash{
+  0%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+  50%{color:#67f0ff;text-shadow:0 0 16px rgba(0,229,255,0.8)}
+  100%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+}
+.sim-container.sim-running{
+  animation:simRunning 2s ease-in-out infinite,simRunningGlow 2s ease-in-out infinite
+}
+.sim-container.sim-running .sim-metric .sm-value{
+  animation:telemetryFlash 1.5s ease-in-out infinite
+}
+.sim-container.sim-running .sim-canvas-wrap::after{
+  color:#00e676;content:'LIVE ●'
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .sim-controls{padding:12px}
+  .sim-slider-group{min-width:140px;padding:10px 12px}
+  .sim-slider-group .sim-value,.sim-slider-group .sim-readout{font-size:14px}
+  .sim-metric .sm-value{font-size:16px}
+  .sim-title::after,.sim-container>h3::after{display:none}
+}
+
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.sim-slider-group{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border-radius:8px;padding:12px}
+.sim-slider-group label{display:block;color:var(--text-dim,#8A8F98);font-size:12px;margin-bottom:4px}
+.sim-slider-group input[type=range]{width:100%;accent-color:var(--cyan)}
+.sim-readout{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:4px}
+.sim-metrics{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.sim-metric{background:rgba(41,121,255,0.1);border:1px solid rgba(41,121,255,0.3);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--blue)}
+.sim-metric strong{color:var(--cyan)}
+.sim-btn{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:13px}
+.sim-btn:hover{filter:brightness(1.15)}
+.sub-step{background:rgba(41,121,255,0.05);border-left:3px solid var(--blue);padding:16px;margin:12px 0;border-radius:0 8px 8px 0}
+.sub-step h4{color:var(--blue);margin:0 0 8px;font-size:15px}
+.derivation-detail{background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);border-radius:8px;padding:16px;margin:12px 0}
+.derivation-detail h4{color:var(--cyan);margin:0 0 8px}
+</style>
+
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

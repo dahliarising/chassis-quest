@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 45: 언더스티어와 오버스티어</title>
+    
+    
+    
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- ══════ STICKY HEADER ══════ -->
+
+
+<div class="container">
+
+<!-- ══════ SERIES INFO ══════ -->
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 45 —</div>
+  <h1 class="hero-title">언더스티어와 오버스티어</h1>
+  <p class="hero-title-en">Understeer & Oversteer Gradient</p>
+  <div class="hero-equation">$$\frac{\delta}{L/R} = 1 + K_{us} \cdot \frac{V_2}{gR}$$</div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:33.8;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">87%</text>
+      <text class="gauge-label" x="50" y="62">DAY 45 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>4단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★★★★</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- ══════ INTUITION SECTION ══════ -->
+<div class="section">
+    <div class="section-label">INTUITION</div>
+    <div class="section-title">핵심 개념</div>
+    <div class="brain-box">
+        <h3>💡 이번 강의의 목표</h3>
+        <p>차량이 선회할 때 전/후축의 슬립각 차이에 따라 언더스티어(전축 슬립 > 후축) 또는 오버스티어(후축 슬립 > 전축) 특성이 결정됩니다. 언더스티어 그래디언트 Kus는 이 특성을 정량화하는 핵심 지표이며, 차속의 제곱에 비례하여 조향 보정이 필요한 정도를 나타냅니다.</p>
+        <div class="time-split">
+            <div class="time-block">
+                <span class="t-range">0-5m</span>
+                <span class="t-desc">개념 도입</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">5-15m</span>
+                <span class="t-desc">유도 과정</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">15-20m</span>
+                <span class="t-desc">Simpack 실습</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">20-25m</span>
+                <span class="t-desc">응용 사례</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════ DERIVATION SECTION ══════ -->
+<div class="section">
+    <div class="section-label">DERIVATION</div>
+    <div class="section-title">수학적 유도</div>
+    <div class="derivations-section">
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 1 — 바이시클 모델 기본 방정식</div>
+    <div class="deriv-equation">$$\delta = \frac{L}{R} + \alpha_f - \alpha_r$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 실제 필요한 조향각 $\delta$ 는 기하학적 조향각(L/R)에 전/후축 슬립각의 차이를 더한 것입니다. 이것이 조향 보정의 출발점입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> $\alpha_f$ > $\alpha_r$ 이면 추가 조향이 필요(언더스티어), $\alpha_f$ < αr이면 조향을 줄여야 함(오버스티어)을 의미합니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day41의 애커만 기하학($\delta$ = L/R)에 Day44의 슬립각 개념을 결합한 확장 모델입니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 1/7</strong>
+    <p>STEP 1의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 2 — 전후축 슬립각 표현</div>
+    <div class="deriv-equation">$$\alpha_f = \frac{W_f}{C_{\alphaf}} \cdot \frac{a_y}{g}, \,\alpha_r = \frac{W_r}{C_{\alphar}} \cdot \frac{a_y}{g}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 각 축의 슬립각은 해당 축하중(W)을 코너링 강성(C$\alpha$)으로 나눈 값에 횡가속도 비율(ay/g)을 곱한 것입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> Wf/C$\alpha_f$ 는 '전축 순응도', Wr/C$\alpha_r$ 는 '후축 순응도'로, 이 비율이 클수록 해당 축이 쉽게 미끄러집니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day44에서 배운 코너링 강성 C$\alpha$ 와 수직하중 의존성이 여기서 직접 활용됩니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 2/7</strong>
+    <p>STEP 2의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 3 — 언더스티어 그래디언트 도출</div>
+    <div class="deriv-equation">$$K_{us} = \frac{W_f}{C_{\alpha f}} - \frac{W_r}{C_{\alpha r}} \quad [\text{deg}/g]$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> Kus > 0이면 언더스티어(안전), Kus = 0이면 뉴트럴 스티어, Kus < 0이면 오버스티어(불안정)입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 전축 순응도가 후축보다 크면 양(+)이 되어 언더스티어를 나타냅니다. 대부분의 양산차는 양(+)으로 설계됩니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 그래디언트가 바로 Day44의 전후축 코너링 강성 밸런스의 최종 지표입니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 3/7</strong>
+    <p>STEP 3의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 4 — 조향각-횡가속도 관계</div>
+    <div class="deriv-equation">$$\delta = \frac{L}{R} + K_{us} \cdot a_y = \frac{L}{R} + K_{us} \cdot \frac{V_2}{R}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 실제 조향각은 기하학적 조향각에 Kus$\times$ ay를 더한 것입니다. 속도가 높을수록 (언더스티어 시) 더 많은 조향이 필요합니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> V²/R을 대입하면 속도의 제곱에 비례하여 보정량이 증가함을 알 수 있습니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이것이 hero equation의 완전한 유도입니다. ay = V²/R을 대입하면 최종 형태를 얻습니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 4/7</strong>
+    <p>STEP 4의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 5 — 특성 속도 (Characteristic Speed)</div>
+    <div class="deriv-equation">$$V_{char} = \frac{gL}{K_{us}} (\text{Understeer만 정의})$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 특성 속도는 조향 응답(정상원선회 게인)이 최대가 되는 속도입니다. 이 속도에서 조향감도가 최대이며, 그 이상에서는 감소합니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> Kus > 0일 때만 정의됩니다. 분모에 Kus가 있으므로 언더스티어가 약할수록 특성속도가 높아집니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 속도는 Day46에서 배울 요 응답 전달함수의 주파수 특성과 직결됩니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 5/7</strong>
+    <p>STEP 5의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 6 — 임계 속도 (Critical Speed)</div>
+    <div class="deriv-equation">$$V_{crit} = \frac{-gL}{K_{us}} (\text{Oversteer만 정의,}K_{us} < 0)$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 오버스티어 차량에서만 존재하는 속도로, 이 속도를 초과하면 차량이 불안정해집니다(스핀). Kus < 0일 때만 정의됩니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> Kus가 음수이므로 -Kus가 양수가 되어 제곱근이 실수값을 갖습니다. 이 속도에서 요 모멘트 게인이 무한대가 됩니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 안전 설계의 관점에서 대부분의 양산차는 Vcrit가 존재하지 않도록 (Kus > 0) 설계합니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 6/7</strong>
+    <p>STEP 6의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 7 — 종합: 정상원선회 조향 게인</div>
+    <div class="deriv-equation">$$\frac{R}{\delta\cdotL} = \frac{1}{1 + K_{us}\cdotV_2/(gL)}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 정상원선회에서의 요 레이트 게인(yaw rate gain)으로, 조향 입력 대비 차량 응답을 나타냅니다. Kus=0이면 게인이 V에 비례, Kus>0이면 고속에서 포화합니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 분모에 KusV² 항이 있어 언더스티어(Kus>0)시 고속에서 게인 감소, 오버스티어(Kus<0)시 Vcrit에서 발산합니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 게인이 운전자가 체감하는 '조향 응답성'의 핵심이며, Day46의 동적 전달함수로 확장됩니다.</p>
+    </div>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① 자전거 모델 (Bicycle Model) 설정</p>
+    <div class="sub-eq">$$m(\dot{v} + u\dot{\psi}) = F_{yf} + F_{yr}$$</div>
+    <div class="sub-eq">$$I_z \ddot{\psi} = l_f F_{yf} - l_r F_{yr}$$</div>
+    <p class="sub-note">2-DOF: 횡속도(v)와 요레이트(ψ̇). 좌/우 타이어를 하나로 합친 단순 모델이지만 핸들링 특성 분석에 충분</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 정상상태 조건에서 언더스티어 그래디언트</p>
+    <div class="sub-eq">$$K_{us} = \frac{m}{L}\left(\frac{l_r}{C_{\alpha f}} - \frac{l_f}{C_{\alpha r}}\right)$$</div>
+    <div class="sub-eq">$$\delta = \frac{L}{R} + K_{us} \frac{V^2}{R} = \frac{L}{R} + K_{us} a_y$$</div>
+    <p class="sub-note">$K_{us}$ > 0이면 속도↑ $\rightarrow$ 같은 R을 유지하려면 조향↑ 필요 = <strong>언더스티어</strong></p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ 특성속도와 임계속도</p>
+    <div class="sub-eq">$$\text{언더스티어: } V_{char} = \sqrt{\frac{L}{K_{us}}} \quad (\text{요레이트 게인 최대 속도})$$</div>
+    <div class="sub-eq">$$\text{오버스티어: } V_{crit} = \sqrt{\frac{-L}{K_{us}}} \quad (\text{불안정 시작 속도!})$$</div>
+    <p class="sub-note"><strong>V_char:</strong> 요레이트 게인의 피크. 이 속도 이상에서 차량 반응이 둔해짐. <strong>V_crit:</strong> 이 속도 초과 시 스핀 위험!</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ 중립 조향점(Neutral Steer Point)</p>
+    <div class="sub-eq">$$x_{NS} = \frac{l_r C_{\alpha r} - l_f C_{\alpha f}}{C_{\alpha f} + C_{\alpha r}}$$</div>
+    <p class="sub-note">횡력 인가 시 요잉 없이 순수 횡이동하는 점. <strong>설계:</strong> NS점이 CG 앞쪽 $\rightarrow$ 언더스티어. 뒤쪽 $\rightarrow$ 오버스티어</p>
+  </div>
+</div>
+
+<!-- ══════ PARAMETER TABLE SECTION ══════ -->
+<div class="section">
+    <div class="section-label">PARAMETERS</div>
+    <div class="section-title">핵심 변수</div>
+    <div class="param-table-wrap"><table class="param-table">
+<thead><tr><th>기호</th><th>이름</th><th>일반 범위</th><th>단위</th><th>Simpack 경로</th><th>비고</th></tr></thead><tbody>
+<tr><td>$K_{us}$</td><td>언더스티어 그래디언트</td><td>0.5~3.0</td><td>deg/g</td><td><code>Analysis.UndersteerGrad</code></td><td>>0 언더, <0 오버</td></tr>
+<tr><td>$\alpha_f$</td><td>전축 슬립각</td><td>0~8</td><td>deg</td><td><code>Tire_F.SlipAngle</code></td><td>좌우 평균</td></tr>
+<tr><td>$\alpha_r$</td><td>후축 슬립각</td><td>0~6</td><td>deg</td><td><code>Tire_R.SlipAngle</code></td><td>좌우 평균</td></tr>
+<tr><td>$V_{char}$</td><td>특성 속도</td><td>60~120</td><td>km/h</td><td><code>N/A (계산)</code></td><td>US 차량만</td></tr>
+<tr><td>$V_{crit}$</td><td>임계 속도</td><td>100~200</td><td>km/h</td><td><code>N/A (계산)</code></td><td>OS 차량만</td></tr>
+<tr><td>$a_y$</td><td>횡가속도</td><td>0~10</td><td>m/s²</td><td><code>Body.LatAccel</code></td><td>정상원선회 기준</td></tr>
+<tr><td>$W_f,\,W_r$</td><td>전/후축 하중</td><td>5000~8000</td><td>N</td><td><code>Axle.StaticLoad</code></td><td>정적 + 동적</td></tr>
+<tr><td>$L$</span></td><td>축거</td><td>2.5~3.0</td><td>m</td><td><code>Body.Wheelbase</code></td><td>전후축간 거리</td></tr>
+</tbody></table></div>
+
+</div>
+
+<!-- ══════ SVG DIAGRAMS ══════ -->
+<div class="section">
+    <div class="section-label">DIAGRAMS</div>
+    <div class="section-title">시각화</div>
+    <div class="svg-wrapper">
+        <h4>언더/오버스티어 비교 다이어그램</h4>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 500 380" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <line x1="60" y1="340" x2="460" y2="340" stroke="#c0d8ef" stroke-width="1.5"/>
+      <line x1="60" y1="340" x2="60" y2="40" stroke="#c0d8ef" stroke-width="1.5"/>
+      <text x="260" y="370" text-anchor="middle" fill="#c0d8ef" font-size="12">차속 V (km/h)</text>
+      <text x="30" y="190" fill="#c0d8ef" font-size="12" transform="rotate(-90,30,190)">δ / (L/R)</text>
+      <line x1="60" y1="280" x2="460" y2="280" stroke="#6c3483" stroke-width="1.5" stroke-dasharray="6,4"/>
+      <text x="470" y="284" fill="#6c3483" font-size="11">NS (중립)</text>
+      <path d="M60,280 Q200,260 350,180 Q420,140 460,100" fill="none" stroke="#ff9100" stroke-width="2.5"/>
+      <text x="400" y="90" fill="#ff9100" font-size="12" font-weight="500">US (언더)</text>
+      <path d="M60,280 Q200,300 300,340" fill="none" stroke="#1e7e34" stroke-width="2.5"/>
+      <text x="310" y="335" fill="#1e7e34" font-size="12" font-weight="500">OS (오버)</text>
+      <circle cx="300" cy="340" r="6" fill="#2471a3"/>
+      <text x="280" y="355" fill="#2471a3" font-size="10">V_crit</text>
+      <line x1="60" y1="280" x2="60" y2="340" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="65" y="315" fill="#2471a3" font-size="10">K_us·V²/g</text>
+      <rect x="100" y="50" width="180" height="55" fill="rgba(245,242,236,0.85)" stroke="rgba(0,229,255,0.15)" rx="4"/>
+      <text x="190" y="70" text-anchor="middle" fill="#2471a3" font-size="11">안정성 팩터</text>
+      <text x="190" y="90" text-anchor="middle" fill="#c0d8ef" font-size="10">K_us > 0: 언더스티어</text>
+      <text x="190" y="100" text-anchor="middle" fill="#c0d8ef" font-size="10">K_us < 0: 오버스티어</text>
+    </svg>
+    </div>
+    <div class="svg-wrapper">
+        <h4>조향각-횡가속도 선도</h4>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 500 350" class="diagram-svg">
+    <defs><marker id="arrSA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2471a3"/></marker></defs>
+    <rect x="60" y="20" width="420" height="300" fill="none" stroke="#333" stroke-width="1" rx="4"/>
+    <line x1="80" y1="290" x2="460" y2="290" stroke="#555" stroke-width="1.5" marker-end="url(#arrSA)"/>
+    <line x1="80" y1="290" x2="80" y2="30" stroke="#555" stroke-width="1.5" marker-end="url(#arrSA)"/>
+    <text x="270" y="325" fill="#999" font-size="12" text-anchor="middle">횡가속도 ay (g)</text>
+    <text x="25" y="160" fill="#999" font-size="12" text-anchor="middle" transform="rotate(-90,25,160)">조향각 δ (deg)</text>
+    <line x1="80" y1="250" x2="440" y2="100" stroke="#ff9100" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="420" y="90" fill="#ff9100" font-size="11">Understeer</text>
+    <line x1="80" y1="250" x2="440" y2="250" stroke="#1e7e34" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="420" y="245" fill="#1e7e34" font-size="11">Neutral</text>
+    <line x1="80" y1="250" x2="300" y2="290" stroke="#6c3483" stroke-width="2" stroke-dasharray="8,4"/>
+    <text x="310" y="285" fill="#6c3483" font-size="11">Oversteer</text>
+    <circle cx="80" cy="250" r="5" fill="#2471a3"/>
+    <text x="90" y="265" fill="#2471a3" font-size="10">L/R (Ackermann)</text>
+    <text x="130" y="310" fill="#888" font-size="10">0.2g</text><text x="260" y="310" fill="#888" font-size="10">0.5g</text>
+    <text x="390" y="310" fill="#888" font-size="10">0.8g</text>
+</svg>
+    </div>
+    <div class="svg-wrapper">
+        <h4>슬립각 벡터 다이어그램</h4>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 500 380" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <defs><marker id="arr3" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><polygon points="0 0,10 4,0 8" fill="#2471a3"/></marker></defs>
+      <g transform="translate(200,200)">
+        <rect x="-25" y="-50" width="50" height="100" fill="none" stroke="#2471a3" stroke-width="2.5" rx="8"/>
+        <text x="0" y="5" text-anchor="middle" fill="#c0d8ef" font-size="11">타이어</text>
+        <line x1="0" y1="-50" x2="0" y2="-130" stroke="#1e7e34" stroke-width="2.5" marker-end="url(#arr3)"/>
+        <text x="10" y="-100" fill="#1e7e34" font-size="12" font-weight="500">V (속도)</text>
+        <line x1="0" y1="-50" x2="-70" y2="-150" stroke="#ff9100" stroke-width="2.5" marker-end="url(#arr3)"/>
+        <text x="-90" y="-120" fill="#ff9100" font-size="12" font-weight="500">진행방향</text>
+        <path d="M0,-70 A30,30 0 0,0 -20,-85" fill="none" stroke="#2471a3" stroke-width="2"/>
+        <text x="-40" y="-65" fill="#2471a3" font-size="13" font-weight="600">α</text>
+        <line x1="25" y1="0" x2="140" y2="0" stroke="url(#cyberGrad)" stroke-width="2.5" marker-end="url(#arr3)"/>
+        <text x="100" y="-12" fill="#2471a3" font-size="12" font-weight="500">Fᵧ (횡력)</text>
+      </g>
+      <rect x="300" y="50" width="180" height="160" fill="rgba(245,242,236,0.85)" stroke="rgba(0,229,255,0.15)" rx="6"/>
+      <text x="390" y="75" text-anchor="middle" fill="#2471a3" font-size="12" font-weight="500">선형 영역</text>
+      <text x="390" y="100" text-anchor="middle" fill="#c0d8ef" font-size="11">Fᵧ = Cα · α</text>
+      <line x1="320" y1="190" x2="460" y2="190" stroke="#c0d8ef" stroke-width="1"/>
+      <line x1="320" y1="190" x2="320" y2="120" stroke="#c0d8ef" stroke-width="1"/>
+      <text x="460" y="205" fill="#c0d8ef" font-size="10">α</text>
+      <text x="310" y="115" fill="#c0d8ef" font-size="10">Fᵧ</text>
+      <line x1="320" y1="190" x2="400" y2="130" stroke="#1e7e34" stroke-width="2"/>
+      <path d="M400,130 Q430,120 460,125" fill="none" stroke="#ff9100" stroke-width="2"/>
+      <text x="420" y="115" fill="#ff9100" font-size="10">포화</text>
+      <text x="350" y="155" fill="#1e7e34" font-size="10">기울기=Cα</text>
+    </svg>
+    </div>
+    <div class="svg-wrapper">
+        <h4>요 레이트 게인 vs 속도</h4>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 500 380" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <line x1="60" y1="340" x2="460" y2="340" stroke="#c0d8ef" stroke-width="1.5"/>
+      <line x1="60" y1="340" x2="60" y2="40" stroke="#c0d8ef" stroke-width="1.5"/>
+      <text x="260" y="370" text-anchor="middle" fill="#c0d8ef" font-size="12">주파수 ω (rad/s)</text>
+      <text x="30" y="190" fill="#c0d8ef" font-size="12" transform="rotate(-90,30,190)">|r/δ| (dB)</text>
+      <path d="M60,200 Q120,200 180,195 Q240,185 280,160 Q310,130 320,100 Q330,130 360,180 Q400,220 460,260" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+      <circle cx="320" cy="100" r="6" fill="#2471a3"/>
+      <text x="330" y="90" fill="#2471a3" font-size="11">공진 ωn</text>
+      <line x1="320" y1="100" x2="320" y2="340" stroke="#2471a3" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="140" y="180" fill="#1e7e34" font-size="11">저주파 게인</text>
+      <text x="400" y="250" fill="#ff9100" font-size="11">고주파 감쇠</text>
+      <path d="M60,200 Q200,200 300,200 Q400,250 460,280" fill="none" stroke="#2471a3" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="420" y="295" fill="#2471a3" font-size="10">과감쇠</text>
+      <rect x="80" y="50" width="160" height="45" fill="rgba(245,242,236,0.85)" stroke="rgba(0,229,255,0.15)" rx="4"/>
+      <text x="160" y="68" text-anchor="middle" fill="#2471a3" font-size="11">요레이트 전달함수</text>
+      <text x="160" y="85" text-anchor="middle" fill="#c0d8ef" font-size="10">r(s)/δ(s) = G(s)</text>
+    </svg>
+    </div>
+</div>
+
+
+<!-- ══════ SIMPACK SECTION ══════ -->
+<div class="section">
+    <div class="section-label">SIMPACK</div>
+    <div class="section-title">다물체 동역학 시뮬레이션</div>
+    <div class="simpack-module">
+<h4>Simpack 매핑 가이드</h4>
+<div class="sp-row">
+    <span class="sp-sym">Constant Radius</span>
+    <span class="sp-path">Maneuver > Const Radius</span>
+    <span class="sp-detail">일정 반경 선회 시뮬레이션</span>
+    <span class="sp-warn">⚠ 가속도 증분 0.1g/s 이하 권장</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Steering Angle</span>
+    <span class="sp-path">Input > Steer</span>
+    <span class="sp-detail">조향각 입력 제어</span>
+    <span class="sp-warn">⚠ 스티어링 비 고려</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Yaw Rate</span>
+    <span class="sp-path">Results > Body > YawRate</span>
+    <span class="sp-detail">요 각속도 출력</span>
+    <span class="sp-warn">⚠ 정상 상태 수렴 확인</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Lat. Accel</span>
+    <span class="sp-path">Results > Body > LatAccel</span>
+    <span class="sp-detail">횡가속도 출력</span>
+    <span class="sp-warn">⚠ 센서 위치 CG 설정</span>
+</div>
+</div>
+
+</div>
+
+<!-- ══════ VEHICLE EXAMPLE ══════ -->
+<div class="section">
+    <div class="section-label">EXAMPLE</div>
+    <div class="section-title">실차 적용 사례</div>
+    <div class="intuition-card">
+        <h4>Hyundai i30 N — 언더스티어 그래디언트 분석</h4>
+        <p><strong>설명:</strong> 스포츠 해치백의 전후 하중 배분 62:38, 전후 타이어 동일 사양(245/35R19) 조건에서 언더스티어 특성을 분석합니다.</p>
+        <p><strong>계산:</strong> $W_f/C_{\alphaf} = 9120/(2 \times 1100) = 4.15°/g$, $W_r/C_{\alphar} = 5580/(2 \times 1100) = 2.54°/g$ → $K_{us} = 4.15 - 2.54 = 1.61°/g$</p>
+        <p><strong>의미:</strong> 양의 언더스티어 그래디언트(1.61°/g)로 안정적 조향 특성. N 모드에서는 후축 전자식 LSD로 Kus를 낮춰 중립 스티어에 가까운 응답을 구현합니다.</p>
+    </div>
+</div>
+
+<!-- ══════ QUIZ SECTION ══════ -->
+
+<!-- ══════ INTERACTIVE SIMULATION ══════ -->
+<div class="section-card" style="margin-top:32px">
+  <div class="section-label">INTERACTIVE SIMULATION</div>
+  <h2 class="section-title">🎮 언더/오버스티어 시각화</h2>
+  <div class="sim-container">
+    <div class="sim-canvas-wrap">
+      <canvas id="sim-day45" width="700" height="400"></canvas>
+    </div>
+    <div id="sim-day45-controls" class="sim-controls"></div>
+    <div id="sim-day45-metrics" class="sim-metrics"></div>
+  </div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('sim-day45');
+    const ctx = canvas.getContext('2d');
+    const W = 700, H = 400;
+    const ctrlBox = document.getElementById('sim-day45-controls');
+    const metricBox = document.getElementById('sim-day45-metrics');
+    
+    function addSlider(label, min, max, value, step, id) {
+      const g = document.createElement('div');
+      g.className = 'sim-slider-group';
+      g.innerHTML = '<label>' + label + '</label><input type="range" min="'+min+'" max="'+max+'" value="'+value+'" step="'+step+'" id="'+id+'"><div class="sim-readout" id="'+id+'-val">'+value+'</div>';
+      ctrlBox.appendChild(g);
+      const inp = document.getElementById(id);
+      inp.oninput = function(){ document.getElementById(id+'-val').textContent = this.value; draw(); };
+      return inp;
+    }
+    function addBtn(label, fn) {
+      const b = document.createElement('button');
+      b.className = 'sim-btn'; b.textContent = label; b.onclick = fn;
+      ctrlBox.appendChild(b);
+    }
+    function setMetrics(arr) {
+      metricBox.innerHTML = arr.map(m => '<div class="sim-metric"><strong>'+m[0]+':</strong>&nbsp;'+m[1]+'</div>').join('');
+    }
+    
+    const sl_kus = addSlider('안정성 계수 Kus', -0.01, 0.05, 0.01, 0.002, 'sim45-kus');
+    const sl_v = addSlider('차속 (km/h)', 20, 200, 80, 5, 'sim45-v');
+    function draw() {
+      ctx.fillStyle='#020510'; ctx.fillRect(0,0,W,H);
+      const Kus=+sl_kus.value, V=+sl_v.value/3.6, L=2.7;
+      // Steady-state: δ = L/R + Kus*V²/R → R = L*V²/(V²*Kus+L*δ_approx)
+      // δ/δ_ack = 1/(1+Kus*V²/L)
+      const hH=H/2;
+      // Top: δ vs lateral acceleration
+      ctx.strokeStyle='#2471a3';ctx.lineWidth=2;ctx.beginPath();
+      for(let i=0;i<=300;i++){
+        const ay=i*10/300; // m/s²
+        const delta_ack=L*ay/(V*V+0.1);
+        const delta=delta_ack*(1+Kus*V*V/L);
+        const px=50+i*(W-100)/300, py=hH/2-delta*(hH-20)/0.05;
+        i===0?ctx.moveTo(px,Math.max(5,Math.min(hH-5,py))):ctx.lineTo(px,Math.max(5,Math.min(hH-5,py)));
+      } ctx.stroke();
+      // Neutral steer reference
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.setLineDash([3,3]);ctx.beginPath();
+      for(let i=0;i<=300;i++){const ay=i*10/300;const da=L*ay/(V*V+0.1);const px=50+i*(W-100)/300,py=hH/2-da*(hH-20)/0.05;i===0?ctx.moveTo(px,py):ctx.lineTo(px,Math.max(5,Math.min(hH-5,py)));}ctx.stroke();ctx.setLineDash([]);
+      // Labels
+      const type=Kus>0.001?'언더스티어':Kus<-0.001?'오버스티어':'뉴트럴';
+      const color=Kus>0.001?'#2471a3':Kus<-0.001?'#922b21':'#00e676';
+      ctx.fillStyle=color;ctx.font='bold 16px Orbitron,monospace';ctx.fillText(type,W/2-50,hH-10);
+      // Bottom: yaw rate gain
+      ctx.strokeStyle='#2979ff';ctx.lineWidth=2;ctx.beginPath();
+      for(let i=1;i<=300;i++){
+        const v=i*200/300/3.6;
+        const gain=v/(L*(1+Kus*v*v/L));
+        const px=50+i*(W-100)/300, py=hH+(hH/2-gain*(hH-20)/2);
+        i===1?ctx.moveTo(px,Math.max(hH+5,Math.min(H-5,py))):ctx.lineTo(px,Math.max(hH+5,Math.min(H-5,py)));
+      } ctx.stroke();
+      ctx.fillStyle='#3d6080';ctx.font='11px Share Tech Mono,monospace';ctx.fillText('조향각 vs ay',5,15);ctx.fillText('요레이트 게인 vs V',5,hH+15);
+      if(Kus<0){const Vcr=Math.sqrt(-L/Kus)*3.6;ctx.fillStyle='#922b21';ctx.fillText('⚠ 임계속도 Vcr='+Vcr.toFixed(0)+' km/h',W/2,hH+30);}
+      setMetrics([['Kus',Kus.toFixed(4)],['상태',type],['V',V.toFixed(1)+' m/s'],['δ/δ_ack','1/(1+Kus·V²/L)']]);
+    }
+
+    draw();
+  })();
+  </script>
+</div>
+
+<!-- ══════ QUIZ ══════ -->
+
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">언더/오버스티어 심화</h2>
+
+  <!-- Deep Dive 1 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>💡 언더스티어 그래디언트($K_{us}$) — 차량 핸들링의 DNA</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive1">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">하나의 숫자로 차량 성격을 읽는다</h4>
+        <p>언더스티어 그래디언트 $K_{us} = W_f/C_{\alpha f} - W_r/C_{\alpha r}$ [°/g]는 차량의 정상상태 코너링 특성을 하나의 숫자로 요약합니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">언더스티어 그래디언트: $K_{us} = \frac{W_f}{C_{\alpha f}} - \frac{W_r}{C_{\alpha r}}$ [°/g]. $K_{us} \gt 0$: 언더스티어, $K_{us} = 0$: 뉴트럴, $K_{us} \lt 0$: 오버스티어. 특성속도 $V_{char} = \sqrt{\frac{gL}{K_{us}}}$.</p>
+        <p><strong style="color:var(--cyan-light);">$K_{us}$ > 0 (언더스티어):</strong> 속도가 높아질수록 더 많은 조향이 필요. 승용차의 기본 설계 방향. 르노코리아 기준 1.0~3.0 °/g.</p>
+        <p><strong style="color:var(--cyan-light);">$K_{us}$ = 0 (뉴트럴 스티어):</strong> 모든 속도에서 동일한 조향각. 이론적으로 최고의 응답성이지만 실차에서는 불안정.</p>
+        <p>$K_{us}$를 결정하는 핵심 요소: (1) 전/후 축 하중 배분(Wf/Wr), (2) 전/후 타이어 코너링 강성(C$\alpha_f$/C$\alpha_r$), (3) 롤 강성 배분(FRSD), (4) 컴플라이언스 스티어. 서스펜션 엔지니어가 이 4가지를 조율하는 것이 핸들링 튜닝의 본질입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 2 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🔬 한계 영역의 언더/오버스티어 — 선형 이론의 한계</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive2">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">타이어가 포화되면 모든 것이 달라진다</h4>
+        <p>$K_{us}$ 이론은 타이어가 선형 영역(작은 슬립각)에 있을 때만 유효합니다. 횡가속도가 0.4g를 넘으면 타이어 비선형성이 커져서 선형 모델의 예측이 빗나갑니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">한계 영역 횡방향 하중이동: $\Delta F_z = \frac{m \cdot a_y \cdot h_{CG}}{t_w}$. 하중이동이 클수록 좌우 타이어 $\mu$ 합이 감소(하중 민감도 효과) $\rightarrow$ 더 빨리 그립 한계 도달.</p>
+        <p><strong style="color:var(--cyan-light);">비선형 영역에서의 변화:</strong> 하중 이동에 의해 외측 타이어가 먼저 포화되면서, 전축이 먼저 포화되면 파워 언더스티어, 후축이 먼저 포화되면 파워 오버스티어가 발생합니다.</p>
+        <p>이것이 ISO 4138 정상원선회 시험에서 횡가속도 0.1g부터 한계까지의 조향각-횡가속도 곡선을 측정하는 이유입니다. 선형 구간의 기울기가 $K_{us}$이고, 비선형 구간의 형태가 한계 거동을 보여줍니다.</p>
+        <p>CarSim/veDYNA 시뮬레이션에서 이 곡선을 정확히 재현하려면 Pacejka 타이어 모델의 하중 민감도 계수가 핵심입니다. 선형 영역에서만 맞추고 한계 영역을 무시하면 ESC 제어 로직 검증에 실패합니다.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+  <!-- Q1 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 01 — 언더스티어</div>
+    <p class="quiz-q">전축 슬립각 > 후축 슬립각일 때 차량 특성은?</p>
+    <div class="quiz-options" id="q1">
+      <div class="quiz-opt">A. 언더스티어(조향을 더 해야 함)</div>
+      <div class="quiz-opt">B. 오버스티어(조향을 줄여야 함)</div>
+      <div class="quiz-opt">C. 뉴트럴스티어</div>
+      <div class="quiz-opt">D. 차량이 정지함</div>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 02 — 특성 속도</div>
+    <p class="quiz-q">언더스티어 차량의 특성 속도(Vchar)에서 일어나는 현상은?</p>
+    <div class="quiz-options" id="q2">
+      <div class="quiz-opt">A. 요 레이트 게인이 최대</div>
+      <div class="quiz-opt">B. 차량이 정지</div>
+      <div class="quiz-opt">C. 타이어가 잠김</div>
+      <div class="quiz-opt">D. 롤이 0이 됨</div>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 03 — 시뮬레이션</div>
+    <p class="quiz-q">Simpack에서 언더스티어 그래디언트 측정에 최적인 시험은?</p>
+    <div class="quiz-options" id="q3">
+      <div class="quiz-opt">A. Constant Radius Test(정상원선회 시험)</div>
+      <div class="quiz-opt">B. Step Steer</div>
+      <div class="quiz-opt">C. Lane Change</div>
+      <div class="quiz-opt">D. Brake in Turn</div>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+  </div>
+</div>
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section">
+    <a href="Day44_코너링포스슬립각.html" class="nav-btn prev">$\leftarrow$ Day 44</a>
+    <a href="Day46_요응답전달함수.html" class="nav-btn next">Day 46 $\rightarrow$</a>
+</div>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer">
+    <p>Vehicle Dynamics & Simulation | Part 7: 조향 & 선회 동역학</p>
+    <p>Generated: 2026-03-09 18:17:59 | Day 45/ 60</p>
+</footer>
+
+</div>
+
+<!-- ══════ SCRIPTS ══════ -->
+
+
+<style>
+.deriv-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 16px 0; transition: all 0.3s ease; }
+.deriv-card:hover { border-color: var(--gold); box-shadow: 0 4px 20px rgba(0,229,255,0.1); }
+.deriv-step-num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 12px; letter-spacing: 0.5px; }
+.deriv-equation { background: var(--surface2); padding: 16px 20px; border-radius: 8px; margin: 12px 0; font-size: 16px; overflow-x: auto; border-left: 3px solid var(--gold); }
+.deriv-explain { margin-top: 16px; }
+.deriv-explain p { margin: 8px 0; font-size: 14px; line-height: 1.7; color: var(--text); }
+.deriv-explain .label { color: var(--blue); font-weight: 600; font-size: 13px; }
+.checkpoint { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); padding: 16px; border-radius: 8px; margin: 16px 0; }
+.param-table-wrap { overflow-x: auto; }
+.param-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.param-table th, .param-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+.param-table th { background: var(--surface2); font-weight: 600; color: var(--gold); }
+.param-table tbody tr:hover { background: var(--surface2); }
+.svg-wrapper { margin: 24px 0; padding: 20px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); }
+.svg-wrapper h4 { color: var(--text-bright); margin-bottom: 16px; }
+.diagram-svg { width: 100%; height: auto; max-width: 500px; }
+.quiz-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--gold); padding: 20px; margin: 16px 0; border-radius: 8px; }
+.quiz-card h4 { color: var(--gold); margin-bottom: 12px; }
+.q-question { font-size: 15px; margin-bottom: 12px; line-height: 1.6; }
+.q-options label { display: block; padding: 10px; margin: 8px 0; background: var(--surface2); border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+.q-options label:hover { background:rgba(26,82,118,0.1); }
+.q-btn { background: var(--gold); color: var(--bg); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.q-btn:hover { background: var(--gold-light); }
+.q-answer { padding: 16px; background: rgba(0,230,118,0.1); border-radius: 8px; margin-top: 12px; line-height: 1.6; }
+.simpack-module { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 12px; }
+.simpack-module h4 { color: var(--gold); margin-bottom: 16px; }
+.sp-row { background: var(--surface2); padding: 16px; margin: 12px 0; border-radius: 8px; display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 12px; align-items: center; }
+.sp-sym { font-weight: 600; color: var(--gold); }
+.sp-path { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--blue); }
+.sp-detail { font-size: 13px; }
+.sp-warn { color: var(--orange); font-size: 12px; }
+.spaced-rep-tracker table { width: 100%; border-collapse: collapse; }
+.spaced-rep-tracker td { padding: 12px; border: 1px solid var(--border); text-align: center; }
+.spaced-rep-tracker input { width: 20px; height: 20px; cursor: pointer; }
+.nav-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 40px 0; }
+.nav-btn { padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-align: center; text-decoration: none; color: var(--gold); font-weight: 500; transition: all 0.3s; }
+.nav-btn:hover { background: var(--surface2); border-color: var(--gold); }
+.footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 60px; color: var(--text-dim); font-size: 12px; }
+.intuition-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 12px; }
+.intuition-card h4 { color: var(--gold); margin-bottom: 12px; }
+.intuition-card p { margin: 8px 0; line-height: 1.6; }
+@media (max-width: 640px) {
+    .sp-row { grid-template-columns: 1fr; }
+    .nav-section { grid-template-columns: 1fr; }
+}
+
+/* === Enhanced: Simulation & Sub-step Styles === */
+
+/* ╔══════════════════════════════════════════════════╗
+   ║  CYBER COCKPIT — SIMULATION MODULE v2.0         ║
+   ╚══════════════════════════════════════════════════╝ */
+
+/* ── Container: HUD Frame ── */
+.sim-container{
+  background:linear-gradient(135deg,rgba(245,242,236,0.92),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.25);
+  border-radius:4px;
+  padding:0;margin:28px 0;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 30px rgba(0,229,255,0.08),inset 0 0 60px rgba(0,229,255,0.02)
+}
+.sim-container::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#2471a3 30%,#922b21 70%,transparent);
+  box-shadow:0 0 12px rgba(0,229,255,0.5);z-index:2
+}
+.sim-container::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+
+/* ── HUD Corner Brackets ── */
+.sim-container .sim-hud-corners{
+  position:absolute;inset:0;pointer-events:none;z-index:3
+}
+.sim-container .sim-hud-corners span{
+  position:absolute;width:16px;height:16px;
+  border-color:#2471a3;border-style:solid;border-width:0;
+  opacity:0.6
+}
+.sim-container .sim-hud-corners span:nth-child(1){top:4px;left:4px;border-top-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(2){top:4px;right:4px;border-top-width:2px;border-right-width:2px}
+.sim-container .sim-hud-corners span:nth-child(3){bottom:4px;left:4px;border-bottom-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(4){bottom:4px;right:4px;border-bottom-width:2px;border-right-width:2px}
+
+/* ── Title Bar: System Header ── */
+.sim-title,.sim-container>h3{
+  font-family:'Noto Serif KR',serif!important;
+  font-weight:700;font-size:14px;
+  color:#2471a3;
+  letter-spacing:3px;text-transform:uppercase;
+  background:linear-gradient(90deg,rgba(0,229,255,0.1),rgba(0,229,255,0.03));
+  padding:14px 24px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.15);
+  display:flex;align-items:center;gap:12px;
+  position:relative
+}
+.sim-title::before,.sim-container>h3::before{
+  content:'◆';color:#922b21;font-size:10px;
+  animation:simTitleBlink 2s ease-in-out infinite;
+  text-shadow:0 0 8px rgba(255,45,120,0.6)
+}
+.sim-title::after,.sim-container>h3::after{
+  content:'SIMULATION MODULE';
+  position:absolute;right:24px;
+  font-size:9px;letter-spacing:4px;
+  color:rgba(26,82,118,0.3);font-weight:400
+}
+@keyframes simTitleBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Canvas Viewport: Cockpit Window ── */
+.sim-canvas-wrap{
+  background:linear-gradient(180deg,#020510,#050d20);
+  border:none;border-radius:0;
+  padding:2px;margin:0;
+  position:relative;overflow:hidden;
+  border-top:1px solid rgba(26,82,118,0.1);
+  border-bottom:1px solid rgba(26,82,118,0.1)
+}
+.sim-canvas-wrap::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.015) 3px,rgba(0,229,255,0.015) 4px),
+    linear-gradient(180deg,rgba(0,229,255,0.04),transparent 15%,transparent 85%,rgba(0,229,255,0.04));
+  border-radius:0
+}
+.sim-canvas-wrap::after{
+  content:'REC ●';position:absolute;top:12px;right:16px;z-index:2;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:#922b21;letter-spacing:2px;
+  animation:recBlink 1.5s step-end infinite;
+  text-shadow:0 0 6px rgba(255,45,120,0.5)
+}
+@keyframes recBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.sim-canvas-wrap canvas{
+  max-width:100%;border-radius:0;display:block;
+  position:relative;z-index:0
+}
+
+/* ── Controls Panel: Cockpit Instruments ── */
+.sim-controls{
+  display:flex;flex-wrap:wrap;gap:2px;
+  background:rgba(26,82,118,0.03);
+  padding:16px 20px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.08)
+}
+
+/* ── Slider Group: Boost Lever ── */
+.sim-slider-group{
+  flex:1;min-width:180px;
+  background:linear-gradient(135deg,rgba(245,242,236,0.8),rgba(250,248,244,0.9));
+  border:1px solid rgba(26,82,118,0.12);
+  border-radius:4px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-slider-group:hover{border-color:rgba(26,82,118,0.35)}
+.sim-slider-group::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+.sim-slider-group label{
+  display:block;font-size:10px;color:#5a7a9a;
+  margin-bottom:8px;font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase
+}
+.sim-slider-group .sim-value,.sim-slider-group .sim-readout{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:18px;color:#2471a3;text-align:right;
+  text-shadow:0 0 8px rgba(0,229,255,0.5);
+  margin-top:4px;
+  transition:color .2s,text-shadow .2s
+}
+
+/* ── Custom Range Slider ── */
+.sim-slider-group input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;margin:8px 0;
+  background:linear-gradient(90deg,rgba(0,229,255,0.15),rgba(0,229,255,0.08));
+  border-radius:3px;outline:none;
+  border:1px solid rgba(26,82,118,0.1)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(0,229,255,0.6),0 0 24px rgba(0,229,255,0.2);
+  border:2px solid rgba(255,255,255,0.3);
+  transition:box-shadow .2s,transform .1s
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:hover{
+  box-shadow:0 0 18px rgba(0,229,255,0.8),0 0 36px rgba(0,229,255,0.3);
+  transform:scale(1.15)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:active{
+  background:linear-gradient(135deg,#922b21,#2471a3);
+  box-shadow:0 0 20px rgba(255,45,120,0.6),0 0 40px rgba(0,229,255,0.3)
+}
+.sim-slider-group input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;border:2px solid rgba(255,255,255,0.3);
+  box-shadow:0 0 12px rgba(0,229,255,0.6)
+}
+
+/* ── Buttons: Ignition Keys ── */
+.sim-btn{
+  background:linear-gradient(135deg,#2471a3,#0097a7)!important;
+  color:#faf8f4!important;
+  border:none!important;border-radius:4px!important;
+  padding:12px 28px!important;
+  font-family:'Noto Serif KR',serif!important;
+  font-size:12px!important;font-weight:700!important;
+  letter-spacing:2px!important;text-transform:uppercase!important;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all .3s!important;
+  box-shadow:0 0 16px rgba(0,229,255,0.3),inset 0 1px 0 rgba(0,229,255,0.07)!important
+}
+.sim-btn:hover{
+  background:linear-gradient(135deg,#67f0ff,#2471a3)!important;
+  transform:translateY(-2px)!important;
+  box-shadow:0 4px 20px rgba(0,229,255,0.5),0 0 30px rgba(0,229,255,0.2)!important
+}
+.sim-btn:active{
+  transform:translateY(0) scale(0.98)!important;
+  box-shadow:0 0 24px rgba(0,229,255,0.6),inset 0 0 12px rgba(0,229,255,0.3)!important
+}
+.sim-btn::after{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(0,229,255,0.06),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none
+}
+.sim-btn:hover::after{opacity:1}
+
+/* ── Secondary Button: System Command ── */
+.sim-btn-secondary{
+  background:rgba(245,242,236,0.8)!important;
+  color:#5a7a9a!important;
+  border:1px solid rgba(26,82,118,0.2)!important;
+  box-shadow:none!important;
+  letter-spacing:2px!important
+}
+.sim-btn-secondary:hover{
+  background:rgba(26,82,118,0.08)!important;
+  color:#2471a3!important;
+  border-color:rgba(26,82,118,0.4)!important;
+  box-shadow:0 0 12px rgba(0,229,255,0.15)!important
+}
+
+/* ── Button Container ── */
+.sim-btn-group{
+  display:flex;gap:10px;padding:16px 20px;
+  background:rgba(26,82,118,0.02);
+  border-bottom:1px solid rgba(26,82,118,0.06)
+}
+
+/* ── Readout: Telemetry Display ── */
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:2px;margin:0;
+  background:rgba(26,82,118,0.03);padding:12px 20px
+}
+.sim-metric,.sim-metrics>div{
+  background:linear-gradient(135deg,rgba(245,242,236,0.9),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.1);
+  border-radius:4px;padding:12px 14px;text-align:center;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-metric:hover{border-color:rgba(26,82,118,0.3)}
+.sim-metric::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.2),transparent)
+}
+.sim-metric .sm-label,.sim-metric strong{
+  font-size:9px!important;color:#4a6a8a;
+  font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase;
+  font-weight:400!important;display:block;margin-bottom:4px
+}
+.sim-metric .sm-value{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:20px;color:#2471a3;
+  font-weight:500;display:block;
+  text-shadow:0 0 10px rgba(0,229,255,0.5);
+  letter-spacing:1px;
+  transition:color .3s,text-shadow .3s
+}
+
+/* ── Metrics Container (Pattern B) ── */
+.sim-metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:4px;padding:12px 20px;
+  background:rgba(26,82,118,0.02)
+}
+
+/* ── Running State Animation ── */
+@keyframes simRunning{
+  0%{border-color:rgba(26,82,118,0.25)}
+  50%{border-color:rgba(255,45,120,0.4)}
+  100%{border-color:rgba(26,82,118,0.25)}
+}
+@keyframes simRunningGlow{
+  0%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+  50%{box-shadow:0 0 40px rgba(26,82,118,0.15),0 0 60px rgba(255,45,120,0.05)}
+  100%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+}
+@keyframes telemetryFlash{
+  0%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+  50%{color:#67f0ff;text-shadow:0 0 16px rgba(0,229,255,0.8)}
+  100%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+}
+.sim-container.sim-running{
+  animation:simRunning 2s ease-in-out infinite,simRunningGlow 2s ease-in-out infinite
+}
+.sim-container.sim-running .sim-metric .sm-value{
+  animation:telemetryFlash 1.5s ease-in-out infinite
+}
+.sim-container.sim-running .sim-canvas-wrap::after{
+  color:#00e676;content:'LIVE ●'
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .sim-controls{padding:12px}
+  .sim-slider-group{min-width:140px;padding:10px 12px}
+  .sim-slider-group .sim-value,.sim-slider-group .sim-readout{font-size:14px}
+  .sim-metric .sm-value{font-size:16px}
+  .sim-title::after,.sim-container>h3::after{display:none}
+}
+
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.sim-slider-group{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border-radius:8px;padding:12px}
+.sim-slider-group label{display:block;color:var(--text-dim,#8A8F98);font-size:12px;margin-bottom:4px}
+.sim-slider-group input[type=range]{width:100%;accent-color:var(--cyan)}
+.sim-readout{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:4px}
+.sim-metrics{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.sim-metric{background:rgba(41,121,255,0.1);border:1px solid rgba(41,121,255,0.3);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--blue)}
+.sim-metric strong{color:var(--cyan)}
+.sim-btn{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:13px}
+.sim-btn:hover{filter:brightness(1.15)}
+.sub-step{background:rgba(41,121,255,0.05);border-left:3px solid var(--blue);padding:16px;margin:12px 0;border-radius:0 8px 8px 0}
+.sub-step h4{color:var(--blue);margin:0 0 8px;font-size:15px}
+.derivation-detail{background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);border-radius:8px;padding:16px;margin:12px 0}
+.derivation-detail h4{color:var(--cyan);margin:0 0 8px}
+</style>
+
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

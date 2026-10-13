@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 40 — KC 시뮬레이션 통합</title>
+    
+    
+    
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- ══════ STICKY HEADER ══════ -->
+
+
+<div class="container">
+
+<!-- ══════ SERIES INFO ══════ -->
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 40 —</div>
+  <h1 class="hero-title">KC 시뮬레이션 통합</h1>
+  <p class="hero-title-en">K&C Simulation Integration</p>
+  <div class="hero-equation">$$\mathbf{K}(\mathbf{q}) = \frac{\partial \mathbf{F}}{\partial \mathbf{q}}\bigg|_{\mathbf{q}_0}$$</div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:58.0;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">77%</text>
+      <text class="gauge-label" x="50" y="62">DAY 40 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>5단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★★★☆</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- ══════ INTUITION SECTION ══════ -->
+<div class="section">
+    <div class="section-label">INTUITION</div>
+    <div class="section-title">핵심 개념</div>
+    <div class="brain-box">
+        <h3>💡 이번 강의의 목표</h3>
+        <p>KC(Kinematics & Compliance) 시뮬레이션은 Day36~39에서 다룬 모든 기구학 특성(토, 캠버, 롤센터, 롤스티어 등)과 부시 탄성(Compliance)을 통합하여 서스펜션의 전체 거동을 예측하는 최종 단계입니다.</p>
+        <p><strong>핵심 직관:</strong> 개별 특성(범프 토, 캠버 변화, 롤센터 높이)을 각각 최적화해도, 이들이 결합되면 예상치 못한 상호작용이 발생합니다. KC 시뮬레이션은 '기구학 + 부시 컴플라이언스'를 동시에 고려하여 실차와 가장 가까운 예측을 제공합니다.</p>
+        <p><strong>K vs C 분리:</strong> K(Kinematics)는 링크 기하학에 의한 순수 운동학적 변화, C(Compliance)는 부시·마운트의 탄성 변형에 의한 추가 변화입니다. 실차에서는 K+C가 합쳐져 나타나므로, 튜닝 시 어느 것이 지배적인지 분리하는 것이 중요합니다.</p>
+        <div class="time-split">
+            <div class="time-block">
+                <span class="t-range">0-5m</span>
+                <span class="t-desc">KC 통합 시뮬레이션의 의미와 워크플로우</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">5-15m</span>
+                <span class="t-desc">K/C 분리 해석 방법론 및 목표값 설정</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">15-20m</span>
+                <span class="t-desc">Simpack KC 해석 통합 실습 및 결과 비교</span>
+            </div>
+            <div class="time-block">
+                <span class="t-range">20-25m</span>
+                <span class="t-desc">실차 KC 시험 데이터 vs 시뮬레이션 상관성 검증</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════ DERIVATION SECTION ══════ -->
+<div class="section">
+    <div class="section-label">DERIVATION</div>
+    <div class="section-title">수학적 유도</div>
+    <div class="derivations-section">
+<div class="deriv-card">
+    <div class="deriv-step-num">Step 1 / 4</div>
+    <h4>K&C 시험 정의 (Kinematics & Compliance Test Definition)</h4>
+    <div class="deriv-steps">
+        <p class="step-text"><strong>기하학적 마모 (Kinematics):</strong> 수직 휠 변위 중 정렬 변화 측정</p>
+        <p class="step-text" style="margin-top:12px;">캠버 게인: <span class="calc-code">d$\gamma/dz$ = ∂$\gamma$/∂z [rad/mm]</span></p>
+        <p class="step-text" style="margin-top:8px;">범프 스티어: <span class="calc-code">d$\delta$/dz = ∂$\delta$/∂z [rad/mm]</span></p>
+        <p class="step-text" style="margin-top:8px;">하이드로플레인 각도 변화: <code>z ∈ [-50mm (droop), +50mm (bump)]</code></p>
+        <p class="step-text" style="margin-top:12px;"><strong>유연성 (Compliance):</strong> 적용된 힘 하에서 정렬 변화 측정</p>
+        <p class="step-text" style="margin-top:8px;">횡방향 힘: <code>F_y ∈ [-10kN, +10kN]</code> $\rightarrow$ 토우 및 캠버 변화</p>
+        <p class="step-text" style="margin-top:8px;">종방향 힘: <code>F_x ∈ [-5kN, +5kN]</code> $\rightarrow$ 종방향 수직 변화</p>
+        <p class="step-text" style="margin-top:8px;">정렬 토크: <code>M_z ∈ [-500Nm, +500Nm]</code> $\rightarrow$ 토우 및 캠버 반응</p>
+    </div>
+    <div class="deriv-equation">$$E_1$$</div>
+    <div class="deriv-explain">
+        <p class="label">해석:</p>
+        <p>K&C 시험은 서스펜션 강성을 정량화하는 기준. 기하학적 마모는 정적 경로를 정의하고, 유연성은 부싱/조인트 강성의 동적 영향을 포착함. 캠버 게인이 너무 크면 내측 타이어 마모, 토우 변화가 크면 언더스티어 증가.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트</strong>
+    <p>K&C 시험의 기하학적 마모(kinematics)와 유연성(compliance) 개념, 그리고 주요 측정 매개변수(캠버 게인, 범프 스티어, 유연성 토우)를 이해했는가?</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">Step 2 / 4</div>
+    <h4>유연성 기울기 행렬 (Compliance Matrix)</h4>
+    <div class="deriv-steps">
+        <p class="step-text"><strong>정의:</strong> 적용된 힘과 모멘트를 정렬 변화로 연결하는 3$\times$3 행렬</p>
+        <p class="step-text" style="margin-top:12px;"><strong>행렬 형식:</strong></p>
+        <code style="display: block; margin-top:12px; line-height: 1.8;">
+        ⎡$\Delta \delta_{toe}$     ⎤       ⎡C₁₁  C₁₂  C₁₃⎤ ⎡$F_y$  ⎤<br>
+        ⎢$\Delta \gamma_{camber}$  ⎥ = [C] ⎢C₂₁  C₂₂  C₂₃⎥ ⎢F_x  ⎥<br>
+        ⎣$\Delta x_longit$  ⎦       ⎣C₃₁  C₃₂  C₃₃⎦ ⎣M_z  ⎦<br>
+        </code>
+    </div>
+    <div class="deriv-equation">
+        <code>
+        C₁₁ = ∂$\delta$/∂$F_y$ [rad/N]  $\rightarrow$ 횡방향 힘 유연성 토우<br>
+        C₁₃ = ∂$\delta$/∂M_z [rad/Nm] $\rightarrow$ 정렬 토크 유연성 토우<br>
+        C₂₁ = ∂$\gamma$/∂$F_y$ [rad/N]  $\rightarrow$ 횡방향 힘 유연성 캠버<br>
+        C₃₃ = ∂x/∂M_z [m/Nm]    $\rightarrow$ 종방향 구동축 변위
+        </code>
+    </div>
+    <div class="deriv-equation">$$E_2$$</div>
+    <div class="deriv-explain">
+        <p class="label">해석:</p>
+        <p>부싱 강성이 낮을수록 (높은 유연성) 행렬 값 C_ij가 커짐. 예: C₁₁ = -0.001 rad/kN은 10kN 횡방향 힘이 0.01 라드(~0.57°) 추가 토우를 유발함을 의미. 부싱 강성 증가 $\rightarrow$ C 값 감소 $\rightarrow$ 더 강한 서스펜션. 시뮬레이션에서 하드포인트 위치와 부싱 재료를 조정하여 [C]를 최적화함.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트</strong>
+    <p>유연성 행렬 [C]의 의미, 각 원소 C_ij의 정의, 그리고 부싱 강성과의 관계를 이해했는가?</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">Step 3 / 4</div>
+    <h4>유연성을 포함한 유효 코너링 강성 (Effective Cornering Stiffness)</h4>
+    <div class="deriv-steps">
+        <p class="step-text"><strong>유효 횡방향 강성:</strong> 타이어 슬립각과 서스펜션 유연성 토우의 결합 효과</p>
+        <p class="step-text" style="margin-top:12px;"><strong>총 슬립각:</strong></p>
+        <code style="display: block; margin-top:12px; line-height: 1.8;">
+        $\alpha_{total}$ = $\alpha_{kinematic}$ + $\alpha_{compliance}$<br>
+        $\alpha_{total}$ = $\alpha$ + C₁₁ $\times$ $F_y$ + C₁₃ $\times$ M_z
+        </code>
+    </div>
+    <div class="deriv-equation">
+        <code style="display: block; line-height: 1.8;">
+        $\alpha$ [rad] = 기하학적 슬립각 = ($\delta$ - ψ̇ $\times$ v⁻¹)<br>
+        C₁₁ $\times$ $F_y$ [rad] = 횡방향 힘으로 인한 토우 변화<br>
+        C₁₃ $\times$ M_z [rad] = 정렬 토크로 인한 토우 변화<br>
+        <br>
+        유효 강성 도출:<br>
+        $F_y$ = C_$\alpha \times \alpha_{total}$ = C_$\alpha \times$ ($\alpha$ + C₁₁ $\times$ $F_y$ + C₁₃ $\times$ M_z)<br>
+        $F_y$ - C_$\alpha \times$ C₁₁ $\times$ $F_y$ = C_$\alpha \times$ ($\alpha$ + C₁₃ $\times$ M_z)<br>
+        $F_y$ $\times$ (1 - C_$\alpha \times$ C₁₁) = C_$\alpha \times$ ($\alpha$ + C₁₃ $\times$ M_z)<br>
+        <br>
+        <strong>결과: 유효 코너링 강성</strong><br>
+        C_$\alpha_{eff}$ = C_$\alpha$ / (1 - C_$\alpha \times$ C₁₁)<br>
+        <br>
+        <strong>유효 횡방향 힘:</strong><br>
+        F_y_eff = C_$\alpha_{eff} \times \alpha$ + C_$\alpha_{eff} \times$ C₁₃ $\times$ M_z
+        </code>
+    </div>
+    <div class="deriv-explain">
+        <p class="label">해석:</p>
+        <p><strong>C₁₁ < 0 (일반적):</strong> 계수 (1 - C_$\alpha \times$ C₁₁) > 1 $\rightarrow$ C_$\alpha_{eff}$ > C_$\alpha$. 유연성 토우가 슬립각과 반대 방향이므로 보정 효과(개선). <strong>C₁₁ > 0 (나쁜 설계):</strong> 계수 < 1 → C_α_eff < C_α. 유연성 토우가 슬립각과 같은 방향이므로 언더스티어 증가. <strong>임계점:</strong> C_$\alpha \times$ C₁₁ = 1 일 때 발산(불안정) - 부싱 설계 금지.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트</strong>
+    <p>총 슬립각의 정의, 유연성 토우의 영향, 그리고 유효 코너링 강성 공식 C_$\alpha_{eff}$ = C_$\alpha$ / (1 - C_$\alpha \times$ C₁₁)을 유도하고 이해했는가?</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">Step 4 / 4</div>
+    <h4>ADAMS/Simpack K&C 시뮬레이션 워크플로우 (Validation)</h4>
+    <div class="deriv-steps">
+        <p class="step-text"><strong>1단계: 모델 구축</strong></p>
+        <p class="step-text" style="margin-left:20px; margin-top:8px;">• 바디: 휠, 타이어, 너클, 스트럿, 로어암, 부싱 등</p>
+        <p class="step-text" style="margin-left:20px;">• 조인트: 볼 조인트, 부싱(부시 요소 또는 6-DOF 요소)</p>
+        <p class="step-text" style="margin-left:20px;">• 힘 요소: 스프링-댐퍼, 부싱 강성, 타이어 모델(Pacejka MF 또는 FX)</p>
+        <p class="step-text" style="margin-top:12px;"><strong>2단계: 시험 정의 (K&C 분석)</strong></p>
+        <p class="step-text" style="margin-left:20px; margin-top:8px;">• 기하학적 마모: z = [0, -50, -25, 0, +25, +50] mm에서 고정 스티어 각도 $\delta = 0$</p>
+        <p class="step-text" style="margin-left:20px;">• 유연성: 각 수직 위치 z에서 $F_y$, F_x, M_z를 점진적으로 적용 (0 $\rightarrow \pm$10kN, 0 $\rightarrow \pm$500Nm)</p>
+        <p class="step-text" style="margin-top:12px;"><strong>3단계: 시뮬레이션 실행 및 추출</strong></p>
+        <p class="step-text" style="margin-left:20px; margin-top:8px;">• 각 하중 단계에서 캠버 $\gamma$, 토우 $\delta$, 종방향 변위 x 측정</p>
+        <p class="step-text" style="margin-left:20px;">• 수치 미분으로 기울기 계산: d$\gamma/dz$ $\approx$ ($\gamma_{bump}$ - $\gamma_{droop}$) / 100mm</p>
+        <p class="step-text" style="margin-left:20px;">• 유연성 행렬 추출: C_ij = $\Delta$ 정렬 / $\Delta F_j$</p>
+        <p class="step-text" style="margin-top:12px;"><strong>4단계: 모델 기준화 (Correlation)</strong></p>
+    </div>
+    <div class="deriv-equation">
+        <strong>상관 계수 (Correlation Metrics):</strong><br>
+        <code>
+        Camber gain: |d$\gamma_{simulated}$/dz - d$\gamma_{measured}$/dz| $\leq$ 0.05°/mm ($\pm$0.0009 rad/mm)<br>
+        Bump steer: |d$\delta_{simulated}$/dz - d$\delta_{measured}$/dz| $\leq$ 0.01°/mm ($\pm$0.0002 rad/mm)<br>
+        Compliance steer: |C₁₁_simulated - C₁₁_measured| $\leq$ 0.005°/kN ($\pm$8.7$\times$10⁻⁵ rad/kN)<br>
+        Compliance camber: |C₂₁_simulated - C₂₁_measured| $\leq$ 0.010°/kN ($\pm$1.7$\times$10⁻⁴ rad/kN)<br>
+        <br>
+        RMS 오차 = $\sqrt{Σ(simulated - measured}^2$ / n) < 5% (절대 목표)
+        </code>
+    </div>
+    <div class="deriv-explain">
+        <p class="label">현장 최적화 루프:</p>
+        <p><strong>만약 d$\gamma/dz$ 가 측정보다 크다면:</strong> 로어암 강성 증가 (부싱 재료 경화) 또는 하드포인트 기하학 조정</p>
+        <p><strong>만약 Bump steer가 양수라면:</strong> 스트럿 앵글 수정 또는 로어암 피벗 위치 재배치 (토우-인 기하학)</p>
+        <p><strong>만약 Compliance steer C₁₁ < -0.001 rad/kN라면:</strong> 부싱 과도하게 유연 $\rightarrow$ 더 딱딱한 부싱 선택</p>
+        <p><strong>최종 튜닝:</strong> 프로토타입 제작 전에 가상 시도를 통해 개발 시간 및 비용 50-70% 단축</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트</strong>
+    <p>ADAMS 모델 구축, K&C 시험 정의, 시뮬레이션 실행, 측정된 데이터와의 기준화 프로세스, 그리고 부싱 강성/하드포인트 조정을 통한 반복 최적화를 이해했는가?</p>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① K&C 시험 정의</p>
+    <div class="sub-eq">$$\text{K (Kinematics): 서스펜션 기하학적 운동 특성 (무하중)}$$</div>
+    <div class="sub-eq">$$\text{C (Compliance): 하중 인가 시 변형/변위 특성}$$</div>
+    <p class="sub-note">K&C 리그에서 휠 패드에 힘/변위 인가 $\rightarrow$ 캠버, 토, 스티어 변화 측정. SIMPACK 모델 검증의 황금 기준</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 주요 K 특성 곡선</p>
+    <div class="sub-eq">$$\gamma(z): \text{캠버 vs 범프 (목표: -0.5}^{\circ}\text{/cm)}$$</div>
+    <div class="sub-eq">$$\delta_{toe}(z): \text{토 vs 범프 (목표: 범프토인 }\to\text{ 안정성)}$$</div>
+    <div class="sub-eq">$$\text{Roll Center Height vs Roll Angle}$$</div>
+    <p class="sub-note">각 곡선에서 기울기, 비선형성, 비대칭성 분석. 좌/우 대칭성도 품질 지표</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ 주요 C 특성</p>
+    <div class="sub-eq">$$C_{lateral} = \frac{\Delta y}{\Delta F_y} \quad [\text{mm/kN}]$$</div>
+    <div class="sub-eq">$$C_{steer} = \frac{\Delta\delta_{toe}}{\Delta F_y} \quad [\text{}^{\circ}\text{/kN}] \quad (\text{컴플라이언스 스티어})$$</div>
+    <p class="sub-note"><strong>컴플라이언스 스티어:</strong> 횡력에 의한 토 변화. 리어 토아웃이면 오버스티어 유발 $\rightarrow$ 위험! 부싱 강성으로 제어</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ SIMPACK-시험 상관성 지표</p>
+    <div class="sub-eq">$$\text{CORA (CORrelation and Analysis) rating}$$</div>
+    <div class="sub-eq">$$R^2 = 1 - \frac{\sum(y_{test} - y_{sim})^2}{\sum(y_{test} - \bar{y}_{test})^2} \quad (\text{결정계수, 목표: } R^2 > 0.95)$$</div>
+    <p class="sub-note"><strong>실무 기준:</strong> R² > 0.95면 우수, 0.90-0.95면 양호. 0.90 미만이면 부싱 강성/마찰 파라미터 재튜닝 필요</p>
+  </div>
+</div>
+
+<!-- ══════ PARAMETER TABLE SECTION ══════ -->
+<div class="section">
+    <div class="section-label">PARAMETERS</div>
+    <div class="section-title">핵심 변수</div>
+    <table class="param-table">
+<thead><tr><th>기호</th><th>명칭</th><th>단위</th><th>물리의미</th><th>차량부품</th><th>전형적범위</th></tr></thead>
+<tbody>
+<tr>
+    <td class="sym">a</td>
+    <td class="name">예시</td>
+    <td class="unit">m</td>
+    <td class="meaning">예</td>
+    <td class="component">예</td>
+    <td class="range">0-10</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<!-- ══════ SVG DIAGRAMS SECTION ══════ -->
+<!-- ══════ VEHICLE EXAMPLE ══════ -->
+<div class="section">
+    <div class="section-label">EXAMPLE</div>
+    <div class="section-title">실차 적용 사례</div>
+    <div class="intuition-card">
+        <h4>🚗 사례 1: KC 시뮬레이션-실차 상관성 검증 워크플로우</h4>
+        <p><strong>배경:</strong> 신차 개발 단계에서 Simpack KC 모델의 신뢰성을 확보하기 위해 실차 KC 시험기(K&C rig) 데이터와 시뮬레이션 결과를 비교 검증.</p>
+        <p><strong>프로세스:</strong> ① 실차 KC rig에서 병진(parallel bounce $\pm$40mm)·롤($\pm$5°)·횡력($\pm$3kN)·종력($\pm$3kN) 4가지 입력 조건으로 시험. ② 동일 조건을 Simpack 모델에 적용. ③ 8개 핵심 출력(범프 캠버, 범프 토, 롤 캠버, 롤 토, 롤센터 높이, 횡력 스티어, 종력 스티어, 휠레이트) 비교.</p>
+        <p><strong>결과:</strong> 초기 상관성: 8개 항목 중 5개 $\pm$10% 이내, 3개 항목(횡력 스티어, 종력 스티어, 롤 토) 편차 15~25%. 부시 강성 데이터를 실측값으로 업데이트 후 재해석 $\rightarrow$ 8개 항목 모두 $\pm$8% 이내 달성.</p>
+        <p><strong>교훈:</strong> KC 상관성에서 컴플라이언스(C) 영역이 키네마틱스(K)보다 오차가 크며, 부시 특성 데이터의 정확도가 전체 모델 신뢰성을 좌우합니다.</p>
+    </div>
+    <div class="intuition-card">
+        <h4>🏁 사례 2: K/C 분리를 통한 핸들링 문제 원인 진단</h4>
+        <p><strong>설명:</strong> 직진 주행 중 횡풍에 의한 차량 쏠림(drift) 과다 클레임. KC 해석에서 K와 C를 분리하여 원인 파악.</p>
+        <p><strong>분석:</strong> K only(부시 강성 무한대 설정): 횡력 스티어 = 0.005°/kN (양호). K+C(실제 부시 적용): 횡력 스티어 = 0.025°/kN (과다). $\rightarrow$ C 성분이 전체의 80% 차지. 서브프레임 후방 부시의 횡방향 강성이 목표 대비 40% 낮은 것이 원인.</p>
+        <p><strong>조치:</strong> 서브프레임 후방 부시를 액체봉입 타입에서 단단한 보이드(void-free) 타입으로 변경. 횡력 스티어: 0.025$\rightarrow$0.008°/kN. 횡풍 쏠림 지수 65% 개선.</p>
+    </div>
+</div>
+<!-- ══════ FORMULA EXPLORER ══════ -->
+
+<!-- ═══ INJECTED VEHICLE DIAGRAMS ═══ -->
+<div class="section">
+    <div class="section-label">DIAGRAMS</div>
+    <div class="section-title">차량 개략도 및 기구학 다이어그램</div>
+    <div class="diagram-wrap">
+        <div class="diagram-label">K&C 시뮬레이션 결과 종합</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+  <text x="240" y="22" text-anchor="middle" fill="#4a6a8a" font-size="13" font-family="JetBrains Mono">K&amp;C Simulation Results</text>
+  <!-- Axes -->
+  <line x1="60" y1="40" x2="60" y2="260" stroke="rgba(0,229,255,0.15)" stroke-width="1.5"/>
+  <line x1="60" y1="260" x2="450" y2="260" stroke="rgba(0,229,255,0.15)" stroke-width="1.5"/>
+  <text x="255" y="290" text-anchor="middle" fill="#4a6a8a" font-size="11">Wheel Travel [mm]</text>
+  <text x="25" y="150" text-anchor="middle" fill="#4a6a8a" font-size="11" transform="rotate(-90,25,150)">Angle [deg]</text>
+  <!-- Grid -->
+  <line x1="60" y1="150" x2="450" y2="150" stroke="rgba(0,229,255,0.15)" stroke-width="0.5" stroke-dasharray="4,4"/>
+  <text x="55" y="155" text-anchor="end" fill="#4a6a8a" font-size="9">0</text>
+  <text x="55" y="50" text-anchor="end" fill="#4a6a8a" font-size="9">+3</text>
+  <text x="55" y="255" text-anchor="end" fill="#4a6a8a" font-size="9">-3</text>
+  <text x="60" y="275" fill="#4a6a8a" font-size="9">-80</text>
+  <text x="240" y="275" fill="#4a6a8a" font-size="9">0</text>
+  <text x="430" y="275" fill="#4a6a8a" font-size="9">+80</text>
+  <!-- Camber curve -->
+  <path d="M80,200 Q160,180 255,150 Q340,120 430,85" fill="none" stroke="#1e7e34" stroke-width="2.5"/>
+  <text x="435" y="80" fill="#1e7e34" font-size="11">Camber</text>
+  <!-- Toe curve -->
+  <path d="M80,160 Q160,155 255,150 Q340,148 430,155" fill="none" stroke="#6c3483" stroke-width="2.5"/>
+  <text x="435" y="160" fill="#6c3483" font-size="11">Toe</text>
+  <!-- Caster curve -->
+  <path d="M80,170 Q160,165 255,150 Q340,135 430,110" fill="none" stroke="#2471a3" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="435" y="115" fill="#2471a3" font-size="11">Caster</text>
+  <!-- Design point -->
+  <circle cx="255" cy="150" r="4" fill="#2471a3"/>
+  <text x="260" y="143" fill="#2471a3" font-size="10">Design Pt</text>
+</svg>
+    </div>
+    <div class="diagram-wrap">
+        <div class="diagram-label">차량 전면도 — 기구학 전체 개요</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 520 380" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+  <defs><marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#2471a3"/></marker></defs>
+  <text x="260" y="22" text-anchor="middle" fill="#4a6a8a" font-size="13" font-family="JetBrains Mono">Front View — Suspension Geometry</text>
+  <!-- Ground -->
+  <line x1="30" y1="340" x2="490" y2="340" stroke="rgba(0,229,255,0.15)" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="260" y="365" text-anchor="middle" fill="#4a6a8a" font-size="11">Ground Level</text>
+  <!-- Body (Sprung Mass) -->
+  <rect x="130" y="80" width="260" height="60" rx="8" fill="none" stroke="#2471a3" stroke-width="2"/>
+  <text x="260" y="115" text-anchor="middle" fill="#2471a3" font-size="12" font-family="JetBrains Mono">Sprung Mass (Body)</text>
+  <!-- CG -->
+  <circle cx="260" cy="110" r="4" fill="#2471a3"/>
+  <text x="275" y="108" fill="#2471a3" font-size="10">CG</text>
+  <!-- Left suspension -->
+  <line x1="160" y1="140" x2="100" y2="260" stroke="#6c3483" stroke-width="2.5"/>
+  <text x="105" y="195" fill="#6c3483" font-size="10" transform="rotate(-25,105,195)">Upper Arm</text>
+  <line x1="180" y1="140" x2="80" y2="290" stroke="#1e7e34" stroke-width="2.5"/>
+  <text x="100" y="240" fill="#1e7e34" font-size="10" transform="rotate(-20,100,240)">Lower Arm</text>
+  <!-- Left Knuckle -->
+  <line x1="80" y1="260" x2="80" y2="310" stroke="#ff9100" stroke-width="3"/>
+  <text x="50" y="290" fill="#ff9100" font-size="10">Knuckle</text>
+  <!-- Left wheel -->
+  <ellipse cx="80" cy="310" rx="22" ry="32" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <line x1="80" y1="278" x2="80" y2="342" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="3,3"/>
+  <!-- Right suspension -->
+  <line x1="360" y1="140" x2="420" y2="260" stroke="#6c3483" stroke-width="2.5"/>
+  <line x1="340" y1="140" x2="440" y2="290" stroke="#1e7e34" stroke-width="2.5"/>
+  <!-- Right Knuckle -->
+  <line x1="440" y1="260" x2="440" y2="310" stroke="#ff9100" stroke-width="3"/>
+  <!-- Right wheel -->
+  <ellipse cx="440" cy="310" rx="22" ry="32" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <line x1="440" y1="278" x2="440" y2="342" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="3,3"/>
+  <!-- Spring+Damper left -->
+  <path d="M140,140 L120,160 L140,175 L120,190 L140,205 L120,220 L130,230" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <rect x="126" y="230" width="8" height="30" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+  <!-- Spring+Damper right -->
+  <path d="M380,140 L400,160 L380,175 L400,190 L380,205 L400,220 L390,230" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <rect x="386" y="230" width="8" height="30" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+  <!-- Roll Center -->
+  <circle cx="260" cy="270" r="5" fill="#ff9100" stroke="#ff9100" stroke-width="1"/>
+  <text x="260" y="260" text-anchor="middle" fill="#ff9100" font-size="11" font-weight="bold">RC</text>
+  <!-- IC lines (dashed) -->
+  <line x1="80" y1="290" x2="260" y2="270" stroke="#ff9100" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <line x1="440" y1="290" x2="260" y2="270" stroke="#ff9100" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+  <!-- Track width -->
+  <line x1="80" y1="350" x2="440" y2="350" stroke="url(#cyberGrad)" stroke-width="1" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="260" y="375" text-anchor="middle" fill="#2471a3" font-size="11">Track Width (T)</text>
+</svg>
+    </div>
+    <div class="diagram-wrap">
+        <div class="diagram-label">차량 측면도 — 통합 레이아웃</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+  <defs><marker id="as" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#2471a3"/></marker></defs>
+  <text x="280" y="22" text-anchor="middle" fill="#4a6a8a" font-size="13" font-family="JetBrains Mono">Side View — Wheelbase &amp; Anti-Geometry</text>
+  <!-- Ground -->
+  <line x1="20" y1="270" x2="540" y2="270" stroke="rgba(0,229,255,0.15)" stroke-width="2" stroke-dasharray="8,4"/>
+  <!-- Body -->
+  <path d="M120,100 Q130,60 200,55 L380,55 Q450,60 460,100 L460,160 L120,160Z" fill="none" stroke="#2471a3" stroke-width="2" rx="10"/>
+  <text x="290" y="115" text-anchor="middle" fill="#2471a3" font-size="12">Vehicle Body</text>
+  <!-- CG -->
+  <circle cx="290" cy="130" r="5" fill="#2471a3"/>
+  <text x="305" y="128" fill="#2471a3" font-size="11" font-weight="bold">CG</text>
+  <line x1="290" y1="135" x2="290" y2="270" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+  <text x="295" y="200" fill="#2471a3" font-size="10">h_cg</text>
+  <!-- Front wheel -->
+  <circle cx="160" cy="240" r="30" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <circle cx="160" cy="240" r="3" fill="#2471a3"/>
+  <line x1="160" y1="160" x2="160" y2="210" stroke="#1e7e34" stroke-width="2"/>
+  <path d="M150,180 L160,170 L170,180" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <path d="M150,190 L160,200 L170,190" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <rect x="155" y="195" width="10" height="18" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+  <text x="160" y="290" text-anchor="middle" fill="#4a6a8a" font-size="10">Front</text>
+  <!-- Rear wheel -->
+  <circle cx="420" cy="240" r="30" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+  <circle cx="420" cy="240" r="3" fill="#2471a3"/>
+  <line x1="420" y1="160" x2="420" y2="210" stroke="#1e7e34" stroke-width="2"/>
+  <path d="M410,180 L420,170 L430,180" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <path d="M410,190 L420,200 L430,190" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+  <rect x="415" y="195" width="10" height="18" fill="none" stroke="#6c3483" stroke-width="1.5"/>
+  <text x="420" y="290" text-anchor="middle" fill="#4a6a8a" font-size="10">Rear</text>
+  <!-- Wheelbase -->
+  <line x1="160" y1="300" x2="420" y2="300" stroke="#2471a3" stroke-width="1.5" marker-start="url(#as)" marker-end="url(#as)"/>
+  <text x="290" y="315" text-anchor="middle" fill="#2471a3" font-size="11" font-weight="bold">Wheelbase (L)</text>
+  <!-- Anti-dive line -->
+  <line x1="160" y1="240" x2="290" y2="130" stroke="#ff9100" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+  <text x="210" y="170" fill="#ff9100" font-size="10" transform="rotate(-25,210,170)">Anti-Dive</text>
+  <!-- Anti-squat line -->
+  <line x1="420" y1="240" x2="290" y2="130" stroke="#6c3483" stroke-width="1.5" stroke-dasharray="6,3" opacity="0.7"/>
+  <text x="370" y="170" fill="#6c3483" font-size="10" transform="rotate(25,370,170)">Anti-Squat</text>
+</svg>
+    </div>
+    <div class="diagram-wrap">
+        <div class="diagram-label">롤센터 구성도</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+  <text x="260" y="22" text-anchor="middle" fill="#4a6a8a" font-size="13" font-family="JetBrains Mono">Roll Center — Geometric Construction</text>
+  <!-- Ground -->
+  <line x1="20" y1="350" x2="500" y2="350" stroke="rgba(0,229,255,0.15)" stroke-width="2"/>
+  <!-- Body -->
+  <rect x="140" y="100" width="240" height="50" rx="6" fill="none" stroke="#2471a3" stroke-width="1.5"/>
+  <text x="260" y="130" text-anchor="middle" fill="#2471a3" font-size="11">Body</text>
+  <!-- Left lower arm -->
+  <line x1="170" y1="150" x2="80" y2="300" stroke="#1e7e34" stroke-width="2.5"/>
+  <text x="105" y="235" fill="#1e7e34" font-size="10">Lower</text>
+  <!-- Left upper arm -->
+  <line x1="190" y1="150" x2="100" y2="260" stroke="#6c3483" stroke-width="2.5"/>
+  <text x="125" y="200" fill="#6c3483" font-size="10">Upper</text>
+  <!-- Right lower arm -->
+  <line x1="350" y1="150" x2="440" y2="300" stroke="#1e7e34" stroke-width="2.5"/>
+  <!-- Right upper arm -->
+  <line x1="330" y1="150" x2="420" y2="260" stroke="#6c3483" stroke-width="2.5"/>
+  <!-- Left IC (Instant Center) -->
+  <line x1="80" y1="300" x2="100" y2="260" stroke="#ff9100" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="80" y1="300" x2="30" y2="200" stroke="#ff9100" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <line x1="100" y1="260" x2="30" y2="200" stroke="#ff9100" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <circle cx="30" cy="200" r="5" fill="#ff9100"/>
+  <text x="10" y="195" fill="#ff9100" font-size="11" font-weight="bold">IC_L</text>
+  <!-- Right IC -->
+  <line x1="440" y1="300" x2="490" y2="200" stroke="#ff9100" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <line x1="420" y1="260" x2="490" y2="200" stroke="#ff9100" stroke-width="1.5" stroke-dasharray="4,3" opacity="0.6"/>
+  <circle cx="490" cy="200" r="5" fill="#ff9100"/>
+  <text x="470" y="195" fill="#ff9100" font-size="11" font-weight="bold">IC_R</text>
+  <!-- Lines to contact patches -->
+  <circle cx="80" cy="320" r="15" fill="none" stroke="url(#cyberGrad)" stroke-width="2"/>
+  <circle cx="440" cy="320" r="15" fill="none" stroke="url(#cyberGrad)" stroke-width="2"/>
+  <!-- IC to contact patch lines (crossing to find RC) -->
+  <line x1="30" y1="200" x2="440" y2="335" stroke="url(#cyberGrad)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
+  <line x1="490" y1="200" x2="80" y2="335" stroke="url(#cyberGrad)" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
+  <!-- Roll Center -->
+  <circle cx="260" cy="275" r="7" fill="#2471a3" stroke="url(#cyberGrad)"/>
+  <text x="260" y="265" text-anchor="middle" fill="#2471a3" font-size="13" font-weight="bold">RC</text>
+</svg>
+    </div>
+</div>
+  
+  <div class="section">
+    <div class="section-label">SIMPACK</div>
+    <div class="section-title">다물체 동역학 시뮬레이션</div>
+    <div class="brain-box">
+      <h3>SIMPACK 모델링 가이드</h3>
+      <p><strong>목표:</strong> KC 시뮬레이션 통합 파라미터를 SIMPACK MBS 모델에 반영</p>
+      <ol>
+        <li><strong>모델 구성</strong> — 서스펜션 기구학 모델에 Day 40 파라미터 입력</li>
+        <li><strong>입력 정의</strong> — 휠 트래블, 스티어링 입력 등 경계 조건 설정</li>
+        <li><strong>결과 분석</strong> — 기구학 특성 커브 추출 및 목표값 비교</li>
+      </ol>
+    </div>
+  </div>
+
+
+<!-- ══════ INTERACTIVE SIMULATION ══════ -->
+<div class="section-card" style="margin-top:32px">
+  <div class="section-label">INTERACTIVE SIMULATION</div>
+  <h2 class="section-title">🎮 K&C 시뮬레이션 곡선</h2>
+  <div class="sim-container">
+    <div class="sim-canvas-wrap">
+      <canvas id="sim-day40" width="700" height="350"></canvas>
+    </div>
+    <div id="sim-day40-controls" class="sim-controls"></div>
+    <div id="sim-day40-metrics" class="sim-metrics"></div>
+  </div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('sim-day40');
+    const ctx = canvas.getContext('2d');
+    const W = 700, H = 350;
+    const ctrlBox = document.getElementById('sim-day40-controls');
+    const metricBox = document.getElementById('sim-day40-metrics');
+    
+    function addSlider(label, min, max, value, step, id) {
+      const g = document.createElement('div');
+      g.className = 'sim-slider-group';
+      g.innerHTML = '<label>' + label + '</label><input type="range" min="'+min+'" max="'+max+'" value="'+value+'" step="'+step+'" id="'+id+'"><div class="sim-readout" id="'+id+'-val">'+value+'</div>';
+      ctrlBox.appendChild(g);
+      const inp = document.getElementById(id);
+      inp.oninput = function(){ document.getElementById(id+'-val').textContent = this.value; draw(); };
+      return inp;
+    }
+    function addBtn(label, fn) {
+      const b = document.createElement('button');
+      b.className = 'sim-btn'; b.textContent = label; b.onclick = fn;
+      ctrlBox.appendChild(b);
+    }
+    function setMetrics(arr) {
+      metricBox.innerHTML = arr.map(m => '<div class="sim-metric"><strong>'+m[0]+':</strong>&nbsp;'+m[1]+'</div>').join('');
+    }
+    
+    const sl_test = addSlider('테스트 (1:범프 2:롤 3:조향)', 1, 3, 1, 1, 'sim40-test');
+    function draw() {
+      ctx.fillStyle='#020510'; ctx.fillRect(0,0,W,H);
+      const test=+sl_test.value;
+      const testNames=['','Parallel Bump','Roll','Steering Compliance'];
+      ctx.fillStyle='#2471a3';ctx.font='bold 13px Orbitron,monospace';ctx.fillText('K&C Test: '+testNames[test],10,25);
+      // Draw typical K&C curves
+      const curves=test===1?[{l:'캠버',c:'#2471a3',fn:x=>-0.3*x/100},{l:'토',c:'#2979ff',fn:x=>0.01*x/100+0.0001*x*x/10000}]:
+                   test===2?[{l:'롤각',c:'#2471a3',fn:x=>x*0.5},{l:'횡하중이동',c:'#922b21',fn:x=>x*200}]:
+                   [{l:'토 컴플라이언스',c:'#2471a3',fn:x=>x*0.002},{l:'캠버 컴플라이언스',c:'#2979ff',fn:x=>-x*0.001}];
+      curves.forEach((cv,ci)=>{
+        ctx.strokeStyle=cv.c;ctx.lineWidth=2;ctx.beginPath();
+        for(let i=0;i<=200;i++){const x=(i-100);const y=cv.fn(x);const px=i*W/200,py=H/2-y*(H-60)/2;i===0?ctx.moveTo(px,Math.max(40,Math.min(H-20,py))):ctx.lineTo(px,Math.max(40,Math.min(H-20,py)));} ctx.stroke();
+        ctx.fillStyle=cv.c;ctx.font='11px Share Tech Mono,monospace';ctx.fillText('— '+cv.l,W-130,50+ci*16);
+      });
+      ctx.strokeStyle='rgba(0,229,255,0.06)';ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+      setMetrics([['테스트',testNames[test]],['K&C','Kinematics & Compliance'],['활용','서스펜션 특성 정량화']]);
+    }
+
+    draw();
+  })();
+  </script>
+</div>
+
+<!-- ══════ QUIZ ══════ -->
+
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">K&C 시뮬레이션 통합 심화</h2>
+
+  <!-- Deep Dive 1 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>💡 K&C 리그 시험 vs 시뮬레이션 — 상관관계 확보 전략</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive1">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">시뮬레이션 결과를 언제 신뢰할 수 있는가</h4>
+        <p>K&C(Kinematics & Compliance) 시뮬레이션의 신뢰도는 부싱 강성 데이터의 정확도에 직접 의존합니다. 부싱 1개의 강성이 20% 틀리면, 컴플라이언스 토 예측이 50% 이상 벗어날 수 있습니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">K&C 상관관계 지표: $R^2 = 1 - \frac{\sum(y_{test} - y_{sim})^2}{\sum(y_{test} - \bar{y})^2}$ 목표 $R^2 > 0.95$ (캠버, 토, 롤센터 높이 각각에 대해).</p>
+        <p><strong style="color:var(--cyan-light);">상관관계 확보 프로세스:</strong> (1) 부싱 리그 시험 $\rightarrow$ (2) 단품 강성 입력 $\rightarrow$ (3) K&C 시뮬레이션 $\rightarrow$ (4) K&C 리그 시험 결과와 비교 $\rightarrow$ (5) 부싱 강성 보정 $\rightarrow$ (6) 반복</p>
+        <p>일반적으로 3~4회 반복(iteration)이면 시험과 시뮬레이션의 차이를 $\pm$5% 이내로 줄일 수 있습니다. 이 과정을 'model correlation' 또는 'model validation'이라 합니다.</p>
+        <p>르노코리아에서는 신차 개발 초기에 벤치마크 차량의 K&C 데이터를 기반으로 시뮬레이션 모델을 구축하고, 프로토타입 제작 후 실측 데이터로 보정하는 2단계 접근법을 사용합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 2 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🔬 SPMM(Suspension Parameter Measurement Machine) 데이터 해석법</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive2">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">K&C 리그 출력의 핵심 12개 그래프</h4>
+        <p>K&C 리그(MTS, Anthony Best Dynamics 등)는 표준화된 시험 모드를 제공합니다. 핵심 모드: (1) Parallel bump $\pm$50mm, (2) Roll $\pm$3°, (3) Lateral force 0~3kN, (4) Longitudinal force 0~3kN, (5) Aligning torque 0~100Nm.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">SPMM 시험 주요 측정 항목: 수직 강성 $K_z$ [N/mm], 횡 강성 $K_y$ [N/mm], 종 강성 $K_x$ [N/mm], 캠버 컴플라이언스 [°/kN], 토 컴플라이언스 [°/kN].</p>
+        <p><strong style="color:var(--cyan-light);">핵심 12개 출력:</strong> 범프 캠버, 범프 토, 롤 캠버, 롤 스티어, 횡력 캠버, 횡력 토, 종력 캠버, 종력 토, 얼라이닝 토크 응답, 횡강성, 종강성, 롤 강성.</p>
+        <p>이 12개 특성이 차량의 직진 안정성, 코너링 응답, 제동 안정성을 결정합니다. 시뮬레이션과 시험 결과를 이 12개 그래프로 오버레이하여 비교하는 것이 correlation의 표준 방법입니다.</p>
+        <p>Adams/Car의 '__acr' (Adams Car Ride) analysis와 Simpack의 'K&C analysis' 모듈이 이 12개 출력을 자동으로 생성합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 3 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>⚙️ 서스펜션 하드포인트 최적화 — DOE와 반응표면법</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive3">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">수백 개의 좌표를 어떻게 최적화하는가</h4>
+        <p>서스펜션 하드포인트(hard point)는 각 부싱과 볼조인트의 3D 좌표입니다. 더블위시본 전륜만 해도 12개 이상의 하드포인트 $\times$ 3좌표 = 36개의 설계 변수가 있습니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">DOE(실험계획법) 기반 최적화: 하드포인트 $n$ 개 변수 $\rightarrow 2n+1$ 개 이상의 Latin Hypercube 샘플 $\rightarrow$ 반응표면(RSM) $\rightarrow$ 목적함수 최소화: $\min f(x) = w_1 \cdot |\Delta\gamma_{bump}| + w_2 \cdot |\Delta\delta_{bump}| + w_3 \cdot |\Delta h_{RC}|$</p>
+        <p><strong style="color:var(--cyan-light);">DOE(Design of Experiments) 접근:</strong> 전체 변수를 동시에 최적화하는 것은 비현실적이므로, 민감도 분석(sensitivity analysis)으로 핵심 변수를 5~8개로 축소한 후, 반응표면법(RSM)으로 최적점을 탐색합니다.</p>
+        <p>Adams/Insight의 DOE 기능: Latin Hypercube Sampling으로 200~500개 설계점 생성 $\rightarrow$ K&C 자동 분석 $\rightarrow$ 캠버 곡선, 토 곡선, 롤센터 높이에 대한 반응표면 구축 $\rightarrow$ 다목적 최적화(Pareto front).</p>
+        <p>실무에서는 '기구학 $\rightarrow$ 컴플라이언스 $\rightarrow$ 전차 시뮬레이션'의 3단계 최적화를 순차적으로 수행합니다. 각 단계에서의 최적 하드포인트가 다음 단계의 초기값이 됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+  <!-- Q1 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 01 — K/C 분리</div>
+    <p class="quiz-q">K/C 분리의 목적은?</p>
+    <div class="quiz-options" id="q1">
+      <div class="quiz-opt">A. 기구학(K) 효과와 컴플라이언스(C) 효과를 독립 평가</div>
+      <div class="quiz-opt">B. 전/후 서스펜션을 분리 모델링</div>
+      <div class="quiz-opt">C. 좌/우 바퀴를 독립 시뮬레이션</div>
+      <div class="quiz-opt">D. 스프링과 댐퍼를 분리 측정</div>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 02 — 부싱 데이터</div>
+    <p class="quiz-q">KC 시뮬레이션에서 부싱 강성 데이터가 중요한 이유는?</p>
+    <div class="quiz-options" id="q2">
+      <div class="quiz-opt">A. 엘라스토키네마틱 거동이 순수 기구학과 크게 다를 수 있기 때문</div>
+      <div class="quiz-opt">B. 시뮬레이션 속도에 영향을 주기 때문</div>
+      <div class="quiz-opt">C. 3D 렌더링 품질에 영향</div>
+      <div class="quiz-opt">D. 파일 크기를 줄이기 위해</div>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" data-correct="3">
+    <div class="quiz-num">QUESTION 03 — KC 표준 입력</div>
+    <p class="quiz-q">KC 리그 시험의 4가지 표준 입력이 아닌 것은?</p>
+    <div class="quiz-options" id="q3">
+      <div class="quiz-opt">A. 수직력(범프/리바운드)</div>
+      <div class="quiz-opt">B. 종방향력(제동/구동)</div>
+      <div class="quiz-opt">C. 횡방향력(코너링)</div>
+      <div class="quiz-opt">D. 온도 변화(열 사이클)</div>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+  </div>
+</div>
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section">
+    <a href="Day39_순간중심롤스티어.html" class="nav-btn prev">$\leftarrow$ Day 39</a>
+    <a href="Day41_애커만기하학.html" class="nav-btn next">Day 41 $\rightarrow$</a>
+</div>
+
+<!-- ══════ FOOTER ══════ -->
+<footer class="footer">
+    <p>Vehicle Dynamics & Simulation | Part 6: 서스펜션 기구학</p>
+    <p>Generated: 2026-03-09 15:45:07 | Day 40/ 60</p>
+</footer>
+
+</div>
+
+<!-- ══════ SCRIPTS ══════ -->
+
+
+<style>
+.deriv-card { position: relative; transition: all 0.3s ease; }
+.deriv-steps { font-size: 14px; line-height: 1.6; }
+.step-text { margin: 8px 0; padding-left: 16px; border-left: 2px solid var(--gold); }
+.checkpoint { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); padding: 16px; border-radius: 8px; margin: 16px 0; }
+.param-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+.param-table th, .param-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+.param-table th { background: var(--surface2); font-weight: 600; color: var(--gold); }
+.param-table tbody tr:hover { background: var(--surface2); }
+.svg-wrapper { margin: 24px 0; padding: 20px; background: var(--surface); border-radius: 12px; }
+.svg-wrapper h4 { color: var(--text-bright); margin-bottom: 16px; }
+.diagram-svg { width: 100%; height: auto; max-width: 500px; }
+.quiz-card { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--gold); padding: 20px; margin: 16px 0; border-radius: 8px; }
+.quiz-card h4 { color: var(--gold); margin-bottom: 12px; }
+.q-question { font-size: 15px; margin-bottom: 12px; }
+.q-blank { background: var(--surface2); padding: 12px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; overflow-x: auto; }
+.q-options label { display: block; padding: 8px; margin: 8px 0; background: var(--surface2); border-radius: 4px; cursor: pointer; }
+.q-btn { background: var(--gold); color: var(--bg); border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.q-btn:hover { background: var(--gold-light); }
+.q-answer { padding: 12px; background: rgba(0,230,118,0.1); border-radius: 6px; margin-top: 12px; }
+.simpack-module { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 12px; }
+.sp-row { background: var(--surface2); padding: 16px; margin: 12px 0; border-radius: 8px; display: grid; grid-template-columns: 120px 1fr 1fr 1fr; gap: 12px; }
+.sp-sym { font-weight: 600; color: var(--gold); }
+.sp-path { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--blue); }
+.sp-detail { font-size: 13px; }
+.sp-warn { color: var(--orange); font-size: 12px; }
+.spaced-rep-tracker table { width: 100%; border-collapse: collapse; }
+.spaced-rep-tracker td { padding: 12px; border: 1px solid var(--border); text-align: center; }
+.spaced-rep-tracker input { width: 20px; height: 20px; cursor: pointer; }
+.nav-section { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 40px 0; }
+.nav-btn { padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; text-align: center; text-decoration: none; color: var(--gold); font-weight: 500; transition: all 0.3s; }
+.nav-btn:hover { background: var(--surface2); border-color: var(--gold); }
+.footer { text-align: center; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 60px; color: var(--text-dim); font-size: 12px; }
+@media (max-width: 640px) {
+    .sp-row { grid-template-columns: 1fr; }
+    .nav-section { grid-template-columns: 1fr; }
+}
+
+/* === Enhanced: Simulation & Sub-step Styles === */
+
+/* ╔══════════════════════════════════════════════════╗
+   ║  CYBER COCKPIT — SIMULATION MODULE v2.0         ║
+   ╚══════════════════════════════════════════════════╝ */
+
+/* ── Container: HUD Frame ── */
+.sim-container{
+  background:linear-gradient(135deg,rgba(245,242,236,0.92),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.25);
+  border-radius:4px;
+  padding:0;margin:28px 0;
+  overflow:hidden;position:relative;
+  box-shadow:0 0 30px rgba(0,229,255,0.08),inset 0 0 60px rgba(0,229,255,0.02)
+}
+.sim-container::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,#2471a3 30%,#922b21 70%,transparent);
+  box-shadow:0 0 12px rgba(0,229,255,0.5);z-index:2
+}
+.sim-container::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+
+/* ── HUD Corner Brackets ── */
+.sim-container .sim-hud-corners{
+  position:absolute;inset:0;pointer-events:none;z-index:3
+}
+.sim-container .sim-hud-corners span{
+  position:absolute;width:16px;height:16px;
+  border-color:#2471a3;border-style:solid;border-width:0;
+  opacity:0.6
+}
+.sim-container .sim-hud-corners span:nth-child(1){top:4px;left:4px;border-top-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(2){top:4px;right:4px;border-top-width:2px;border-right-width:2px}
+.sim-container .sim-hud-corners span:nth-child(3){bottom:4px;left:4px;border-bottom-width:2px;border-left-width:2px}
+.sim-container .sim-hud-corners span:nth-child(4){bottom:4px;right:4px;border-bottom-width:2px;border-right-width:2px}
+
+/* ── Title Bar: System Header ── */
+.sim-title,.sim-container>h3{
+  font-family:'Noto Serif KR',serif!important;
+  font-weight:700;font-size:14px;
+  color:#2471a3;
+  letter-spacing:3px;text-transform:uppercase;
+  background:linear-gradient(90deg,rgba(0,229,255,0.1),rgba(0,229,255,0.03));
+  padding:14px 24px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.15);
+  display:flex;align-items:center;gap:12px;
+  position:relative
+}
+.sim-title::before,.sim-container>h3::before{
+  content:'◆';color:#922b21;font-size:10px;
+  animation:simTitleBlink 2s ease-in-out infinite;
+  text-shadow:0 0 8px rgba(255,45,120,0.6)
+}
+.sim-title::after,.sim-container>h3::after{
+  content:'SIMULATION MODULE';
+  position:absolute;right:24px;
+  font-size:9px;letter-spacing:4px;
+  color:rgba(26,82,118,0.3);font-weight:400
+}
+@keyframes simTitleBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── Canvas Viewport: Cockpit Window ── */
+.sim-canvas-wrap{
+  background:linear-gradient(180deg,#020510,#050d20);
+  border:none;border-radius:0;
+  padding:2px;margin:0;
+  position:relative;overflow:hidden;
+  border-top:1px solid rgba(26,82,118,0.1);
+  border-bottom:1px solid rgba(26,82,118,0.1)
+}
+.sim-canvas-wrap::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.015) 3px,rgba(0,229,255,0.015) 4px),
+    linear-gradient(180deg,rgba(0,229,255,0.04),transparent 15%,transparent 85%,rgba(0,229,255,0.04));
+  border-radius:0
+}
+.sim-canvas-wrap::after{
+  content:'REC ●';position:absolute;top:12px;right:16px;z-index:2;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:#922b21;letter-spacing:2px;
+  animation:recBlink 1.5s step-end infinite;
+  text-shadow:0 0 6px rgba(255,45,120,0.5)
+}
+@keyframes recBlink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.sim-canvas-wrap canvas{
+  max-width:100%;border-radius:0;display:block;
+  position:relative;z-index:0
+}
+
+/* ── Controls Panel: Cockpit Instruments ── */
+.sim-controls{
+  display:flex;flex-wrap:wrap;gap:2px;
+  background:rgba(26,82,118,0.03);
+  padding:16px 20px;margin:0;
+  border-bottom:1px solid rgba(26,82,118,0.08)
+}
+
+/* ── Slider Group: Boost Lever ── */
+.sim-slider-group{
+  flex:1;min-width:180px;
+  background:linear-gradient(135deg,rgba(245,242,236,0.8),rgba(250,248,244,0.9));
+  border:1px solid rgba(26,82,118,0.12);
+  border-radius:4px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-slider-group:hover{border-color:rgba(26,82,118,0.35)}
+.sim-slider-group::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.3),transparent)
+}
+.sim-slider-group label{
+  display:block;font-size:10px;color:#5a7a9a;
+  margin-bottom:8px;font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase
+}
+.sim-slider-group .sim-value,.sim-slider-group .sim-readout{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:18px;color:#2471a3;text-align:right;
+  text-shadow:0 0 8px rgba(0,229,255,0.5);
+  margin-top:4px;
+  transition:color .2s,text-shadow .2s
+}
+
+/* ── Custom Range Slider ── */
+.sim-slider-group input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:6px;margin:8px 0;
+  background:linear-gradient(90deg,rgba(0,229,255,0.15),rgba(0,229,255,0.08));
+  border-radius:3px;outline:none;
+  border:1px solid rgba(26,82,118,0.1)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;
+  box-shadow:0 0 12px rgba(0,229,255,0.6),0 0 24px rgba(0,229,255,0.2);
+  border:2px solid rgba(255,255,255,0.3);
+  transition:box-shadow .2s,transform .1s
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:hover{
+  box-shadow:0 0 18px rgba(0,229,255,0.8),0 0 36px rgba(0,229,255,0.3);
+  transform:scale(1.15)
+}
+.sim-slider-group input[type=range]::-webkit-slider-thumb:active{
+  background:linear-gradient(135deg,#922b21,#2471a3);
+  box-shadow:0 0 20px rgba(255,45,120,0.6),0 0 40px rgba(0,229,255,0.3)
+}
+.sim-slider-group input[type=range]::-moz-range-thumb{
+  width:18px;height:18px;border-radius:2px;
+  background:linear-gradient(135deg,#2471a3,#2979ff);
+  cursor:pointer;border:2px solid rgba(255,255,255,0.3);
+  box-shadow:0 0 12px rgba(0,229,255,0.6)
+}
+
+/* ── Buttons: Ignition Keys ── */
+.sim-btn{
+  background:linear-gradient(135deg,#2471a3,#0097a7)!important;
+  color:#faf8f4!important;
+  border:none!important;border-radius:4px!important;
+  padding:12px 28px!important;
+  font-family:'Noto Serif KR',serif!important;
+  font-size:12px!important;font-weight:700!important;
+  letter-spacing:2px!important;text-transform:uppercase!important;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:all .3s!important;
+  box-shadow:0 0 16px rgba(0,229,255,0.3),inset 0 1px 0 rgba(0,229,255,0.07)!important
+}
+.sim-btn:hover{
+  background:linear-gradient(135deg,#67f0ff,#2471a3)!important;
+  transform:translateY(-2px)!important;
+  box-shadow:0 4px 20px rgba(0,229,255,0.5),0 0 30px rgba(0,229,255,0.2)!important
+}
+.sim-btn:active{
+  transform:translateY(0) scale(0.98)!important;
+  box-shadow:0 0 24px rgba(0,229,255,0.6),inset 0 0 12px rgba(0,229,255,0.3)!important
+}
+.sim-btn::after{
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(0,229,255,0.06),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none
+}
+.sim-btn:hover::after{opacity:1}
+
+/* ── Secondary Button: System Command ── */
+.sim-btn-secondary{
+  background:rgba(245,242,236,0.8)!important;
+  color:#5a7a9a!important;
+  border:1px solid rgba(26,82,118,0.2)!important;
+  box-shadow:none!important;
+  letter-spacing:2px!important
+}
+.sim-btn-secondary:hover{
+  background:rgba(26,82,118,0.08)!important;
+  color:#2471a3!important;
+  border-color:rgba(26,82,118,0.4)!important;
+  box-shadow:0 0 12px rgba(0,229,255,0.15)!important
+}
+
+/* ── Button Container ── */
+.sim-btn-group{
+  display:flex;gap:10px;padding:16px 20px;
+  background:rgba(26,82,118,0.02);
+  border-bottom:1px solid rgba(26,82,118,0.06)
+}
+
+/* ── Readout: Telemetry Display ── */
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:2px;margin:0;
+  background:rgba(26,82,118,0.03);padding:12px 20px
+}
+.sim-metric,.sim-metrics>div{
+  background:linear-gradient(135deg,rgba(245,242,236,0.9),rgba(250,248,244,0.95));
+  border:1px solid rgba(26,82,118,0.1);
+  border-radius:4px;padding:12px 14px;text-align:center;
+  position:relative;overflow:hidden;
+  transition:border-color .3s
+}
+.sim-metric:hover{border-color:rgba(26,82,118,0.3)}
+.sim-metric::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(0,229,255,0.2),transparent)
+}
+.sim-metric .sm-label,.sim-metric strong{
+  font-size:9px!important;color:#4a6a8a;
+  font-family:'Noto Serif KR',serif;
+  letter-spacing:2px;text-transform:uppercase;
+  font-weight:400!important;display:block;margin-bottom:4px
+}
+.sim-metric .sm-value{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:20px;color:#2471a3;
+  font-weight:500;display:block;
+  text-shadow:0 0 10px rgba(0,229,255,0.5);
+  letter-spacing:1px;
+  transition:color .3s,text-shadow .3s
+}
+
+/* ── Metrics Container (Pattern B) ── */
+.sim-metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:4px;padding:12px 20px;
+  background:rgba(26,82,118,0.02)
+}
+
+/* ── Running State Animation ── */
+@keyframes simRunning{
+  0%{border-color:rgba(26,82,118,0.25)}
+  50%{border-color:rgba(255,45,120,0.4)}
+  100%{border-color:rgba(26,82,118,0.25)}
+}
+@keyframes simRunningGlow{
+  0%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+  50%{box-shadow:0 0 40px rgba(26,82,118,0.15),0 0 60px rgba(255,45,120,0.05)}
+  100%{box-shadow:0 0 30px rgba(26,82,118,0.08)}
+}
+@keyframes telemetryFlash{
+  0%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+  50%{color:#67f0ff;text-shadow:0 0 16px rgba(0,229,255,0.8)}
+  100%{color:#2471a3;text-shadow:0 0 10px rgba(0,229,255,0.5)}
+}
+.sim-container.sim-running{
+  animation:simRunning 2s ease-in-out infinite,simRunningGlow 2s ease-in-out infinite
+}
+.sim-container.sim-running .sim-metric .sm-value{
+  animation:telemetryFlash 1.5s ease-in-out infinite
+}
+.sim-container.sim-running .sim-canvas-wrap::after{
+  color:#00e676;content:'LIVE ●'
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .sim-controls{padding:12px}
+  .sim-slider-group{min-width:140px;padding:10px 12px}
+  .sim-slider-group .sim-value,.sim-slider-group .sim-readout{font-size:14px}
+  .sim-metric .sm-value{font-size:16px}
+  .sim-title::after,.sim-container>h3::after{display:none}
+}
+
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.sim-slider-group{flex:1;min-width:180px;background:rgba(255,255,255,0.03);border-radius:8px;padding:12px}
+.sim-slider-group label{display:block;color:var(--text-dim,#8A8F98);font-size:12px;margin-bottom:4px}
+.sim-slider-group input[type=range]{width:100%;accent-color:var(--cyan)}
+.sim-readout{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:13px;margin-top:4px}
+.sim-metrics{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.sim-metric{background:rgba(41,121,255,0.1);border:1px solid rgba(41,121,255,0.3);border-radius:8px;padding:8px 14px;font-size:13px;color:var(--blue)}
+.sim-metric strong{color:var(--cyan)}
+.sim-btn{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:600;font-size:13px}
+.sim-btn:hover{filter:brightness(1.15)}
+.sub-step{background:rgba(41,121,255,0.05);border-left:3px solid var(--blue);padding:16px;margin:12px 0;border-radius:0 8px 8px 0}
+.sub-step h4{color:var(--blue);margin:0 0 8px;font-size:15px}
+.derivation-detail{background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);border-radius:8px;padding:16px;margin:12px 0}
+.derivation-detail h4{color:var(--cyan);margin:0 0 8px}
+</style>
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

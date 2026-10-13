@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 51 — 회생 제동 시스템 | Vehicle Dynamics 52-Day Course</title>
+
+
+
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<!-- ══════ STICKY HEADER ══════ -->
+
+
+<div class="container">
+
+
+<!-- Hero Section -->
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 51 —</div>
+  <h1 class="hero-title">회생 제동 시스템</h1>
+  <p class="hero-title-en">Regenerative Braking System</p>
+  <div class="hero-equation">$$E_{regen} = \eta_{motor} \cdot \eta_{battery} \cdot \int_s^{t_s}\,T_{motor}(t) \cdot \omega(t)\,dt$$</div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:4.8;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">98%</text>
+      <text class="gauge-label" x="50" y="62">DAY 51 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>4단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★★★☆</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- Intuition Section -->
+<div class="section">
+    <div class="section-label">INTUITION</div>
+    <div class="section-title">핵심 개념</div>
+    <div class="brain-box">
+        <p>전기차/하이브리드의 회생 제동은 모터를 발전기로 사용하여 운동에너지를 전기에너지로 회수합니다. 마찰 제동과의 블렌딩(배분)이 핵심이며, 에너지 회수율이 주행거리를 직접 좌우합니다.</p>
+    </div>
+</div>
+
+<!-- Core Derivation -->
+<div class="section">
+    <div class="section-label">DERIVATION</div>
+    <div class="section-title">수학적 유도</div>
+    <div class="derivations-section">
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 1 — 모터 발전 토크</div>
+    <div class="deriv-equation">$$T_{regen} = k_t \cdot I_{charge} = \frac{P_{regen}}{\omega_{motor}}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 회생 제동 토크는 모터의 토크 상수(kt)와 충전 전류의 곱이며, 회생 파워를 모터 회전속도로 나눈 것입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 회생 토크의 방향은 모터 회전을 저항하는 방향(제동)입니다. 저속에서 $\omega$ 가 작으면 같은 파워에서 토크가 커집니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 토크가 바퀴에 전달되어 감속력을 발생시키며, 동시에 배터리를 충전합니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 1/7</strong>
+    <p>STEP 1의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 2 — 회수 에너지 계산</div>
+    <div class="deriv-equation">$$E_{regen} = \eta_{motor} \cdot \eta_{inverter} \cdot \eta_{battery} \cdot \frac{1}{2}m(V_0^2 - V_f^2)$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 이론적 운동에너지에 모터, 인버터, 배터리 각각의 효율을 곱한 것이 실제 회수 에너지입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 일반적으로 $\eta_{motor}$ $\approx$ 0.90~0.95, $\eta_{inverter}$ $\approx$ 0.95~0.98, $\eta_{battery}$ $\approx$ 0.90~0.95이므로 총 효율은 약 77~88%입니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 나머지 에너지(12~23%)는 열손실로 사라집니다. 마찰 제동은 100% 열손실입니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 2/7</strong>
+    <p>STEP 2의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 3 — 블렌딩 전략</div>
+    <div class="deriv-equation">$$F_{brake,total} = F_{regen} + F_{friction} = f(\dot{m}_{driver},\,V,\,SOC,\,T_{battery})$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 총 제동력을 회생과 마찰로 배분하는 전략입니다. 운전자의 제동 요구, 차속, 배터리 SOC, 배터리 온도에 따라 달라집니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> SOC가 높으면 배터리가 에너지를 더 받을 수 없어 마찰 비중이 증가합니다. 저온에서도 충전 성능이 떨어져 같은 현상이 발생합니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> iBooster 같은 전동 부스터가 이 블렌딩을 물리적으로 구현합니다 (Day 48 참조).</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 3/7</strong>
+    <p>STEP 3의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 4 — 회생 제동 한계 속도</div>
+    <div class="deriv-equation">$$V_{min,regen} = \frac{T_{motor,max}\cdotR_{gear}}{R_{tire}\cdotF_{brake,req}}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 저속에서는 모터 토크만으로 요구 제동력을 감당할 수 없어 마찰 제동이 개입합니다. 이 전환점이 최소 회생 속도입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 보통 5~15 km/h 이하에서 회생 제동이 불가능합니다. 이 영역에서 부드러운 전환(seamless blending)이 고급 튜닝의 핵심입니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 정차 직전 '끌림(creep)' 현상을 방지하기 위해 완전 정지 시에는 마찰 제동만 사용합니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 4/7</strong>
+    <p>STEP 4의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 5 — 원페달 드라이빙(One-Pedal)</div>
+    <div class="deriv-equation">$$a_{decel,coast} = \frac{T_{regen,max}}{m\cdotR_{tire}/R_{gear}} \approx 0.15 ∼ 0.25g$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 가속 페달에서 발을 떼면 최대 회생 토크로 감속합니다. 약 0.15~0.25g의 감속도로 대부분의 도심 주행에서 브레이크 페달 없이 운전 가능합니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 이 감속도는 일반 엔진 브레이크(0.05~0.10g)보다 크지만, 비상 제동(0.8~1.2g)보다는 훨씬 작습니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 원페달 모드에서도 급제동 시에는 브레이크 페달로 추가 마찰 제동을 사용합니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 5/7</strong>
+    <p>STEP 5의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 6 — 배터리 충전 한계</div>
+    <div class="deriv-equation">$$P_{charge,max}(SOC,\,T) = min\,(P_{motor,max}, \,\frac{I_{max}(T)\cdotV_{pack}}{1000})$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 회생 파워의 상한은 모터 최대 파워와 배터리 최대 충전 파워 중 작은 값입니다. 배터리 최대 충전률은 SOC와 온도에 의존합니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> SOC 90% 이상에서는 Imax가 급격히 떨어져 회생이 거의 불가합니다. 내리막 주행 시 이 상황이 실제로 발생합니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 제한 때문에 마찰 브레이크는 전기차에서도 여전히 필수적입니다.</p>
+    </div>
+</div>
+<div class="checkpoint">
+    <strong>✅ 체크포인트 6/7</strong>
+    <p>STEP 6의 수식과 의미를 이해했으면 다음 단계로 진행합니다.</p>
+</div>
+<div class="deriv-card">
+    <div class="deriv-step-num">STEP 7 — 종합: WLTP 에너지 회수율</div>
+    <div class="deriv-equation">$$\eta_{regen,cycle} = \frac{E_{regen,total}}{E_{brake,total}} = \frac{\sum E_{regen,i}}{\sum \frac{1}{2}m(V_2-V_2)}$$</div>
+    <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 주행 사이클 전체에서 총 제동 에너지 대비 회수된 에너지의 비율입니다. WLTP 기준으로 보통 60~80% 수준입니다.</p>
+        <p><span class="label">부호 · 변환 이유:</span> 도심 주행(잦은 가감속)에서 회수율이 높고, 고속도로(제동 적음)에서 낮습니다. 이것이 전기차가 도심에서 더 효율적인 이유입니다.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 이 회수율이 전기차의 주행거리(range)를 15~25% 향상시킵니다.</p>
+    </div>
+</div>
+</div>
+
+</div>
+
+
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① 회생제동 에너지 회수량</p>
+    <div class="sub-eq">$$E_{regen} = \int_{t_1}^{t_2} F_{brake,regen} \cdot v(t) \, dt$$</div>
+    <div class="sub-eq">$$F_{brake,regen} = T_{motor} / r_{eff} \leq F_{brake,total} \cdot \beta_{regen}$$</div>
+    <div class="sub-eq">$$\eta_{regen} = \frac{E_{battery,in}}{E_{kinetic,lost}} = \eta_{motor} \times \eta_{inverter} \times \eta_{battery}$$</div>
+    <p class="sub-note">회생효율 $\eta_{regen} \approx$ 0.60-0.75. 도심 주행 시 제동 에너지의 약 30-40% 회수 가능</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 블렌딩 전략 (Regen + Friction)</p>
+    <div class="sub-eq">$$F_{brake,total} = F_{regen} + F_{friction}$$</div>
+    <div class="sub-eq">$$F_{regen} = \min(F_{brake,demand}, \; T_{motor,max}/r_{eff}, \; P_{batt,max}/v)$$</div>
+    <div class="sub-eq">$$F_{friction} = F_{brake,total} - F_{regen}$$</div>
+    <p class="sub-note"><strong>직렬 블렌딩:</strong> 저속에서 회생 우선 $\rightarrow$ 부족분만 마찰 보충. 페달 필에 영향 최소화가 핵심</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ SOC 제한 조건</p>
+    <div class="sub-eq">$$\text{IF } SOC > SOC_{max} \;\Rightarrow\; F_{regen} = 0 \;\text{(과충전 방지)}$$</div>
+    <div class="sub-eq">$$\text{IF } v < v_{min} \;\Rightarrow\; F_{regen} \to 0 \;\text{(저속 모터 효율 저하)}$$</div>
+    <div class="sub-eq">$$P_{regen,limit} = f(SOC, T_{batt}, v, \omega_{motor})$$</div>
+    <p class="sub-note">배터리 온도 -10°C 이하에서 회생 출력 50% 이상 제한. 충전 전류 제한이 회생량 결정</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ 원-페달 드라이빙 감속도</p>
+    <div class="sub-eq">$$a_{coast} = -\frac{F_{regen,coast}}{m} \approx -0.10 \sim -0.25 \;\text{g}$$</div>
+    <div class="sub-eq">$$F_{regen,coast} = f(\text{driver mode: Eco/Normal/Sport})$$</div>
+    <p class="sub-note">원-페달 모드에서 완전 정차 시 마찰 브레이크 자동 작동(크리프 토크). <strong>르노 E-Tech:</strong> 기본 0.15g 감속</p>
+  </div>
+</div>
+
+<!-- Parameters Table -->
+<div class="section">
+    <div class="section-label">PARAMETERS</div>
+    <div class="section-title">핵심 변수</div>
+    <div class="param-table-wrap"><table class="param-table">
+<thead><tr><th>기호</th><th>이름</th><th>일반 범위</th><th>단위</th><th>Simpack 경로</th><th>비고</th></tr></thead><tbody>
+<tr><td>$T_{regen}$</td><td>회생 제동 토크</td><td>0~300</td><td>N·m</td><td><code>Motor.RegenTorque</code></td><td>모터 최대 기준</td></tr>
+<tr><td>$\eta_{motor}$</td><td>모터 효율</td><td>0.90~0.95</td><td>-</td><td><code>Motor.Efficiency</code></td><td>발전 모드</td></tr>
+<tr><td>$\eta_{battery}$</td><td>배터리 충전 효율</td><td>0.90~0.95</td><td>-</td><td><code>Battery.ChargeEff</code></td><td>SOC·온도 의존</td></tr>
+<tr><td>$SOC$</td><td>배터리 충전 상태</td><td>20~90</td><td>%</td><td><code>Battery.SOC</code></td><td>회생 제한</td></tr>
+<tr><td>$P_{regen}$</td><td>회생 파워</td><td>0~80</td><td>kW</td><td><code>Motor.RegenPower</code></td><td>속도 비례</td></tr>
+<tr><td>$V_{min}$</td><td>최소 회생 속도</td><td>5~15</td><td>km/h</td><td><code>Regen.MinSpeed</code></td><td>마찰 전환점</td></tr>
+<tr><td>$\eta_{regen}$</td><td>사이클 회수율</td><td>60~80</td><td>%</td><td><code>Output.RegenRate</code></td><td>WLTP 기준</td></tr>
+<tr><td>$a_{coast}$</td><td>코스팅 감속도</td><td>0.15~0.25</td><td>g</td><td><code>Regen.CoastDecel</code></td><td>원페달</td></tr>
+</tbody></table></div>
+
+</div>
+
+<!-- SVG Diagrams -->
+<div class="section">
+    <div class="section-label">DIAGRAMS</div>
+    <div class="section-title">시각화</div>
+    <div class="svg-grid">
+        <div class="svg-wrapper">
+    <h3 class="svg-title">회생 제동 시스템</h3>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 300" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+    <text x="250" y="20" fill="#2471a3" font-size="14" text-anchor="middle">회생 제동 시스템</text>
+    <rect x="30" y="80" width="100" height="60" rx="8" fill="none" stroke="#2471a3" stroke-width="2"/>
+    <text x="80" y="105" fill="#2471a3" font-size="10" text-anchor="middle">브레이크</text>
+    <text x="80" y="120" fill="#2471a3" font-size="10" text-anchor="middle">페달</text>
+    <rect x="180" y="60" width="130" height="80" rx="10" fill="none" stroke="url(#cyberGrad)" stroke-width="2"/>
+    <text x="245" y="95" fill="#2471a3" font-size="10" text-anchor="middle">Brake Blending</text>
+    <text x="245" y="115" fill="#2471a3" font-size="10" text-anchor="middle">ECU</text>
+    <rect x="360" y="50" width="110" height="50" rx="8" fill="none" stroke="#1e7e34" stroke-width="2"/>
+    <text x="415" y="80" fill="#1e7e34" font-size="10" text-anchor="middle">모터/발전기</text>
+    <rect x="360" y="130" width="110" height="50" rx="8" fill="none" stroke="#ff9100" stroke-width="2"/>
+    <text x="415" y="160" fill="#ff9100" font-size="10" text-anchor="middle">유압 브레이크</text>
+    <line x1="130" y1="110" x2="180" y2="100" stroke="#888" stroke-width="1.5" marker-end="url(#arrWT)"/>
+    <line x1="310" y1="80" x2="360" y2="75" stroke="#1e7e34" stroke-width="1.5" marker-end="url(#arrWT)"/>
+    <line x1="310" y1="120" x2="360" y2="155" stroke="#ff9100" stroke-width="1.5" marker-end="url(#arrWT)"/>
+    <rect x="360" y="210" width="110" height="50" rx="8" fill="none" stroke="#6c3483" stroke-width="2"/>
+    <text x="415" y="240" fill="#6c3483" font-size="10" text-anchor="middle">배터리 충전</text>
+    <line x1="415" y1="100" x2="415" y2="210" stroke="#6c3483" stroke-width="1.5" marker-end="url(#arrWT)"/>
+    <text x="430" y="180" fill="#6c3483" font-size="9">에너지 회수</text>
+</svg>
+</div>
+<div class="svg-wrapper">
+    <h3 class="svg-title">디스크 브레이크 구조</h3>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 400" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+    <defs><marker id="arrDB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2471a3"/></marker></defs>
+    <text x="250" y="20" fill="#2471a3" font-size="14" text-anchor="middle">디스크 브레이크 구조</text>
+    <circle cx="250" cy="210" r="130" fill="none" stroke="#555" stroke-width="2"/>
+    <circle cx="250" cy="210" r="50" fill="none" stroke="#555" stroke-width="1.5"/>
+    <circle cx="250" cy="210" r="15" fill="none" stroke="#888" stroke-width="1"/>
+    <text x="250" y="215" fill="#888" font-size="10" text-anchor="middle">Hub</text>
+    <rect x="340" y="160" width="50" height="100" rx="6" fill="none" stroke="#2471a3" stroke-width="2"/>
+    <text x="365" y="215" fill="#2471a3" font-size="10" text-anchor="middle">캘리퍼</text>
+    <rect x="330" y="175" width="12" height="70" rx="2" fill="#ff9100" fill-opacity="0.5" stroke="#ff9100" stroke-width="1"/>
+    <rect x="388" y="175" width="12" height="70" rx="2" fill="#ff9100" fill-opacity="0.5" stroke="#ff9100" stroke-width="1"/>
+    <text x="336" y="260" fill="#ff9100" font-size="9">패드</text>
+    <text x="394" y="260" fill="#ff9100" font-size="9">패드</text>
+    <path d="M365,270 L365,340" stroke="#1e7e34" stroke-width="1.5" marker-end="url(#arrDB)"/>
+    <text x="365" y="360" fill="#1e7e34" font-size="10" text-anchor="middle">피스톤 힘 F</text>
+    <text x="180" y="130" fill="#2471a3" font-size="11">디스크 (로터)</text>
+    <path d="M250,100 C300,100 350,130 370,160" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="4,3" fill="none"/>
+    <text x="130" y="350" fill="#6c3483" font-size="11">유효 반경 r_eff</text>
+    <line x1="250" y1="210" x2="350" y2="210" stroke="#6c3483" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <circle cx="300" cy="210" r="3" fill="#6c3483"/>
+</svg>
+</div>
+<div class="svg-wrapper">
+    <h3 class="svg-title">정지거리 구성</h3>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 250" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+    <text x="250" y="20" fill="#2471a3" font-size="14" text-anchor="middle">정지거리 구성</text>
+    <line x1="30" y1="120" x2="470" y2="120" stroke="#555" stroke-width="2"/>
+    <rect x="30" y="90" width="120" height="60" rx="4" fill="rgba(41,121,255,0.15)" stroke="#2471a3" stroke-width="1.5"/>
+    <text x="90" y="115" fill="#2471a3" font-size="11" text-anchor="middle">반응 거리</text>
+    <text x="90" y="135" fill="#2471a3" font-size="9" text-anchor="middle">d₁ = V·t_r</text>
+    <rect x="150" y="90" width="60" height="60" rx="4" fill="rgba(179,136,255,0.15)" stroke="#6c3483" stroke-width="1.5"/>
+    <text x="180" y="115" fill="#6c3483" font-size="10" text-anchor="middle">빌드업</text>
+    <text x="180" y="135" fill="#6c3483" font-size="9" text-anchor="middle">d₂</text>
+    <rect x="210" y="90" width="260" height="60" rx="4" fill="rgba(255,145,0,0.15)" stroke="#ff9100" stroke-width="1.5"/>
+    <text x="340" y="115" fill="#ff9100" font-size="11" text-anchor="middle">제동 거리</text>
+    <text x="340" y="135" fill="#ff9100" font-size="9" text-anchor="middle">d₃ = V²/(2μg)</text>
+    <line x1="30" y1="170" x2="470" y2="170" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="5,3"/>
+    <text x="250" y="190" fill="#2471a3" font-size="11" text-anchor="middle">총 정지거리 = d₁ + d₂ + d₃</text>
+    <text x="90" y="210" fill="#888" font-size="9" text-anchor="middle">~0.7~1.5 s</text>
+    <text x="180" y="210" fill="#888" font-size="9" text-anchor="middle">~0.2 s</text>
+    <text x="340" y="210" fill="#888" font-size="9" text-anchor="middle">속도² 비례</text>
+</svg>
+</div>
+<div class="svg-wrapper">
+    <h3 class="svg-title">타이어 슬립-마찰 곡선</h3>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 350" class="diagram-svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+    <defs><marker id="arrTS" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2471a3"/></marker></defs>
+    <text x="250" y="20" fill="#2471a3" font-size="14" text-anchor="middle">타이어 슬립률-마찰계수 곡선</text>
+    <rect x="60" y="30" width="420" height="290" fill="none" stroke="#333" stroke-width="1" rx="4"/>
+    <line x1="80" y1="290" x2="460" y2="290" stroke="#555" stroke-width="1.5" marker-end="url(#arrTS)"/>
+    <line x1="80" y1="290" x2="80" y2="40" stroke="#555" stroke-width="1.5" marker-end="url(#arrTS)"/>
+    <text x="270" y="320" fill="#999" font-size="12" text-anchor="middle">슬립률 λ (%)</text>
+    <text x="25" y="165" fill="#999" font-size="12" text-anchor="middle" transform="rotate(-90,25,165)">마찰계수 μ</text>
+    <path d="M80,290 Q120,180 160,100 Q180,70 200,65 Q230,60 260,80 Q320,120 400,150 L460,160" fill="none" stroke="#2471a3" stroke-width="2.5"/>
+    <circle cx="200" cy="65" r="5" fill="#ff9100"/><text x="210" y="55" fill="#ff9100" font-size="10">피크 μ</text>
+    <line x1="200" y1="290" x2="200" y2="65" stroke="url(#cyberGrad)" stroke-width="1" stroke-dasharray="4,3"/>
+    <text x="200" y="305" fill="#2471a3" font-size="10" text-anchor="middle">~15%</text>
+    <rect x="130" y="70" width="140" height="25" rx="4" fill="rgba(0,230,118,0.15)" stroke="#1e7e34" stroke-width="1"/>
+    <text x="200" y="87" fill="#1e7e34" font-size="9" text-anchor="middle">ABS 제어 목표 영역</text>
+    <text x="380" y="175" fill="#888" font-size="10">슬라이딩 영역</text>
+    <text x="100" y="305" fill="#888" font-size="10">0%</text>
+    <text x="300" y="305" fill="#888" font-size="10">50%</text>
+    <text x="440" y="305" fill="#888" font-size="10">100%</text>
+</svg>
+</div>
+
+    </div>
+</div>
+
+<!-- Vehicle Example -->
+<div class="section">
+    <div class="section-label">EXAMPLE</div>
+    <div class="section-title">실차 적용 사례</div>
+    <div class="vehicle-example">
+    <h3 class="vehicle-title">Hyundai IONIQ 5 — 400V/800V 멀티 충전</h3>
+    <p>IONIQ 5는 i-Pedal(원페달 드라이빙)과 패들 시프트를 통한 회생 레벨 조절을 지원합니다.</p>
+    <div class="deriv-equation">$$E_{regen} = 0.92 \times 0.96 \times 0.93 \times \frac{1}{2} \times 2100 \times 27.8^2 = 659$$ kJ (100→0), 회수율 $$\approx 82\%$$ (효율 곱)</div>
+    <p class="vehicle-implication"><strong>엔지니어링 시사점:</strong> 800V 아키텍처는 같은 전류에서 2배의 충전 파워를 허용하여 고속 회생 영역을 넓힙니다. i-Pedal 모드에서 도심 에너지 회수율 ~70%를 달성합니다.</p>
+</div>
+</div>
+
+<!-- Simpack Module -->
+<div class="section">
+    <div class="section-label">SIMPACK</div>
+    <div class="section-title">다물체 동역학 시뮬레이션</div>
+    <div class="simpack-module">
+<h4>Simpack 매핑 가이드</h4>
+<div class="sp-row">
+    <span class="sp-sym">Motor/Generator</span>
+    <span class="sp-path">Powertrain > Motor</span>
+    <span class="sp-detail">토크-속도 맵, 효율 맵</span>
+    <span class="sp-warn">⚠ 발전 모드 별도 맵 입력</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Battery Model</span>
+    <span class="sp-path">Powertrain > Battery</span>
+    <span class="sp-detail">SOC, 내부저항, 온도</span>
+    <span class="sp-warn">⚠ 충전 한계 로직 포함</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Blend Controller</span>
+    <span class="sp-path">Vehicle > Controller > Blend</span>
+    <span class="sp-detail">회생/마찰 배분 로직</span>
+    <span class="sp-warn">⚠ 전환 시 토크 연속성</span>
+</div>
+<div class="sp-row">
+    <span class="sp-sym">Regen Limits</span>
+    <span class="sp-path">Controller > RegenLimits</span>
+    <span class="sp-detail">SOC·온도 테이블</span>
+    <span class="sp-warn">⚠ SOC>90% 시 마찰 전환</span>
+</div>
+</div>
+
+</div>
+
+<!-- Quiz Section -->
+
+<!-- ══════ INTERACTIVE SIMULATION ══════ -->
+<div class="section-card" style="margin-top:32px">
+  <div class="section-label">INTERACTIVE SIMULATION</div>
+  <h2 class="section-title">🎮 회생 제동 에너지 회수</h2>
+  <div class="sim-container">
+    <div class="sim-canvas-wrap">
+      <canvas id="sim-day51" width="700" height="350"></canvas>
+    </div>
+    <div id="sim-day51-controls" class="sim-controls"></div>
+    <div id="sim-day51-metrics" class="sim-metrics"></div>
+  </div>
+  <script>
+  (function(){
+    const canvas = document.getElementById('sim-day51');
+    const ctx = canvas.getContext('2d');
+    const W = 700, H = 350;
+    const ctrlBox = document.getElementById('sim-day51-controls');
+    const metricBox = document.getElementById('sim-day51-metrics');
+    
+    function addSlider(label, min, max, value, step, id) {
+      const g = document.createElement('div');
+      g.className = 'sim-slider-group';
+      g.innerHTML = '<label>' + label + '</label><input type="range" min="'+min+'" max="'+max+'" value="'+value+'" step="'+step+'" id="'+id+'"><div class="sim-readout" id="'+id+'-val">'+value+'</div>';
+      ctrlBox.appendChild(g);
+      const inp = document.getElementById(id);
+      inp.oninput = function(){ document.getElementById(id+'-val').textContent = this.value; draw(); };
+      return inp;
+    }
+    function addBtn(label, fn) {
+      const b = document.createElement('button');
+      b.className = 'sim-btn'; b.textContent = label; b.onclick = fn;
+      ctrlBox.appendChild(b);
+    }
+    function setMetrics(arr) {
+      metricBox.innerHTML = arr.map(m => '<div class="sim-metric"><strong>'+m[0]+':</strong>&nbsp;'+m[1]+'</div>').join('');
+    }
+    
+    const sl_v = addSlider('속도 (km/h)', 20, 150, 80, 5, 'sim51-v');
+    const sl_soc = addSlider('배터리 SOC (%)', 10, 95, 60, 5, 'sim51-soc');
+    const sl_decel = addSlider('감속도 (g)', 0.05, 0.5, 0.2, 0.01, 'sim51-decel');
+    function draw() {
+      ctx.fillStyle='#020510'; ctx.fillRect(0,0,W,H);
+      const V=+sl_v.value/3.6, soc=+sl_soc.value, decel=+sl_decel.value;
+      const m=1800, P_motor_max=60000; // 60kW motor
+      const F_brake=m*decel*9.81;
+      const P_regen=Math.min(F_brake*V, P_motor_max*(1-soc/100));
+      const P_friction=Math.max(0,F_brake*V-P_regen);
+      const efficiency=P_regen/(F_brake*V+0.01)*100;
+      // Bar chart
+      const bw=100, bx1=W*0.3, bx2=W*0.6;
+      const maxP=P_motor_max;
+      ctx.fillStyle='#00e676';ctx.fillRect(bx1-bw/2,H-30-P_regen*(H-80)/maxP,bw,P_regen*(H-80)/maxP);
+      ctx.fillStyle='#922b21';ctx.fillRect(bx2-bw/2,H-30-P_friction*(H-80)/maxP,bw,P_friction*(H-80)/maxP);
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.strokeRect(bx1-bw/2,H-30-P_regen*(H-80)/maxP,bw,P_regen*(H-80)/maxP);
+      ctx.strokeRect(bx2-bw/2,H-30-P_friction*(H-80)/maxP,bw,P_friction*(H-80)/maxP);
+      ctx.fillStyle='#00e676';ctx.font='13px Share Tech Mono,monospace';ctx.fillText('회생 제동',(bx1-30),30);
+      ctx.fillStyle='#922b21';ctx.fillText('마찰 제동',(bx2-30),30);
+      ctx.fillStyle='#3d6080';ctx.font='12px Share Tech Mono,monospace';
+      ctx.fillText((P_regen/1000).toFixed(1)+' kW',bx1-20,H-30-P_regen*(H-80)/maxP-5);
+      ctx.fillText((P_friction/1000).toFixed(1)+' kW',bx2-20,H-30-P_friction*(H-80)/maxP-5);
+      setMetrics([['회수율',efficiency.toFixed(0)+'%'],['회생 파워',(P_regen/1000).toFixed(1)+' kW'],['SOC 제한',soc>85?'⚠ 높은 SOC':'정상'],['총 제동력',(F_brake/1000).toFixed(1)+' kN']]);
+    }
+
+    draw();
+  })();
+  </script>
+</div>
+
+<!-- ══════ QUIZ ══════ -->
+
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">회생제동 시스템 심화</h2>
+
+  <!-- Deep Dive 1 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>💡 회생제동 효율의 물리적 한계 — 왜 100% 회생은 불가능한가?</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive1">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">에너지 회수율을 결정하는 5가지 요소</h4>
+        <p>회생제동(regenerative braking)은 운동 에너지를 전기 에너지로 변환하여 배터리에 저장합니다. 이론적 최대 회수 에너지 = ½mv²이지만, 실제 회수율은 30~60%에 불과합니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">회생 에너지: $E_{regen} = \eta_{motor} \times \eta_{inverter} \times \eta_{battery} \times \frac{1}{2} m V^2 \times \text{BR}$ 여기서 BR은 회생 제동 비율, 종합 효율 $\eta_{total} \approx 0.5\sim0.7$.</p>
+        <p><strong style="color:var(--cyan-light);">효율 손실 요인:</strong> (1) 모터/인버터 효율 ~90%, (2) 배터리 충전 효율 ~95%, (3) 배터리 SOC 제한 — SOC > 90%이면 회생 불가, (4) 저속에서 모터 토크 제한 — 정지 직전에는 기계식 제동 필수, (5) 급제동 시 회생 토크 > 모터 최대 토크이면 마찰 제동 보조 필요.</p>
+        <p>종합 효율: 0.90 $\times$ 0.95 $\times$ (SOC 가용률 0.85) $\times$ (속도 가용률 0.90) $\approx$ 65%. 여기에 보조기기 손실과 열관리 전력을 빼면 실질 회수율은 40~55% 수준입니다.</p>
+        <p>BEV에서 원페달(one-pedal) 감속 모드의 회생량은 도심 주행 기준 주행 거리의 15~25%를 회수합니다. 르노 ZOE의 'B 모드'에서 감속도 약 0.15g까지가 회생제동 영역이며, 이를 초과하면 마찰제동이 블렌딩됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 2 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🔬 회생-마찰 블렌딩(Blending) 전략 — 운전자가 모르게 전환하는 기술</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive2">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">브레이크 페달 뒤에서 벌어지는 실시간 배분</h4>
+        <p>회생-마찰 블렌딩은 운전자의 총 감속 요구를 회생제동과 마찰제동으로 실시간 배분하는 것입니다. 핵심 원칙: 운전자는 어떤 제동 방식이 사용되는지 전혀 느끼지 못해야 합니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">블렌딩 전환 조건: 총 요구 제동 토크 $T_{req}$ 에서 모터 가용 회생 토크 $T_{regen,max}(\omega, SOC)$ 를 우선 사용하고, 부족분 $T_{friction} = T_{req} - T_{regen}$ 을 유압으로 보충. 전환 시 토크 합 일정 유지가 핵심.</p>
+        <p><strong style="color:var(--cyan-light);">직렬(Series) 블렌딩:</strong> 회생제동을 최대한 먼저 사용하고, 부족분만 마찰제동으로 보충. 에너지 회수율이 높지만, 전환 시 '토크 홀(torque hole)' — 일시적 제동력 빈 구간 — 이 발생할 수 있습니다.</p>
+        <p><strong style="color:var(--cyan-light);">병렬(Parallel) 블렌딩:</strong> 회생제동과 마찰제동을 항상 일정 비율로 동시 사용. 전환 충격이 적지만 회수율이 낮습니다.</p>
+        <p>실차에서는 직렬 블렌딩을 기본으로 하되, 급제동(>0.3g)이나 ABS 작동 시에는 회생을 즉시 차단하고 마찰제동으로 전환합니다. 이 전환의 응답 속도가 150ms 이내여야 운전자가 이질감을 느끼지 못합니다. Bosch iBooster + ESP hev 시스템이 이 요구를 충족합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Dive 3 -->
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>⚙️ 회생제동과 ABS의 충돌 문제 — 전기 모터가 ABS를 방해하는가?</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive3">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">구동축 회생 토크의 제어 간섭</h4>
+        <p>ABS가 작동하면 슬립률 제어를 위해 각 휠의 제동 토크를 빠르게 증감합니다. 하지만 전기 모터의 회생 토크는 구동축(보통 전축 또는 후축) 전체에 걸리므로, ABS의 개별 휠 제어와 충돌합니다.</p>
+        <p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">회생+ABS 충돌: ABS 작동 시 바퀴 슬립률 제어를 위해 빠른 토크 변화 필요. 모터 응답($\sim10$ ms)은 유압($\sim5$ ms)보다 느려, ABS 작동 감지 즉시 회생 토크를 0으로 해제하는 것이 일반적 전략.</p>
+        <p><strong style="color:var(--cyan-light);">문제 시나리오:</strong> 전축 구동 BEV에서 ABS가 좌전륜만 감압하려는데, 모터 회생 토크가 좌우 전륜 모두에 제동력을 유지 $\rightarrow$ ABS 감압 효과가 반감 $\rightarrow$ 제동 거리 연장.</p>
+        <p>해결 전략: (1) ABS 작동 감지 시 회생 토크 즉시 0으로 감소(가장 단순하지만 회수 손실), (2) ABS와 VCU(Vehicle Control Unit)간 CAN 통신으로 회생 토크 상한을 실시간 조정, (3) 인휠 모터 시스템에서는 각 휠별 독립 회생 제어 가능(가장 이상적).</p>
+        <p>현재 양산 BEV 대부분은 전략 (1)+(2) 조합을 사용합니다. ABS 작동 시 50ms 이내에 회생 토크를 완전 해제하고, ABS 사이클이 안정되면 점진적으로 회생을 재개합니다.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+  <!-- Q1 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 01 — 목적함수</div>
+    <p class="quiz-q">서스펜션 최적화에서 승차감과 접지성(타이어 하중 변동)의 관계는?</p>
+    <div class="quiz-options" id="q1">
+      <div class="quiz-opt">A. 상충(Trade-off) 관계 — 동시 최적화 불가</div>
+      <div class="quiz-opt">B. 항상 비례 관계</div>
+      <div class="quiz-opt">C. 서로 무관</div>
+      <div class="quiz-opt">D. 둘 다 스프링으로만 결정</div>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 02 — 설계 변수</div>
+    <p class="quiz-q">서스펜션 최적화에서 가장 효과적인 설계 변수 조합은?</p>
+    <div class="quiz-options" id="q2">
+      <div class="quiz-opt">A. 스프링 강성 + 댐핑 비율 + 안티롤바 강성</div>
+      <div class="quiz-opt">B. 차체 색상 + 시트 재질</div>
+      <div class="quiz-opt">C. 타이어 브랜드만</div>
+      <div class="quiz-opt">D. 엔진 출력</div>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" data-correct="1">
+    <div class="quiz-num">QUESTION 03 — 파레토 프론트</div>
+    <p class="quiz-q">다목적 최적화의 파레토 프론트(Pareto Front)란?</p>
+    <div class="quiz-options" id="q3">
+      <div class="quiz-opt">A. 어느 목적함수도 다른 것을 악화시키지 않고는 개선 불가능한 해의 집합</div>
+      <div class="quiz-opt">B. 모든 목적함수가 최대인 점</div>
+      <div class="quiz-opt">C. 가장 비용이 낮은 해</div>
+      <div class="quiz-opt">D. 첫 번째 시행 결과</div>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+  </div>
+</div>
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section">
+    <a href="Day50_ABS_ESC제어.html" class="nav-btn">$\leftarrow$ Day 50: ABS/ESC 제어</a>
+    <a href="Day52_통합브레이크시스템.html" class="nav-btn">Day 52: 통합 브레이크 시스템 $\rightarrow$</a>
+</div>
+
+</div>
+
+<footer class="footer-nav">
+    <a href="Day50_ABS_ESC제어.html" class="footer-btn">&#8592; 이전 강의</a>
+    <span class="footer-day">Day 51 / 60</span>
+    <a href="Day52_통합브레이크시스템.html" class="footer-btn">다음 강의 &#8594;</a>
+</footer>
+
+
+<!-- /container -->
+
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

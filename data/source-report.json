@@ -1,0 +1,1022 @@
+{
+  "lectureCount": 60,
+  "sourceQuestionCount": 171,
+  "importedQuestionCount": 89,
+  "answerOnlyExplanationCount": 82,
+  "excludedQuestionCount": 82,
+  "excludedQuestions": [
+    {
+      "day": 3,
+      "id": "d3-q1",
+      "reason": "임계감쇠의 최소 시간 복귀 설명에 초기조건·평가 기준이 빠짐"
+    },
+    {
+      "day": 5,
+      "id": "d5-q3",
+      "reason": "r=1을 감쇠계 변위 진폭 공진점과 동일시하는 표현"
+    },
+    {
+      "day": 7,
+      "id": "d7-q1",
+      "reason": "변위 공진이 사라지는 경계의 등호 ζ≥1/√2 누락"
+    },
+    {
+      "day": 7,
+      "id": "d7-q2",
+      "reason": "Q와 감쇠비 관계의 정의와 근사 조건 미명시"
+    },
+    {
+      "day": 7,
+      "id": "d7-q3",
+      "reason": "반치폭 감쇠 추정의 저감쇠 근사 조건 누락"
+    },
+    {
+      "day": 10,
+      "id": "d10-q2",
+      "reason": "본문의 차체 2DOF와 문항의 휠 포함 4DOF 모델 범위 불일치"
+    },
+    {
+      "day": 10,
+      "id": "d10-q3",
+      "reason": "flat ride를 후축 스프링 강성만의 조건으로 단정"
+    },
+    {
+      "day": 11,
+      "id": "d11-q3",
+      "reason": "관성비와 전후 고유진동수 비율의 기호 혼동"
+    },
+    {
+      "day": 12,
+      "id": "d12-q1",
+      "reason": "1-based 정답키가 A를 지정하지만 선택지 의미와 불일치"
+    },
+    {
+      "day": 12,
+      "id": "d12-q2",
+      "reason": "1-based 정답키가 A를 지정하지만 s²X(s)는 B"
+    },
+    {
+      "day": 12,
+      "id": "d12-q3",
+      "reason": "1-based 정답키 B와 제시된 공진식 C 불일치; 공진 조건도 누락"
+    },
+    {
+      "day": 14,
+      "id": "d14-q1",
+      "reason": "ISO 8608 PSD 등급을 IRI 구간과 직접 등치"
+    },
+    {
+      "day": 14,
+      "id": "d14-q2",
+      "reason": "FRF 입출력 단위 미지정으로 출력 PSD 종류를 특정 불가"
+    },
+    {
+      "day": 15,
+      "id": "d15-q1",
+      "reason": "1-based 정답키 A와 대수감쇠율 계산 결과 B 불일치"
+    },
+    {
+      "day": 15,
+      "id": "d15-q3",
+      "reason": "1-based 정답키 A와 임계감쇠 설명 B 불일치"
+    },
+    {
+      "day": 16,
+      "id": "d16-q3",
+      "reason": "비선형 스프링 입력을 테이블만 정답으로 제한; 다른 입력 함수 가능성"
+    },
+    {
+      "day": 21,
+      "id": "d21-q1",
+      "reason": "스프링 강성 증가가 항상 핸들링 개선·승차감 악화라고 단정"
+    },
+    {
+      "day": 21,
+      "id": "d21-q3",
+      "reason": "조건과 목표 지표 없이 언스프렁 질량 감소를 가장 효과적인 방법으로 단정"
+    },
+    {
+      "day": 22,
+      "id": "d22-q1",
+      "reason": "1-based 정답키 A와 2DOF 고유진동수 개수 B 불일치"
+    },
+    {
+      "day": 22,
+      "id": "d22-q2",
+      "reason": "전후 레이트와 CG 위치를 함께 고려한 연성 소거 조건 없음"
+    },
+    {
+      "day": 22,
+      "id": "d22-q3",
+      "reason": "1-based 정답키 A와 연성 운동 설명 B 불일치"
+    },
+    {
+      "day": 24,
+      "id": "d24-q1",
+      "reason": "신호 PSD의 평균제곱과 에너지율을 혼동"
+    },
+    {
+      "day": 24,
+      "id": "d24-q2",
+      "reason": "RMS²=분산은 영평균 신호 조건이 필요한데 누락"
+    },
+    {
+      "day": 25,
+      "id": "d25-q2",
+      "reason": "높은 코히어런스를 인과관계의 증명으로 단정"
+    },
+    {
+      "day": 27,
+      "id": "d27-q1",
+      "reason": "1-based 정답키 A와 모달 직교 조건 B 불일치"
+    },
+    {
+      "day": 27,
+      "id": "d27-q2",
+      "reason": "1-based 정답키 A와 x=Φη 선택지 B 불일치"
+    },
+    {
+      "day": 27,
+      "id": "d27-q3",
+      "reason": "1-based 정답키 A와 모드 절단 설명 B 불일치"
+    },
+    {
+      "day": 28,
+      "id": "d28-q1",
+      "reason": "1-based 정답키 B와 7DOF 선택지 C 불일치"
+    },
+    {
+      "day": 28,
+      "id": "d28-q2",
+      "reason": "1-based 정답키 A와 상태벡터 4×1 선택지 B 불일치"
+    },
+    {
+      "day": 28,
+      "id": "d28-q3",
+      "reason": "1-based 정답키 불일치; 입출력 위치와 감쇠에 따라 관측 피크 수 변동"
+    },
+    {
+      "day": 29,
+      "id": "d29-q1",
+      "reason": "1-based 정답키 A와 댐퍼 요소 B 불일치"
+    },
+    {
+      "day": 29,
+      "id": "d29-q2",
+      "reason": "1-based 정답키 B와 단위 변환 25 N/mm 선택지 C 불일치"
+    },
+    {
+      "day": 29,
+      "id": "d29-q3",
+      "reason": "1-based 정답키 A와 파라미터 확인 선택지 B 불일치"
+    },
+    {
+      "day": 32,
+      "id": "d32-q1",
+      "reason": "1-based 정답키 A와 communication interval 선택지 B 불일치"
+    },
+    {
+      "day": 32,
+      "id": "d32-q3",
+      "reason": "1-based 정답키 A와 FMI Co-Simulation 선택지 B 불일치"
+    },
+    {
+      "day": 33,
+      "id": "d33-q1",
+      "reason": "1-based 정답키 A와 피드백 루프 선택지 B 불일치"
+    },
+    {
+      "day": 33,
+      "id": "d33-q3",
+      "reason": "1-based 정답키 A와 강의 순서 선택지 B 불일치"
+    },
+    {
+      "day": 34,
+      "id": "d34-q1",
+      "reason": "링크/조인트 위상 및 자유도 설정이 실제 5링크와 불일치"
+    },
+    {
+      "day": 34,
+      "id": "d34-q3",
+      "reason": "1-based 정답키 A와 DOE 선택지 B 불일치"
+    },
+    {
+      "day": 35,
+      "id": "d35-q1",
+      "reason": "1-based 정답키 A와 SLA 선택지 B 불일치"
+    },
+    {
+      "day": 35,
+      "id": "d35-q2",
+      "reason": "범용 목표 캠버 변화율 수치 근거 불충분; 정답키도 불일치"
+    },
+    {
+      "day": 35,
+      "id": "d35-q3",
+      "reason": "기구학 자세와 하드포인트에 따른 조건 생략"
+    },
+    {
+      "day": 36,
+      "id": "d36-q1",
+      "reason": "1-based 정답키 A와 출제 의도 선택지 B 불일치; 부호 조건 미명시"
+    },
+    {
+      "day": 36,
+      "id": "d36-q2",
+      "reason": "1-based 정답키 A와 사이드포스 선택지 B 불일치"
+    },
+    {
+      "day": 36,
+      "id": "d36-q3",
+      "reason": "1-based 정답키 A와 타이로드 피벗 선택지 B 불일치"
+    },
+    {
+      "day": 37,
+      "id": "d37-q1",
+      "reason": "1-based 정답키 A와 보상 효과 선택지 B 불일치; 원문 부호 혼재"
+    },
+    {
+      "day": 38,
+      "id": "d38-q1",
+      "reason": "1-based 정답키 A와 재킹 선택지 B 불일치"
+    },
+    {
+      "day": 38,
+      "id": "d38-q2",
+      "reason": "안티다이브 비율을 동적 변위 감소율과 동일시"
+    },
+    {
+      "day": 38,
+      "id": "d38-q3",
+      "reason": "롤센터 이동을 롤 강성 분배 변화로 단정"
+    },
+    {
+      "day": 39,
+      "id": "d39-q1",
+      "reason": "원문 롤스티어 부호 정의가 서로 모순"
+    },
+    {
+      "day": 39,
+      "id": "d39-q3",
+      "reason": "양의 롤스티어 정의와 링크 배치 조건 미명시"
+    },
+    {
+      "day": 40,
+      "id": "d40-q3",
+      "reason": "1-based 정답키 C와 온도 사이클 선택지 D 불일치"
+    },
+    {
+      "day": 41,
+      "id": "d41-q2",
+      "reason": "80~90% 애커만을 모든 실제 차량의 일반 설계값처럼 제시"
+    },
+    {
+      "day": 42,
+      "id": "d42-q1",
+      "reason": "가변 랙 기어비의 조향각 의존성과 차속 의존성을 혼동"
+    },
+    {
+      "day": 43,
+      "id": "d43-q1",
+      "reason": "EPS 강의에 타이어 횡력 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 43,
+      "id": "d43-q2",
+      "reason": "EPS 강의에 타이어 횡력 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 43,
+      "id": "d43-q3",
+      "reason": "EPS 강의에 타이어 횡력 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 46,
+      "id": "d46-q1",
+      "reason": "낮은 양의 감쇠비를 동적 불안정과 동일시"
+    },
+    {
+      "day": 46,
+      "id": "d46-q3",
+      "reason": "요 오버슈트를 정상상태 오버스티어와 동일시"
+    },
+    {
+      "day": 47,
+      "id": "d47-q1",
+      "reason": "디스크 열역학 강의에 하중이동 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 47,
+      "id": "d47-q2",
+      "reason": "디스크 열역학 강의에 하중이동 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 47,
+      "id": "d47-q3",
+      "reason": "디스크 열역학 강의에 하중이동 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 48,
+      "id": "d48-q1",
+      "reason": "유압 제동 강의에 안정성 팩터 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 48,
+      "id": "d48-q2",
+      "reason": "유압 제동 강의에 안정성 팩터 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 48,
+      "id": "d48-q3",
+      "reason": "유압 제동 강의에 안정성 팩터 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 49,
+      "id": "d49-q1",
+      "reason": "제동력 배분 강의에 요 관성 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 49,
+      "id": "d49-q2",
+      "reason": "제동력 배분 강의에 요 관성 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 49,
+      "id": "d49-q3",
+      "reason": "제동력 배분 강의에 요 관성 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 50,
+      "id": "d50-q1",
+      "reason": "ABS/ESC 강의에 노면 PSD 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 50,
+      "id": "d50-q2",
+      "reason": "ABS/ESC 강의에 노면 PSD 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 50,
+      "id": "d50-q3",
+      "reason": "ABS/ESC 강의에 노면 PSD 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 51,
+      "id": "d51-q1",
+      "reason": "회생제동 강의에 서스펜션 최적화 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 51,
+      "id": "d51-q2",
+      "reason": "회생제동 강의에 서스펜션 최적화 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 51,
+      "id": "d51-q3",
+      "reason": "회생제동 강의에 서스펜션 최적화 퀴즈가 붙은 주제 불일치"
+    },
+    {
+      "day": 52,
+      "id": "d52-q3",
+      "reason": "모델·솔버에 무관한 필수 적분 스텝을 1 ms로 단정"
+    },
+    {
+      "day": 53,
+      "id": "d53-q1",
+      "reason": "배터리 배치에 따른 효과를 질량/관성/강성 조건 없이 단정"
+    },
+    {
+      "day": 55,
+      "id": "d55-q1",
+      "reason": "Ixz를 roll-pitch 관성곱으로 잘못 명명; 정답키도 불일치"
+    },
+    {
+      "day": 55,
+      "id": "d55-q2",
+      "reason": "1-based 정답키 3은 roll 패턴; warp 패턴은 2"
+    },
+    {
+      "day": 56,
+      "id": "d56-q2",
+      "reason": "반능동 댐퍼의 제어 액추에이터와 능동 힘 발생 장치를 구분하지 않음"
+    },
+    {
+      "day": 56,
+      "id": "d56-q3",
+      "reason": "차체 절대속도와 상대속도의 곱 대신 상대속도 부호만으로 스위칭"
+    },
+    {
+      "day": 57,
+      "id": "d57-q1",
+      "reason": "8000×0.085/500=1.36 rad≈77.9°; 어떤 선택지와도 불일치"
+    },
+    {
+      "day": 59,
+      "id": "d59-q1",
+      "reason": "ISO 2631 객관 진동 지표를 주관평가 척도와 혼동"
+    }
+  ],
+  "withheldFormulas": [
+    {
+      "day": 6,
+      "reason": "arctan 사분면 처리 필요"
+    },
+    {
+      "day": 7,
+      "reason": "변위 공진의 감쇠비 조건 누락"
+    },
+    {
+      "day": 11,
+      "reason": "바운스/피치 비연성 근사 조건 누락"
+    },
+    {
+      "day": 12,
+      "reason": "force compliance와 base transmissibility 혼재"
+    },
+    {
+      "day": 17,
+      "reason": "선형 댐퍼와 Maxwell 모델이 혼재"
+    },
+    {
+      "day": 19,
+      "reason": "타이어홉 강성 근사 조건 누락"
+    },
+    {
+      "day": 20,
+      "reason": "차체 고정 근사 조건 누락"
+    },
+    {
+      "day": 21,
+      "reason": "최적 감쇠비 수치 오류가 있는 본문"
+    },
+    {
+      "day": 23,
+      "reason": "원문 TeX 토큰 병합"
+    },
+    {
+      "day": 24,
+      "reason": "PSD 극한·평균 및 편측/양측 조건 누락"
+    },
+    {
+      "day": 27,
+      "reason": "독립 모드 감쇠의 성립 조건 누락"
+    },
+    {
+      "day": 30,
+      "reason": "ω rad/s와 f Hz 혼동"
+    },
+    {
+      "day": 34,
+      "reason": "링크/조인트 구속 독립성 조건 필요"
+    },
+    {
+      "day": 36,
+      "reason": "Toe 정의에 필요한 기하와 기준 불명확"
+    },
+    {
+      "day": 37,
+      "reason": "킹핀 조향 토크식 적용 조건 불명확"
+    },
+    {
+      "day": 38,
+      "reason": "롤센터 식의 차원과 기하 근거 불명확"
+    },
+    {
+      "day": 39,
+      "reason": "롤스티어 부호 정의 불일치"
+    },
+    {
+      "day": 43,
+      "reason": "EPS 제어 예시를 일반식으로 단정"
+    },
+    {
+      "day": 45,
+      "reason": "언더스티어 그래디언트 정규화와 차원 불일치"
+    },
+    {
+      "day": 46,
+      "reason": "전달함수 TeX가 손상됨"
+    },
+    {
+      "day": 47,
+      "reason": "클램핑력과 마찰면 수 정의 중복 가능"
+    },
+    {
+      "day": 48,
+      "reason": "페달 레버비와 부스터비 정의 불명확"
+    },
+    {
+      "day": 49,
+      "reason": "원문 TeX 토큰 병합"
+    },
+    {
+      "day": 51,
+      "reason": "에너지 적분 구간의 원문 표기 오류"
+    },
+    {
+      "day": 52,
+      "reason": "제동 빌드업 모델과 효율 계수 적용 조건 불명확"
+    },
+    {
+      "day": 54,
+      "reason": "토션 바와 휠 등가 강성 구분 필요"
+    },
+    {
+      "day": 55,
+      "reason": "주좌표 관성곱 오류가 있는 본문"
+    },
+    {
+      "day": 56,
+      "reason": "감쇠력 부호 정의 누락"
+    },
+    {
+      "day": 57,
+      "reason": "원문의 수치 예제 단위 오류"
+    },
+    {
+      "day": 59,
+      "reason": "주파수 가중/축 가중 구분 불명확"
+    }
+  ],
+  "lecturesWithoutSourceQuiz": [
+    19,
+    26,
+    30
+  ],
+  "lecturesWithoutImportedQuiz": [
+    7,
+    12,
+    19,
+    22,
+    26,
+    27,
+    28,
+    29,
+    30,
+    35,
+    36,
+    38,
+    43,
+    47,
+    48,
+    49,
+    50,
+    51
+  ],
+  "missingFields": {
+    "title": {
+      "count": 0,
+      "days": []
+    },
+    "summary": {
+      "count": 0,
+      "days": []
+    },
+    "formula": {
+      "count": 30,
+      "days": [
+        6,
+        7,
+        11,
+        12,
+        17,
+        19,
+        20,
+        21,
+        23,
+        24,
+        27,
+        30,
+        34,
+        36,
+        37,
+        38,
+        39,
+        43,
+        45,
+        46,
+        47,
+        48,
+        49,
+        51,
+        52,
+        54,
+        55,
+        56,
+        57,
+        59
+      ]
+    },
+    "concepts": {
+      "count": 0,
+      "days": []
+    },
+    "questions": {
+      "count": 18,
+      "days": [
+        7,
+        12,
+        19,
+        22,
+        26,
+        27,
+        28,
+        29,
+        30,
+        35,
+        36,
+        38,
+        43,
+        47,
+        48,
+        49,
+        50,
+        51
+      ]
+    }
+  },
+  "incompleteSourcePages": [
+    {
+      "day": 2,
+      "reason": "초기조건 예제와 퀴즈 외 직관·유도 본문 없음; 남은 내용으로 요약 재서술"
+    },
+    {
+      "day": 3,
+      "reason": "감쇠비 수식과 퀴즈 외 직관·유도 본문 없음; 남은 내용으로 요약 재서술"
+    },
+    {
+      "day": 19,
+      "reason": "타이어 감쇠 유도 도중 문서가 끝남; 원문 퀴즈 없음"
+    },
+    {
+      "day": 26,
+      "reason": "복소 고유치 유도 도중 문서가 끝남; 원문 퀴즈 없음"
+    },
+    {
+      "day": 30,
+      "reason": "이론 고유진동수 계산 도중 문서가 끝남; 원문 퀴즈 없음"
+    }
+  ],
+  "files": [
+    {
+      "day": 1,
+      "filename": "Day01_운동방정식유도.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 2,
+      "filename": "Day02_비감쇠자유진동.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 3,
+      "filename": "Day03_감쇠비정의.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 4,
+      "filename": "Day04_부족감쇠자유진동.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 5,
+      "filename": "Day05_강제조화진동.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 6,
+      "filename": "Day06_위상각유도.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 7,
+      "filename": "Day07_공진조건분석.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 8,
+      "filename": "Day08_쿼터카모델.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 9,
+      "filename": "Day09_쿼터카고유진동수.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 10,
+      "filename": "Day10_하프카모델.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 11,
+      "filename": "Day11_하프카모드해석.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 12,
+      "filename": "Day12_전달함수유도.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 13,
+      "filename": "Day13_전달률방진설계.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 14,
+      "filename": "Day14_노면스펙트럼승차감.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 15,
+      "filename": "Day15_Part2복습.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 16,
+      "filename": "Day16_스프링특성.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 17,
+      "filename": "Day17_댐퍼모델.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 18,
+      "filename": "Day18_부싱복소강성.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 19,
+      "filename": "Day19_타이어수직동특성.html",
+      "sourceQuestions": 0,
+      "importedQuestions": 0
+    },
+    {
+      "day": 20,
+      "filename": "Day20_TireHop.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 21,
+      "filename": "Day21_승차감트레이드오프.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 22,
+      "filename": "Day22_Part3복습.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 23,
+      "filename": "Day23_푸리에변환.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 24,
+      "filename": "Day24_PSD정의.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 25,
+      "filename": "Day25_FRF측정.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 26,
+      "filename": "Day26_고유치문제.html",
+      "sourceQuestions": 0,
+      "importedQuestions": 0
+    },
+    {
+      "day": 27,
+      "filename": "Day27_모드중첩법.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 28,
+      "filename": "Day28_Part4복습.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 29,
+      "filename": "Day29_수식Simpack매핑.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 30,
+      "filename": "Day30_QuarterCar구현.html",
+      "sourceQuestions": 0,
+      "importedQuestions": 0
+    },
+    {
+      "day": 31,
+      "filename": "Day31_FRF상관성.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 32,
+      "filename": "Day32_CoSimulation.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 33,
+      "filename": "Day33_디지털트윈완성.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 34,
+      "filename": "Day34_서스펜션기구학기초.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 35,
+      "filename": "Day35_캠버기하학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 36,
+      "filename": "Day36_토기하학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 37,
+      "filename": "Day37_킹핀기하학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 38,
+      "filename": "Day38_롤센터안티지오메트리.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 39,
+      "filename": "Day39_순간중심롤스티어.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 40,
+      "filename": "Day40_KC시뮬레이션통합.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 41,
+      "filename": "Day41_애커만기하학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 42,
+      "filename": "Day42_랙피니언역학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 43,
+      "filename": "Day43_전동파워스티어링.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 44,
+      "filename": "Day44_코너링포스슬립각.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 45,
+      "filename": "Day45_언더오버스티어.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 46,
+      "filename": "Day46_요응답전달함수.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 47,
+      "filename": "Day47_디스크브레이크열역학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 48,
+      "filename": "Day48_유압제동시스템.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 49,
+      "filename": "Day49_제동력배분하중이동.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 50,
+      "filename": "Day50_ABS_ESC제어.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 51,
+      "filename": "Day51_회생제동시스템.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 0
+    },
+    {
+      "day": 52,
+      "filename": "Day52_통합브레이크시스템.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 53,
+      "filename": "Day53_EV차량동역학.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 54,
+      "filename": "Day54_안티롤바설계.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 55,
+      "filename": "Day55_풀카모델.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 56,
+      "filename": "Day56_능동반능동서스펜션.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 1
+    },
+    {
+      "day": 57,
+      "filename": "Day57_컴플라이언스스티어.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 58,
+      "filename": "Day58_내구하중스펙트럼.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    },
+    {
+      "day": 59,
+      "filename": "Day59_승차감주관평가.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 2
+    },
+    {
+      "day": 60,
+      "filename": "Day60_타이어횡방향모델.html",
+      "sourceQuestions": 3,
+      "importedQuestions": 3
+    }
+  ]
+}

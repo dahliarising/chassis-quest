@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 05 — 강제 조화 진동 — 진폭비 | Vehicle Dynamics Notes</title>
+
+
+
+<!-- KaTeX Math Rendering -->
+
+<!-- KaTeX Auto-Render -->
+<script>
+(function() {
+  var katexJS = document.createElement('script');
+  katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+  katexJS.onload = function() {
+    var autoRender = document.createElement('script');
+    autoRender.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+    autoRender.onload = function() {
+      function doRender() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false},
+            {left: "\\[", right: "\\]", display: true}
+          ],
+          ignoredTags: ["script","noscript","style","textarea","pre","code","svg","text","g","path","circle","rect","line","polygon","polyline","tspan"],
+          throwOnError: false
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', doRender);
+      } else {
+        doRender();
+      }
+    };
+    document.head.appendChild(autoRender);
+  };
+  document.head.appendChild(katexJS);
+})();
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{--bg:#faf8f4;--surface:#fff;--surface2:#f5f2ec;--border:#d4cfc6;--border-glow:#b8b2a6;--cyan:#1a5276;--cyan-light:#2471a3;--cyan-dim:rgba(26,82,118,0.06);--magenta:#922b21;--magenta-dim:rgba(146,43,33,0.06);--blue:#1a5276;--green:#1e7e34;--purple:#6c3483;--orange:#b9770e;--text:#2c2c2c;--text-dim:#7a7568;--text-bright:#1a1a1a;--gold:#1a5276;--gold-light:#2471a3;--scanline:transparent}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-weight:400;line-height:1.9;-webkit-font-smoothing:auto;position:relative;overflow-x:hidden}
+body::before{display:none!important}body::after{display:none!important}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f0ede6}::-webkit-scrollbar-thumb{background:#b8b2a6;border-radius:3px}
+.sticky-header{display:none!important}
+.container{max-width:780px;margin:0 auto;padding:0 24px 60px}
+.series-info{text-align:center;padding:20px 0 0;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:40px 0 36px;position:relative}.hero::before{display:none}
+.hero-day{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.hero-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:28px;color:var(--text-bright);line-height:1.4;margin-bottom:6px;background:none;-webkit-text-fill-color:var(--text-bright)}
+.hero-title-en{font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:13px;color:var(--text-dim);margin-bottom:24px;letter-spacing:1px}
+.hero-equation{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px 24px;display:inline-block;margin:8px 0}
+.hero-math{font-family:'IBM Plex Mono',monospace;font-size:18px;color:var(--blue);font-weight:500}
+.gauge-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:20px;position:relative}
+.gauge-svg{width:80px;height:80px;filter:none}.gauge-bg{fill:none;stroke:#e0dcd4;stroke-width:6}.gauge-fill{fill:none;stroke:var(--blue);stroke-width:6;stroke-linecap:round;stroke-dasharray:251}
+.gauge-text{font-family:'IBM Plex Mono',monospace;font-size:16px;fill:var(--blue);text-anchor:middle}.gauge-label{font-family:'IBM Plex Mono',monospace;font-size:9px;fill:var(--text-dim);text-anchor:middle;letter-spacing:1px}
+.gauge-particle{display:none!important}
+.meta-badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.meta-badge{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);clip-path:none}.meta-badge span{color:var(--blue);font-weight:500}
+.section{margin-top:36px;padding:20px 0 12px;break-inside:avoid;animation:none}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--magenta);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;text-shadow:none}
+.section-title{font-family:'Noto Serif KR',serif;font-weight:700;font-size:20px;color:var(--text-bright);margin-bottom:16px;padding-left:14px;position:relative}
+.section-title::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:3px;background:var(--blue);border-radius:1px;box-shadow:none}
+.brain-box{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.2);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.brain-box::before{content:'GUIDE';position:absolute;top:8px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(108,52,131,0.35);letter-spacing:2px}
+.brain-box h3{font-family:'Noto Serif KR',serif;font-weight:600;font-size:15px;color:var(--purple);margin-bottom:12px}
+.brain-box p,.brain-box li{font-size:14px;color:var(--text);margin-bottom:6px}.brain-box ul{padding-left:18px}.brain-box li::marker{color:var(--purple)}
+.time-split{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-block{background:rgba(108,52,131,0.04);border:1px solid rgba(108,52,131,0.12);border-radius:3px;padding:8px;text-align:center;font-size:12px}
+.time-block .t-range{color:var(--purple);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;display:block;margin-bottom:2px}.time-block .t-desc{color:var(--text-dim)}
+.intuition-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;position:relative;overflow:hidden}
+.intuition-card::after{display:none}.intuition-card::before{display:none}.intuition-card p{font-size:14px;margin-bottom:10px}
+.highlight{color:var(--blue);font-weight:500;text-shadow:none}
+.deriv-card{background:var(--surface);border-left:3px solid var(--blue);border-radius:0 4px 4px 0;padding:16px 20px;margin-bottom:12px;position:relative}.deriv-card::after{display:none}
+.deriv-step-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;text-shadow:none}
+.deriv-explain{font-size:14px;color:var(--text)}.deriv-explain .label{color:var(--blue);font-weight:500}.deriv-explain p{margin-bottom:6px}
+.arrow-connector{text-align:center;color:var(--text-dim);font-size:20px;margin:-4px 0 8px;opacity:.4;text-shadow:none}
+.checkpoint{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.2);border-radius:4px;padding:12px 18px;margin:20px 0;font-size:14px;color:var(--green)}
+.param-table-wrap{overflow-x:auto;border-radius:4px;border:1px solid var(--border);box-shadow:none}
+table.param-table{width:100%;border-collapse:collapse;font-size:13px}
+table.param-table th{background:var(--surface2);color:var(--blue);font-family:'IBM Plex Mono',monospace;font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+table.param-table td{padding:10px 14px;border-bottom:1px solid #eae7e0;vertical-align:top}table.param-table tr:last-child td{border-bottom:none}table.param-table tr:hover td{background:rgba(26,82,118,0.03)}
+.sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px}
+.simpack-module{background:var(--surface);border:1px solid rgba(26,82,118,0.2);border-radius:4px;overflow:hidden}
+.simpack-header{background:rgba(26,82,118,0.05);padding:12px 20px;border-bottom:1px solid rgba(26,82,118,0.15);display:flex;align-items:center;gap:10px}
+.simpack-badge{background:var(--blue);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.simpack-header span{color:var(--blue);font-weight:500;font-size:14px}.simpack-body{padding:16px 20px}
+.simpack-row{background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);border-radius:3px;padding:12px 16px;margin-bottom:8px}
+.simpack-row .sp-sym{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:14px;font-weight:500}
+.simpack-row .sp-path{font-family:'IBM Plex Mono',monospace;color:var(--blue);font-size:11px;margin:4px 0}
+.simpack-row .sp-detail{font-size:13px;color:var(--text-dim)}
+.sp-warn{background:rgba(185,119,14,0.06);border:1px solid rgba(185,119,14,0.2);border-radius:3px;padding:12px 16px;margin-top:12px;font-size:13px;color:var(--orange)}
+.vehicle-example{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin:12px 0;position:relative;overflow:hidden}
+.vehicle-example::before{display:none}.vehicle-example h4{font-size:15px;color:var(--text-bright);margin-bottom:10px}
+.accordion-header,.accordion-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:12px 18px;margin-bottom:4px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--text-bright);font-weight:500;transition:background .2s}
+.accordion-header:hover,.accordion-toggle:hover{background:#eae7e0}
+.accordion-toggle.active{background:#eae7e0;border-bottom:1px solid var(--border)}
+.accordion-toggle.active .accordion-arrow{color:var(--magenta);transform:rotate(180deg)}
+.accordion-content{padding:16px 18px;border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;margin-bottom:8px;background:var(--surface)}
+.accordion-content.cyber-open{animation:none;background:var(--surface)}.accordion-arrow{transition:transform .3s;font-size:14px}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px 24px;margin-bottom:12px}
+.quiz-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.quiz-q{font-size:14px;color:var(--text-bright);margin-bottom:12px;font-weight:500}.quiz-options{display:grid;gap:6px}
+.quiz-opt{padding:10px 16px;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:13px;color:var(--text);transition:all .2s}
+.quiz-opt:hover{background:var(--surface2);border-color:var(--blue)}
+.quiz-opt.correct{background:rgba(30,126,52,0.08);border-color:var(--green);color:var(--green)}
+.quiz-opt.wrong{background:rgba(146,43,33,0.06);border-color:var(--magenta);color:var(--magenta)}
+.quiz-opt.selected{border-color:var(--blue)}.quiz-feedback{font-size:13px;margin-top:10px;padding:10px 14px;border-radius:3px;display:none}
+.tip-box,.tip{background:rgba(185,119,14,0.05);border:1px solid rgba(185,119,14,0.2);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.memory-hook{background:rgba(30,126,52,0.05);border:1px solid rgba(30,126,52,0.15);border-radius:4px;padding:14px 18px;margin:12px 0;font-size:14px}
+.nav-section{max-width:780px!important}.nav-btn{padding:14px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:4px!important;text-align:center;text-decoration:none!important;color:var(--blue)!important;font-weight:500;font-size:14px;transition:background .2s}.nav-btn:hover{background:var(--surface2)!important}
+.footer{text-align:center;padding:30px 0;border-top:1px solid var(--border);margin-top:30px}.footer p{font-size:11px;color:var(--text-dim)}
+.katex-eq{font-size:1em}.katex{font-size:1.05em}
+.cyber-boot{display:none!important}
+@media(max-width:600px){.hero-title{font-size:22px}.section-title{font-size:18px}.time-split{grid-template-columns:repeat(2,1fr)}.container{padding:0 16px 40px}}
+@keyframes fadeUp{from{opacity:1}to{opacity:1}}@keyframes boostPulse{from{opacity:1}to{opacity:1}}@keyframes gaugeCharge{from{}to{}}@keyframes gaugeSpark{from{}to{}}@keyframes bootPulse{from{}to{}}@keyframes bootType{from{}to{}}@keyframes bootBlink{from{}to{}}@keyframes bootFill{from{}to{}}@keyframes holoShift{from{}to{}}@keyframes glitchFlicker{from{}to{}}@keyframes accordionScan{from{opacity:1}to{opacity:1}}@keyframes quizBoost{from{}to{}}@keyframes quizRetire{from{}to{}}@keyframes orbitParticle{from{}to{}}@keyframes dataStream{from{}to{}}
+.intuition-card:hover,.brain-box:hover,.deriv-card:hover,.vehicle-example:hover,.simpack-module:hover{transform:none;box-shadow:none}
+</style>
+
+<style>
+/* ═══ Pass 3 — Missing Classes + Spacing Fixes ═══ */
+
+/* Derivation equation blocks */
+.deriv-equation{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:4px;padding:14px 20px;margin:10px 0;
+  overflow-x:auto;text-align:center;
+  font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--blue)
+}
+.deriv-steps,.derivations-section{margin:8px 0}
+
+/* Sub-equations & notes */
+.sub-eq{
+  background:var(--surface);border:1px solid #e8e4dc;
+  border-radius:3px;padding:10px 18px;margin:6px 0;
+  text-align:center;font-size:14px;overflow-x:auto
+}
+.sub-label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;
+  margin:16px 0 6px;font-weight:500
+}
+.sub-note{font-size:13px;color:var(--text-dim);margin:8px 0;padding:0 4px;line-height:1.7}
+.sub-step{
+  background:var(--surface);border-left:3px solid var(--border);
+  padding:12px 18px;margin:8px 0;border-radius:0 4px 4px 0
+}
+.step-text{font-size:14px;color:var(--text);margin:4px 0}
+
+/* Diagram containers */
+.diagram-wrap{
+  text-align:center;margin:16px 0;padding:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  overflow-x:auto
+}
+.diagram-label{font-size:12px;color:var(--text-dim);margin-top:8px;text-align:center}
+
+/* Simulation widget */
+.sim-container{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px;margin:16px 0;overflow:hidden
+}
+.sim-title{font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;color:var(--text-bright);margin-bottom:12px}
+.sim-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px;align-items:end}
+.sim-slider-group{flex:1;min-width:140px}
+.sim-slider-group label{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.sim-slider-group input[type="range"]{width:100%;accent-color:var(--blue)}
+.sim-canvas-wrap{text-align:center;margin:8px 0;border:1px solid #e8e4dc;border-radius:4px;overflow:hidden;background:#fff}
+.sim-canvas-wrap canvas{display:block;max-width:100%;margin:0 auto}
+.sim-readout{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;margin-top:12px
+}
+.sim-metric{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:3px;padding:8px 12px;text-align:center
+}
+.sim-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:8px 0}
+.sim-value,.sm-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:500;color:var(--blue);display:block}
+.sm-label{font-size:11px;color:var(--text-dim)}
+.sim-btn{
+  background:var(--blue);color:#fff;border:none;border-radius:3px;
+  padding:8px 18px;cursor:pointer;font-size:13px;font-weight:500;
+  transition:opacity .2s
+}
+.sim-btn:hover{opacity:0.85}
+.sim-btn-secondary,.sim-btn.sim-btn-secondary{
+  background:transparent;color:var(--blue);border:1px solid var(--blue)
+}
+
+/* Simpack workflow */
+.sp-workflow{margin:12px 0}
+.sp-wf-step{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid #eae7e0
+}
+.sp-wf-step:last-child{border-bottom:none}
+.wf-num{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  color:var(--blue);background:var(--surface2);
+  border-radius:50%;width:28px;height:28px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.wf-title{font-weight:500;font-size:14px;color:var(--text-bright)}
+.wf-desc{font-size:13px;color:var(--text-dim);margin-top:2px}
+
+/* Simpack rows (alternate naming) */
+.sp-row{
+  background:rgba(26,82,118,0.03);border:1px solid rgba(26,82,118,0.1);
+  border-radius:3px;padding:12px 16px;margin-bottom:8px
+}
+.sp-rows{margin:8px 0}
+
+/* Section card */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:20px 24px;margin:12px 0
+}
+
+/* Component details */
+.component{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  align-items:baseline;margin:8px 0;font-size:14px
+}
+.component .name{font-weight:500;color:var(--text-bright)}
+.component .meaning{color:var(--text)}
+.component .range{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim)}
+.component .unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--blue)}
+
+/* Calc code */
+.calc-code{
+  background:#f8f6f0;border:1px solid var(--border);
+  border-radius:3px;padding:14px 18px;margin:10px 0;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  color:var(--text);white-space:pre-wrap;overflow-x:auto;
+  line-height:1.6
+}
+
+/* Accordion inner */
+.accordion{margin:8px 0}
+.accordion-inner{padding:4px 0}
+
+/* Nav buttons with prev/next */
+.nav-btn.prev,.nav-btn.next{display:block}
+
+/* KaTeX display equation spacing */
+.katex-display{margin:12px 0!important}
+.katex-eq .katex-display{margin:8px 0!important}
+
+/* General spacing helpers */
+p{margin-bottom:8px}
+.section p{margin-bottom:8px}
+.intuition-card p:last-child,.deriv-explain p:last-child,.brain-box p:last-child{margin-bottom:0}
+strong{font-weight:600}
+
+/* Highlight box (used in various contexts) */
+.highlight-box{
+  background:rgba(26,82,118,0.05);border:1px solid rgba(26,82,118,0.15);
+  border-radius:4px;padding:14px 18px;margin:12px 0
+}
+
+/* Footer spacing */
+.footer{margin-top:40px}
+
+/* Responsive sim */
+@media(max-width:600px){
+  .sim-controls{flex-direction:column}
+  .sim-readout,.sim-metrics{grid-template-columns:1fr 1fr}
+  .component{grid-template-columns:1fr}
+}
+</style>
+
+<style>
+/* ═══ LECTURE FLOW & CHIPS (Guide page) ═══ */
+.lecture-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0}
+.lecture-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);font-size:13px;text-decoration:none;transition:background .2s}
+.lecture-chip:hover{background:var(--blue,#1a5276);color:#fff}
+.lecture-chip.chip-core{border-color:var(--blue,#1a5276);font-weight:600}
+.chip-day{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue,#1a5276);font-weight:700;margin-right:2px}
+.lecture-chip:hover .chip-day{color:#fff}
+.flow-arrow{color:var(--blue,#1a5276);font-size:14px;font-weight:700;margin:0 2px}
+
+/* ═══ SCENARIO CARDS (Guide page) ═══ */
+.scenario-group{margin-bottom:32px}
+.group-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--border,#d4cfc6)}
+.group-icon{font-size:28px;line-height:1}
+.group-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--blue,#1a5276)}
+.group-desc{font-size:14px;color:var(--text-dim,#666);margin-top:4px}
+.scenario-count{font-size:12px;background:var(--blue,#1a5276);color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.scenario-card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:12px;padding:20px;margin-bottom:16px}
+.scenario-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.scenario-name{font-weight:700;font-size:16px;color:var(--text,#2c2c2c)}
+.scenario-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.scenario-desc{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7;margin-bottom:10px}
+.scenario-tip{font-size:13px;color:var(--text-dim,#555);background:var(--surface2,#f5f2ec);border-radius:8px;padding:10px 14px;margin-top:10px;line-height:1.6}
+
+/* ═══ CATEGORY TABS ═══ */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0;padding-bottom:12px;border-bottom:1px solid var(--border,#d4cfc6)}
+.cat-tab{padding:6px 14px;border-radius:20px;font-size:13px;text-decoration:none;color:var(--text,#2c2c2c);background:var(--surface2,#f5f2ec);border:1px solid transparent;transition:all .2s}
+.cat-tab:hover,.cat-tab.active{background:var(--blue,#1a5276);color:#fff;border-color:var(--blue,#1a5276)}
+
+/* ═══ BADGE COLORS ═══ */
+.badge-ride{background:#e8f4f8;color:#1a5276}
+.badge-handling{background:#fdf2e9;color:#a04000}
+.badge-nvh{background:#f4ecf7;color:#6c3483}
+.badge-braking{background:#fdedec;color:#922b21}
+.badge-ev{background:#eafaf1;color:#1e8449}
+.badge-process{background:#ebf5fb;color:#2471a3}
+.badge-sim{background:#f0f3f4;color:#2c3e50}
+.badge-design{background:#fef9e7;color:#7d6608}
+.badge-tuning{background:#e8f8f5;color:#117a65}
+.badge-issue{background:#fbeee6;color:#a04000}
+.badge-geometry{background:#eaf2f8;color:#2e86c1}
+.badge-alignment{background:#f5eef8;color:#7d3c98}
+.badge-compliance{background:#fef5e7;color:#b9770e}
+.badge-test{background:#f0f4f4;color:#1a5276}
+.badge-localization{background:#e8f6f3;color:#148f77}
+
+/* ═══ SOLUTION PANEL (Quiz) ═══ */
+.solution-panel{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-top:12px;display:none}
+.solution-panel.show,.quiz-card.answered .solution-panel{display:block}
+.sol-header{font-family:'Noto Serif KR',serif;font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border,#d4cfc6)}
+.sol-step{font-size:14px;line-height:1.7;margin-bottom:6px;padding-left:8px}
+.sol-num{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-right:6px}
+.sol-insight{font-size:13px;background:rgba(26,82,118,.06);border-left:3px solid var(--blue,#1a5276);padding:8px 12px;margin-top:8px;border-radius:0 6px 6px 0;line-height:1.6}
+.highlight-step{background:rgba(26,82,118,.08);border-radius:6px;padding:4px 8px;margin-left:-8px}
+
+/* ═══ EQUATION EXPLORER ═══ */
+.formula-explorer{margin:16px 0}
+.eq-explorer{position:relative;cursor:pointer}
+.eq-explorer:focus .eq-tooltip,.eq-explorer:hover .eq-tooltip{display:block}
+.eq-tooltip{display:none;position:absolute;top:100%;left:0;right:0;z-index:10;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,.1);font-size:13px}
+.tt-symbol{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);margin-bottom:4px}
+.tt-name{font-weight:600;margin-bottom:2px}
+.tt-unit{color:var(--text-dim,#666);font-size:12px}
+.tt-ref{color:var(--text-dim,#666);font-size:12px;font-style:italic;margin-top:2px}
+.tt-meaning{font-size:12px;color:var(--text-dim,#666);margin-top:4px;line-height:1.5}
+
+/* ═══ FOOTER NAVIGATION ═══ */
+.footer-nav{display:flex;justify-content:space-between;align-items:center;padding:20px 0;margin-top:32px;border-top:2px solid var(--border,#d4cfc6)}
+.footer-btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:8px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);color:var(--text,#2c2c2c);text-decoration:none;font-size:14px;transition:all .2s}
+.footer-btn:hover{background:var(--blue,#1a5276);color:#fff}
+.footer-day{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim,#666)}
+
+/* ═══ SVG DIAGRAM ELEMENTS ═══ */
+.svg-title{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--blue,#1a5276);text-align:center;margin-bottom:8px}
+.svg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+
+/* ═══ VEHICLE ELEMENTS ═══ */
+.vehicle-title{font-weight:700;font-size:15px;color:var(--blue,#1a5276);margin-bottom:6px}
+.vehicle-implication{font-size:14px;color:var(--text,#2c2c2c);line-height:1.7}
+
+/* ═══ CALC BLOCK ═══ */
+.calc{font-family:'IBM Plex Mono',monospace;font-size:14px;background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:10px 14px;margin:10px 0;line-height:1.6;color:var(--text,#2c2c2c)}
+
+/* ═══ STEP ELEMENTS ═══ */
+.step{margin-bottom:12px;padding:12px;background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px}
+.step-number{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--blue,#1a5276);font-size:13px}
+.step-title{font-weight:600;font-size:15px;margin-bottom:4px}
+
+/* ═══ MATH BLOCK ═══ */
+.math-block{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;text-align:center;font-size:16px}
+
+/* ═══ SIMPACK MAPPING ═══ */
+.simpack-mapping{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin:16px 0}
+
+/* ═══ PARAM ABBREVIATION ═══ */
+.param-abbr{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ CARD GENERIC ═══ */
+.card{background:var(--surface,#fff);border:1px solid var(--border,#d4cfc6);border-radius:10px;padding:16px;margin-bottom:12px}
+
+/* ═══ STATS ═══ */
+.stat-item{text-align:center;padding:10px}
+.stat-desc{font-size:13px;color:var(--text-dim,#666);margin-top:4px}
+
+/* ═══ RIDE CRITERIA ═══ */
+.ride-criteria{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0}
+
+/* ═══ QUIZ ANSWER ═══ */
+.quiz-answer{margin-top:8px;font-size:14px;line-height:1.6}
+
+/* ═══ NAV LINKS ═══ */
+.nav-link{display:flex;flex-direction:column;text-decoration:none;color:var(--text,#2c2c2c);padding:8px;border-radius:6px;transition:background .2s}
+.nav-link:hover{background:var(--surface2,#f5f2ec)}
+.nav-label{font-size:11px;color:var(--text-dim,#666);text-transform:uppercase;letter-spacing:.5px}
+.nav-title{font-size:14px;font-weight:600;color:var(--blue,#1a5276)}
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar{width:100%;height:6px;background:var(--surface2,#f5f2ec);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--blue,#1a5276);border-radius:3px;transition:width .3s}
+
+/* ═══ GAUGE ═══ */
+.gauge-container{display:flex;justify-content:center;margin:16px 0}
+.gauge{position:relative;display:flex;align-items:center;justify-content:center}
+
+/* ═══ TABLE WRAPPER ═══ */
+.table-wrapper{overflow-x:auto;margin:12px 0;border-radius:8px;border:1px solid var(--border,#d4cfc6)}
+
+/* ═══ CODE BLOCK ═══ */
+.code-block{background:var(--surface2,#f5f2ec);border:1px solid var(--border,#d4cfc6);border-radius:8px;padding:14px;margin:12px 0;overflow-x:auto}
+.code-header{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;color:var(--blue,#1a5276);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ═══ HERO ELEMENTS ═══ */
+.hero-icon{font-size:48px;text-align:center;margin-bottom:8px}
+.hero-subtitle{font-size:14px;color:var(--text-dim,#666);text-align:center;margin-bottom:4px}
+.hero-desc{font-size:15px;color:var(--text,#2c2c2c);text-align:center;line-height:1.6;max-width:600px;margin:0 auto 16px}
+</style>
+</head>
+<body>
+
+<!-- ① STICKY HEADER -->
+
+
+<div class="container">
+
+<div class="series-info">FUTURE GPX VEHICLE DYNAMICS — 60 DAY MASTER COURSE</div>
+
+<section class="hero">
+  <div class="hero-day">— DAY 05 —</div>
+  <h1 class="hero-title">강제 조화 진동 — 진폭비</h1>
+  <p class="hero-title-en">Forced Harmonic Vibration — Amplitude Ratio</p>
+  <div class="hero-equation"><span class="katex-eq">$$X/X_{st} = 1/\sqrt{((1-r^2)^2+(2\zeta r)^2)}$$</span></div>
+  <div class="gauge-wrap">
+    <svg class="gauge-svg" viewBox="0 0 100 100">
+      <defs><linearGradient id="gGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+      <circle class="gauge-bg" cx="50" cy="50" r="40"/>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" transform="rotate(-90 50 50)" style="stroke-dashoffset:227.2;stroke:url(#gGrad)"  />
+      <text class="gauge-text" x="50" y="48">10%</text>
+      <text class="gauge-label" x="50" y="62">DAY 5 / 60</text>
+    </svg>
+  </div>
+  <div class="meta-badges">
+    <div class="meta-badge">⏱ 포모도로 <span>25분</span></div>
+    <div class="meta-badge">📐 수식 <span>5단계</span></div>
+    <div class="meta-badge">⭐ 난이도 <span>★★★☆☆</span></div>
+    <div class="meta-badge">🔁 복습 <span>D+1, D+3, D+7</span></div>
+  </div>
+</section>
+
+<!-- ③ 뇌과학 학습 전략 -->
+<div class="section">
+  <div class="section-label">INTUITION</div>
+  <h2 class="section-title">왜 이 수식이 필요한가?</h2>
+    <div style="background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,229,255,.03));border:1px solid rgba(26,82,118,.2);border-radius:10px;padding:14px 20px;margin:20px 0;font-size:13px;">
+      <strong style="color:var(--cyan);">💡 수식 유도 읽는 법</strong> — 각 STEP의 <span style="color:var(--blue);">파란색 라벨</span>은 "왜 이 변환을 하는가"를 설명합니다. 수식만 보지 말고 <span style="color:var(--cyan-light);">동기 $\rightarrow$ 변환 $\rightarrow$ 의미</span> 순서로 읽으세요. 눈으로 3번 읽는 것보다 <strong>손으로 1번 쓰는 것</strong>이 기억에 4배 효과적입니다.
+    </div>
+
+  <div class="intuition-card">
+    <p>Day 02~04는 '외력이 없는' 자유진동이었습니다. 오늘부터는 외력이 있는 강제진동(Forced Vibration)입니다. 차량에서 강제진동의 대표적 예: 노면 요철에 의한 주기적 가진, 엔진 불균형 진동, 휠 불균형. 외력이 $F_0\cos(\omega t)$ 형태의 조화함수(harmonic)일 때, 정상상태에서 응답도 같은 주파수 $\omega$ 로 진동합니다. 핵심 질문: '진폭이 얼마나 커지는가?' 이것을 진폭비(Amplitude Ratio, 혹은 Dynamic Magnification Factor)로 표현합니다. 주파수비 r = $\omega/\omega_n$ 이 1에 가까울수록 진폭이 폭발적으로 커지는데, 이것이 공진(Resonance)입니다.</p>
+  </div>
+  
+  <div class="diagram-wrap">
+    <div class="diagram-label">Diagram A — 물리계 도해</div>
+    <svg style="max-width:100%;height:auto;" viewBox="0 0 500 320" width="500" height="320" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+    
+  <defs>
+    <marker id="arrowGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2471a3"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1e7e34"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2471a3"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#ff9100"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#6c3483"/>
+    </marker>
+    <marker id="arrowDim" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#4a6a8a"/>
+    </marker>
+  </defs>
+
+    <rect x="120" y="280" width="260" height="6" rx="2" fill="rgba(0,229,255,0.15)"/>
+    <line x1="130" y1="286" x2="122" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="155" y1="286" x2="147" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="180" y1="286" x2="172" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="205" y1="286" x2="197" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="230" y1="286" x2="222" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="255" y1="286" x2="247" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="280" y1="286" x2="272" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="305" y1="286" x2="297" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="330" y1="286" x2="322" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <line x1="355" y1="286" x2="347" y2="294" stroke="#7A7A8A" stroke-width="1.2"/>
+    <polyline points="195,280 210,265.0 180,250.0 210,235.0 180,220.0 210,205.0 180,190.0 195,160" fill="none" stroke="#1e7e34" stroke-width="2" stroke-linejoin="round"/>
+    <text x="173" y="224.0" font-family="JetBrains Mono" font-size="14" fill="#1e7e34">k</text>
+    <line x1="305" y1="280" x2="305" y2="206.0" stroke="#2471a3" stroke-width="2"/>
+    <rect x="293" y="206.0" width="24" height="28" rx="2" fill="none" stroke="#2471a3" stroke-width="2"/>
+    <line x1="305" y1="206.0" x2="305" y2="196.0" stroke="#2471a3" stroke-width="2"/>
+    <line x1="297" y1="196.0" x2="313" y2="196.0" stroke="#2471a3" stroke-width="2.5"/>
+    <line x1="305" y1="196.0" x2="305" y2="160" stroke="#2471a3" stroke-width="2"/>
+    <text x="323" y="224.0" font-family="JetBrains Mono" font-size="14" fill="#2471a3">c</text>
+    <rect x="160" y="120" width="180" height="40" rx="6" fill="rgba(0,229,255,0.06)" stroke="url(#cyberGrad)" stroke-width="2"/>
+    <text x="250.0" y="145.0" font-family="JetBrains Mono" font-size="16" fill="#2471a3" text-anchor="middle">m</text>
+    <line x1="250" y1="80" x2="250" y2="120" stroke="#ff9100" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+    <text x="260" y="75" font-family="JetBrains Mono" font-size="12" fill="#ff9100">F₀sin(ωt)</text>
+  </svg>
+  </div>
+</div>
+<!-- ⑤ 수식 단계별 풀이 -->
+<div class="section">
+  <div class="section-label">DERIVATION</div>
+  <h2 class="section-title">수식 한 줄씩 유도</h2>
+  
+    <div class="deriv-card">
+      <div class="deriv-step-num">STEP 1 — 강제 조화 진동 방정식</div>
+      <div class="deriv-equation"><span class="katex-eq">$$m\ddot{x} + c\dot{x} + kx = F_0 \cos (\omega t)$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> Day 01의 일반 방정식 우변에 조화 외력 $F_0\cos(\omega t)$ 를 대입. $F_0$ 는 힘의 진폭, $\omega$ 는 가진 각주파수(외력의 주파수).</p>
+        <p><span class="label">부호/변환 이유:</span> 우변이 $\cos(\omega t)$: 외력이 시간에 따라 $\pm F_0$ 사이를 주기적으로 왕복. 노면 프로파일이 정현파일 때 이 형태.</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 04까지의 자유진동: 우변=0. 오늘부터 우변≠0인 '비동차(nonhomogeneous)' 방정식.</p>
+      </div>
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">STEP 2 — 정상상태 해 가정</div>
+      <div class="deriv-equation"><span class="katex-eq">$$x_p(t) = X \cos (\omega t - \varphi)$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 충분한 시간이 지나면(과도응답 소멸 후), 응답도 외력과 같은 주파수 $\omega$ 로 진동. X는 정상상태 진폭, $\phi$ 는 위상 지연.</p>
+        <p><span class="label">부호/변환 이유:</span> $-\phi$: 응답이 외력보다 항상 뒤처짐(위상 지연). 감쇠 때문에 에너지가 소산되면서 '늦게' 따라가는 것.</p>
+        <p><span class="label">이전 단계와의 연결:</span> 과도응답 $x_h$(t)는 Day 04의 감쇠 자유진동이고 시간이 지나면 0으로 소멸. 남는 것이 정상상태 $x_p$(t).</p>
+      </div>
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">STEP 3 — 정적 처짐 $X_{st}$와 주파수비 r 정의</div>
+      <div class="deriv-equation"><span class="katex-eq">$$X_{st} = F_0/k, r = \omega/\omega_n$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> $X_{st}$는 '같은 크기의 힘을 정적으로 가했을 때의 처짐'. r은 가진주파수 $\omega$ 와 고유주파수 $\omega_n$ 의 비. 이 두 무차원화가 핵심.</p>
+        <p><span class="label">부호/변환 이유:</span> $X_{st}$ = F₀/k: 후크 법칙 F=kx에서 바로 나옴. r&lt;1(저주파 가진), r=1(공진), r&gt;1(고주파 가진).</p>
+        <p><span class="label">이전 단계와의 연결:</span> Day 02: $\omega_n$=$\sqrt{k/m}$. r=1이 공진점. 차량에서 r=1을 피하는 것이 NVH 설계의 기본.</p>
+      </div>
+    </div>
+    
+    <div class="checkpoint"><strong>✓ 물리적 직관 체크:</strong> 이 수식에서 각 항의 물리적 의미를 손가락으로 짚으며 설명할 수 있나요? "이 항은 ___를 의미하고, 저 항은 ___의 영향"이라고 말해보세요.</div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">STEP 4 — 진폭비 공식 (Dynamic Magnification Factor)</div>
+      <div class="deriv-equation"><span class="katex-eq">$$X/X_{st} = 1 / \sqrt{(1-r^2)^2 + (2\zeta r)^2}$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> 이것이 오늘의 핵심 수식! 정상상태 진폭 X를 정적 처짐 $X_{st}$로 나눈 무차원 비. r과 $\zeta$ 만으로 진폭 확대를 완전히 결정.</p>
+        <p><span class="label">부호/변환 이유:</span> 분모의 두 항: $(1-r^2)^2$ 은 관성-복원 불균형, $(2\zeta r)^2$ 은 감쇠 효과. r=1에서 첫 항=0이므로 감쇠만 진폭 제한.</p>
+        <p><span class="label">이전 단계와의 연결:</span> STEP 2의 가정을 STEP 1에 대입 후 sin·cos 계수를 비교하여 정리하면 이 공식이 나옵니다.</p>
+      </div>
+    </div>
+    <div class="arrow-connector">↓</div>
+
+    <div class="deriv-card">
+      <div class="deriv-step-num">STEP 5 — 공진 피크 분석</div>
+      <div class="deriv-equation"><span class="katex-eq">$$r=1\text{에서}: X/X_{st} = 1/(2\zeta)$$</span></div>
+      <div class="deriv-explain">
+        <p><span class="label">이 항의 의미:</span> r=1($\omega$=$\omega_n$)일 때 진폭비 = $1/(2\zeta)$. $\zeta = 0.3$ 이면 약 1.67배, $\zeta = 0.1$ 이면 5배! 감쇠가 작을수록 공진 피크가 날카롭게 솟음.</p>
+        <p><span class="label">부호/변환 이유:</span> $\zeta \rightarrow 0$ 이면 진폭비 $\rightarrow \infty$ (비감쇠 공진 = 진폭이 무한히 커짐). 현실에서는 비선형 효과로 제한됨.</p>
+        <p><span class="label">이전 단계와의 연결:</span> STEP 4에서 r=1 대입: $\sqrt{(1-1)^2 + (2\zeta \cdot 1)^2} = \sqrt{4\zeta^2} = 2\zeta$. 따라서 $X/X_{st} = 1/(2\zeta)$.</p>
+      </div>
+    </div>
+
+<!-- ══════ ENHANCED DERIVATION DETAIL ══════ -->
+<div class="deriv-card" style="animation:fadeUp 0.6s ease both;border-left-color:var(--blue);">
+  <div class="deriv-step-num" style="color:var(--blue);">📐 상세 유도과정 (Step-by-Step)</div>
+  <h3 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:20px;color:var(--text-bright);margin-bottom:16px;">중간 과정 완전 전개</h3>
+  <div class="sub-step">
+    <p class="sub-label">① 강제 조화 가진 설정</p>
+    <div class="sub-eq">$$m\ddot{x} + c\dot{x} + kx = F_0\cos\omega t$$</div>
+    <div class="sub-eq">$$\text{시행해: } x_p(t) = X\cos(\omega t - \phi)$$</div>
+    <p class="sub-note">조화 가진 = 단일 주파수 정현파. 노면 주기 입력, 엔진 회전 불균형 등이 이에 해당</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">② 진폭 비(Magnification Factor) 유도</p>
+    <div class="sub-eq">$$X = \frac{F_0/k}{\sqrt{(1-r^2)^2 + (2\zeta r)^2}}$$</div>
+    <div class="sub-eq">$$M(r,\zeta) = \frac{X}{X_{st}} = \frac{1}{\sqrt{(1-r^2)^2 + (2\zeta r)^2}}$$</div>
+    <div class="sub-eq">$$r = \omega/\omega_n, \quad X_{st} = F_0/k$$</div>
+    <p class="sub-note">M > 1이면 공진 영역 (증폭). M < 1이면 방진 영역 (감쇠). 방진 시작: r > $\sqrt{2}$</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">③ 공진 피크 조건</p>
+    <div class="sub-eq">$$\frac{dM}{dr} = 0 \;\Rightarrow\; r_{peak} = \sqrt{1 - 2\zeta^2}$$</div>
+    <div class="sub-eq">$$M_{peak} = \frac{1}{2\zeta\sqrt{1-\zeta^2}} \approx \frac{1}{2\zeta} \;(\zeta \ll 1)$$</div>
+    <p class="sub-note">$\zeta = 0.3$ $\rightarrow$ r_peak=0.906, M_peak=1.75. $\zeta = 0.1$ $\rightarrow$ M_peak=5.03! 감쇠가 공진 제어의 핵심</p>
+  </div>
+  <div class="sub-step">
+    <p class="sub-label">④ 복소수 방법 (지수 표현)</p>
+    <div class="sub-eq">$$F(t) = F_0 e^{j\omega t}, \quad x(t) = Xe^{j(\omega t - \phi)}$$</div>
+    <div class="sub-eq">$$(-m\omega^2 + jc\omega + k)X = F_0$$</div>
+    <div class="sub-eq">$$H(\omega) = \frac{X}{F_0} = \frac{1}{k - m\omega^2 + jc\omega}$$</div>
+    <p class="sub-note">복소 FRF H($\omega$)의 절대값 = 진폭비, 편각 = 위상. MATLAB: freqresp() 또는 bode()로 계산</p>
+  </div>
+</div>
+
+
+</div>
+<!-- ⑥ 파라미터 테이블 -->
+<div class="section">
+  <div class="section-label">PARAMETERS</div>
+  <h2 class="section-title">수식 파라미터 완전 해부</h2>
+  
+    <div class="param-table-wrap">
+      <table class="param-table">
+        <thead><tr>
+          <th>기호</th><th>명칭 (한/영)</th><th>단위</th><th>물리적 의미</th><th>차량 부품</th><th>전형적 범위</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td><span class="sym">r</span></td>
+          <td>주파수비 / Frequency Ratio</td>
+          <td>무차원</td>
+          <td>가진주파수와 고유주파수의 비 $\omega/\omega_n$</td>
+          <td>엔진 RPM 대비 서스펜션 고유진동수</td>
+          <td>r&lt;1 저주파, r=1 공진, r&gt;1 고주파</td>
+        </tr>
+        <tr>
+          <td><span class="sym">X/$X_{st}$</td>
+          <td>진폭비 (동적 확대 계수) / Dynamic Magnification Factor</td>
+          <td>무차원</td>
+          <td>정적 처짐 대비 동적 진폭의 비</td>
+          <td>NVH 응답 크기 평가 지표</td>
+          <td>공진 시 1/(2$\zeta$), $\zeta = 0.3$ 이면 $\approx$1.67</td>
+        </tr>
+        <tr>
+          <td><span class="sym">$X_{st}$</td>
+          <td>정적 처짐 / Static Deflection</td>
+          <td>m</td>
+          <td>동일한 힘을 정적으로 가했을 때의 처짐 = F₀/k</td>
+          <td>스프링 정적 처짐</td>
+          <td>F₀/k, 승용차 바디 바운스: 수 mm~수 cm</td>
+        </tr>
+        <tr>
+          <td><span class="sym">$\phi$</td>
+          <td>위상각 / Phase Angle</td>
+          <td>rad</td>
+          <td>외력 대비 응답의 시간 지연</td>
+          <td>가진-응답 간 타이밍 차이</td>
+          <td>0(r$\ll$1) ~ $\pi/2(r=1)$ ~ $\pi(r$\gg$1)$</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+</div>
+<!-- ⑦ SVG 다이어그램 B -->
+
+<!-- ══════ DIAGRAMS ══════ -->
+<div class="section">
+    <div class="section-label">DIAGRAMS</div>
+    <h2 class="section-title">핵심 다이어그램</h2>
+    <div class="diagram-wrap">
+        <div class="diagram-label">주파수 응답 — 진폭비 (Magnitude)</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+<defs>
+<marker id="d5ag" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#1e7e34"/></marker>
+<marker id="d5ab" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+<marker id="d5ap" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#6c3483"/></marker>
+<marker id="d5ao" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#ff9100"/></marker>
+<marker id="d5ad" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+</defs>
+<text x="240" y="20" text-anchor="middle" fill="#4a6a8a" font-size="12" font-family="JetBrains Mono">Frequency Response Function — Magnitude</text>
+<line x1="60" y1="260" x2="450" y2="260" stroke="#7A7A8A" stroke-width="1.5" marker-end="url(#d5ad)"/>
+<line x1="60" y1="270" x2="60" y2="25" stroke="#7A7A8A" stroke-width="1.5" marker-end="url(#d5ad)"/>
+<text x="455" y="275" fill="#4a6a8a" font-size="10" font-family="JetBrains Mono">ω/ω_n</text>
+<text x="30" y="30" fill="#4a6a8a" font-size="10" font-family="JetBrains Mono">|X/Xst|</text>
+<!-- Resonance line -->
+<line x1="200" y1="260" x2="200" y2="35" stroke="#7A7A8A" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+<text x="200" y="278" text-anchor="middle" fill="#4a6a8a" font-size="10" font-family="JetBrains Mono">1.0</text>
+<!-- ζ=0.1 (sharp peak) -->
+<path d="M60,240 Q100,238 140,230 Q170,210 185,150 Q195,60 200,40 Q205,60 215,150 Q230,220 260,240 Q320,254 450,258" fill="none" stroke="#ff9100" stroke-width="2"/>
+<!-- ζ=0.3 -->
+<path d="M60,240 Q120,235 160,220 Q180,200 190,160 Q195,120 200,110 Q205,120 210,160 Q220,200 240,225 Q300,252 450,258" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<!-- ζ=0.7 -->
+<path d="M60,240 Q120,236 160,230 Q180,225 195,215 Q200,210 205,215 Q220,228 260,242 Q320,254 450,258" fill="none" stroke="#2471a3" stroke-width="2"/>
+<!-- ζ=1.0 -->
+<path d="M60,240 Q120,238 180,235 Q200,232 220,236 Q280,248 450,258" fill="none" stroke="#1e7e34" stroke-width="1.5"/>
+<!-- 1.0 line -->
+<line x1="60" y1="240" x2="60" y2="240" stroke="#7A7A8A" stroke-width="1"/>
+<text x="50" y="244" fill="#4a6a8a" font-size="9" font-family="JetBrains Mono">1</text>
+<!-- Legend -->
+<rect x="310" y="45" width="130" height="85" rx="4" fill="#161922" stroke="#7A7A8A" stroke-width="0.5"/>
+<line x1="320" y1="62" x2="348" y2="62" stroke="#ff9100" stroke-width="2"/><text x="355" y="66" fill="#ff9100" font-size="9" font-family="JetBrains Mono">ζ = 0.1</text>
+<line x1="320" y1="80" x2="348" y2="80" stroke="url(#cyberGrad)" stroke-width="2.5"/><text x="355" y="84" fill="#2471a3" font-size="9" font-family="JetBrains Mono">ζ = 0.3</text>
+<line x1="320" y1="98" x2="348" y2="98" stroke="#2471a3" stroke-width="2"/><text x="355" y="102" fill="#2471a3" font-size="9" font-family="JetBrains Mono">ζ = 0.7</text>
+<line x1="320" y1="116" x2="348" y2="116" stroke="#1e7e34" stroke-width="1.5"/><text x="355" y="120" fill="#1e7e34" font-size="9" font-family="JetBrains Mono">ζ = 1.0</text>
+</svg>
+    </div>
+    <div class="diagram-wrap">
+        <div class="diagram-label">과도 + 정상상태 응답 합성</div>
+        <svg style="max-width:100%;height:auto;" viewBox="0 0 480 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="cyberGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2471a3"/><stop offset="100%" stop-color="#1a5276"/></linearGradient></defs>
+<defs>
+<marker id="d5bg" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#1e7e34"/></marker>
+<marker id="d5bb" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+<marker id="d5bp" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#6c3483"/></marker>
+<marker id="d5bo" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#ff9100"/></marker>
+<marker id="d5bd" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5Z" fill="#2471a3"/></marker>
+</defs>
+<text x="240" y="20" text-anchor="middle" fill="#4a6a8a" font-size="12" font-family="JetBrains Mono">Transient + Steady-State Response</text>
+<line x1="40" y1="130" x2="460" y2="130" stroke="#7A7A8A" stroke-width="1" marker-end="url(#d5bd)"/>
+<line x1="40" y1="240" x2="40" y2="20" stroke="#7A7A8A" stroke-width="1"/>
+<!-- Transient (decaying) -->
+<path d="M40,50 Q60,130 75,170 Q85,195 100,130 Q110,100 120,105 Q135,130 150,140 Q160,145 175,130 Q185,125 195,128 L250,130" fill="none" stroke="#6c3483" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6"/>
+<!-- Steady-state (sinusoid) -->
+<path d="M200,130 Q220,85 240,130 Q260,175 280,130 Q300,85 320,130 Q340,175 360,130 Q380,85 400,130 Q420,175 440,130" fill="none" stroke="#2471a3" stroke-width="1.5" stroke-dasharray="5,3" opacity="0.6"/>
+<!-- Total response (sum) -->
+<path d="M40,50 Q55,130 70,175 Q80,200 95,130 Q105,80 115,100 Q130,130 150,155 Q165,160 180,130 Q195,112 210,100 Q225,85 240,130 Q255,165 270,140 Q285,108 300,130 Q315,152 330,135 Q345,115 360,130 Q375,147 390,133 Q405,118 420,130 Q435,143 450,133" fill="none" stroke="url(#cyberGrad)" stroke-width="2.5"/>
+<!-- Dividing line -->
+<line x1="200" y1="30" x2="200" y2="240" stroke="#7A7A8A" stroke-width="1" stroke-dasharray="3,3" opacity="0.3"/>
+<!-- Labels -->
+<text x="120" y="230" text-anchor="middle" fill="#6c3483" font-size="10" font-family="JetBrains Mono">과도 응답 지배</text>
+<text x="330" y="230" text-anchor="middle" fill="#2471a3" font-size="10" font-family="JetBrains Mono">정상상태 지배</text>
+<!-- Legend -->
+<rect x="300" y="38" width="140" height="55" rx="4" fill="#161922" stroke="#7A7A8A" stroke-width="0.5"/>
+<line x1="310" y1="55" x2="335" y2="55" stroke="url(#cyberGrad)" stroke-width="2.5"/><text x="342" y="59" fill="#2471a3" font-size="9" font-family="JetBrains Mono">총 응답</text>
+<line x1="310" y1="73" x2="335" y2="73" stroke="#6c3483" stroke-width="1.5" stroke-dasharray="5,3"/><text x="342" y="77" fill="#6c3483" font-size="9" font-family="JetBrains Mono">과도 성분</text>
+<line x1="310" y1="85" x2="335" y2="85" stroke="#2471a3" stroke-width="1.5" stroke-dasharray="5,3"/><text x="342" y="89" fill="#2471a3" font-size="9" font-family="JetBrains Mono">정상상태 성분</text>
+</svg>
+    </div>
+</div>
+<div class="section">
+  <div class="section-label">SIMPACK</div>
+  <h2 class="section-title">Simpack 입력 매핑</h2>
+  
+    <div class="simpack-module">
+      <div class="simpack-header">
+        <span class="simpack-badge">SIMPACK</span>
+        <span>Day 5 파라미터 입력 가이드</span>
+      </div>
+      <div class="simpack-body">
+
+      <div class="sp-workflow">
+        <div class="sp-wf-step">
+          <span class="wf-num">①</span>
+          <span class="wf-title">모델 생성</span>
+          <span class="wf-desc">Body + Joint + Force 정의</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">②</span>
+          <span class="wf-title">해석 실행</span>
+          <span class="wf-desc">시간영역/주파수영역 선택</span>
+        </div>
+        <div class="sp-wf-step">
+          <span class="wf-num">③</span>
+          <span class="wf-title">결과 검증</span>
+          <span class="wf-desc">해석해와 수치 비교</span>
+        </div>
+      </div>
+
+      <div class="simpack-row">
+        <div class="sp-sym">F₀, $\omega$ (가진력 입력)</div>
+        <div class="sp-path">Force Elements $\rightarrow$ Excitation $\rightarrow$ Harmonic</div>
+        <div class="sp-detail"><strong>필드:</strong> Amplitude [N], Frequency [Hz]<br><strong>단위:</strong> N, Hz</div>
+        <div class="sp-warn">⚠ Simpack에서 조화가진을 설정할 때 Hz 단위를 사용합니다. rad/s 변환: $\omega = 2\pi f$. 가진 방향(Z축 상하)과 작용점(타이어 접지면 or 차체 무게중심)을 정확히 설정하세요.</div>
+      </div>
+      <div class="simpack-row">
+        <div class="sp-sym">X/$X_{st}$ (주파수 응답 확인)</div>
+        <div class="sp-path">Results $\rightarrow$ Frequency Response $\rightarrow$ Amplitude</div>
+        <div class="sp-detail"><strong>필드:</strong> Amplitude Ratio vs Frequency [Hz]<br><strong>단위:</strong> 무차원 or dB</div>
+        <div class="sp-warn">⚠ Simpack Frequency Response Analysis(FRA)에서 Bode Plot을 그리면 진폭비 vs 주파수 그래프를 얻습니다. 피크 위치가 $\omega_n$, 피크 높이가 $1/(2\zeta)$ 인지 교차 검증.</div>
+      </div>
+      </div>
+    </div>
+</div>
+<!-- ⑨ Deep Dive -->
+<div class="section">
+  <div class="section-label">DEEP DIVE</div>
+  <h2 class="section-title">심화 학습</h2>
+  
+    <div class="accordion">
+      <button class="accordion-toggle">
+        <span>💡 승용차 NVH에서 공진 회피 전략 — 왜 바운스 주파수를 1~1.5 Hz로 설계하는가? — 클릭하여 펼치기</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-content">
+        <div class="accordion-inner">
+        <p>강제진동의 핵심 교훈: r=1(공진)을 피해야 한다. 그렇다면 차량 설계에서 어떻게 피할까?</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">주파수비: $r = \frac{\omega}{\omega_n} \rightarrow$ 설계 목표: $r > \sqrt{2}$ (방진 영역)</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">바운스 주파수: $f_n = \frac{1}{2\pi}\sqrt{\frac{k_{ride}}{m_s}} \approx 1\text{~}1.5$ Hz $\rightarrow \omega_n \approx 6\text{~}9$ rad/s</p>
+        <p>주요 가진원과 주파수:
+· 노면 요철: 0.5~5 Hz (주행속도와 요철 간격에 따라)
+· 엔진 진동: 10~200 Hz (RPM에 따라)
+· 휠 불균형: 10~15 Hz (100km/h 기준)
+· 타이어 공동공명: ~220 Hz</p>
+        <p>서스펜션 바디 바운스 고유진동수를 1~1.5 Hz로 설계하는 이유:
+1. 노면 요철의 주 가진 대역(0.5~5 Hz) 아래쪽에 배치
+2. 인체가 가장 민감한 4~8 Hz(내장기관 공진) 대역을 피함
+3. r&gt;1 영역(고주파 가진)에서는 진폭비가 자연 감쇠 — 방진 효과</p>
+        <p>이 개념은 Day 13(전달률)과 Day 14~15(2DOF 모델)에서 더 정교하게 다룹니다. 결국 '스프링은 부드럽게(낮은 $\omega_n$), 댐퍼는 적절히($\zeta \approx 0.3$)' = 좋은 승차감의 기본 공식입니다.</p>
+        </div>
+      </div>
+    </div>
+
+
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🔬 진폭비 공식의 수학적 유도 — 복소수 방법</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive2">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">복소수 가진으로부터 유도</h4>
+        <p>$F(t) = F_0 e^{j\omega t}$ 를 가정하고, 정상상태 해 $x(t) = X e^{j\omega t}$ 를 대입:</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">정상상태해: $x_p = X\sin(\omega t - \phi) \rightarrow$ 대입 후 정리하면</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">진폭비: $\frac{X}{X_{st}} = \frac{1}{\sqrt{(1-r^2)^2 + (2\zeta r)^2}}$, &nbsp; $X_{st} = \frac{F_0}{k}$</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">위상각: $\phi = \arctan\frac{2\zeta r}{1 - r^2}$</p>
+        <div class="deriv-equation"><span class="katex-eq">$$(-m\omega^2 + jc\omega + k)X = F_0$$</span></div>
+        <div class="deriv-equation"><span class="katex-eq">$$X/X_{st} = 1/[(1-r^2) + j(2\zeta r)]$$</span></div>
+        <p>여기서 $X_{st}$ = F₀/k (정적 변위), r = $\omega/\omega_n$</p>
+        <p>크기(Magnitude):</p>
+        <div class="deriv-equation"><span class="katex-eq">$$|X/X_{st}| = 1/\sqrt{(1-r^2)^2 + (2\zeta r)^2}$$</span></div>
+        <p style="color:var(--green);">💡 이 공식이 FRF(Frequency Response Function)의 본질입니다. Simpack FRA가 출력하는 것이 바로 이 |X/$X_{st}$| vs r 그래프입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>⚡ 공진 배율 Q와 Half-Power Method</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive3">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">공진 배율 Q-Factor</h4>
+        <p>r = 1에서의 진폭비가 공진 배율 Q입니다:</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">공진 배율: $Q = \frac{1}{2\zeta} \rightarrow \zeta = 0.25$ 이면 $Q = 2$</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">Half-Power: $|H(\omega)|^2 = \frac{Q^2}{2} \rightarrow \Delta\omega = 2\zeta\omega_n \rightarrow \zeta = \frac{\omega_2 - \omega_1}{2\omega_n}$</p>
+        <div class="deriv-equation"><span class="katex-eq">$$Q = X_{peak}/X_{st} \approx 1/(2\zeta)$$</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;">
+          <div style="background:rgba(0,230,118,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--green);">$\zeta = 0.5$</strong><br>Q = 1.0<br>공진 배율 없음
+          </div>
+          <div style="background:rgba(26,82,118,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--cyan-light);">$\zeta = 0.25$</strong><br>Q = 2.0<br>2배 증폭
+          </div>
+          <div style="background:rgba(255,145,0,.08);padding:10px;border-radius:8px;text-align:center;">
+            <strong style="color:var(--orange);">$\zeta = 0.05$</strong><br>Q = 10<br>10배 증폭!
+          </div>
+        </div>
+        <p style="color:var(--green);">💡 승용차($\zeta \approx$0.3): Q $\approx$ 1.67. 노면 1Hz 가진이 차체에서 1.67배로 증폭. 반면 파워트레인 마운트($\zeta \approx$0.05)는 공진 시 20배까지 증폭 가능!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion">
+    <button class="accordion-toggle">
+      <span>🚗 주파수 영역별 서스펜션 거동 — 3가지 레짐</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="deepdive4">
+      <div class="accordion-inner">
+        <h4 style="color:var(--cyan-light);margin-bottom:12px;">주파수에 따른 전달 특성</h4>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0;">
+          <div style="background:rgba(0,230,118,.06);padding:14px;border-radius:8px;">
+            <strong style="color:var(--green);">r $\ll$ 1 (저주파)</strong><br>
+            <span style="font-size:13px;">X/$X_{st}$ $\approx$ 1<br>가진 = 응답 (거의 추종)<br>스프링이 지배</span><br>
+            <span style="font-size:12px;color:var(--text-dim);">예: 급커브 차체 롤</span>
+          </div>
+          <div style="background:rgba(255,145,0,.06);padding:14px;border-radius:8px;">
+            <strong style="color:var(--orange);">r $\approx$ 1 (공진)</strong><br>
+            <span style="font-size:13px;">X/$X_{st}$ = Q $\approx$ 1/(2$\zeta$)<br>진폭 증폭! 위험 영역<br>감쇠가 지배</span><br>
+            <span style="font-size:12px;color:var(--text-dim);">예: 바디 바운스 1~1.5 Hz</span>
+          </div>
+          <div style="background:rgba(41,121,255,.06);padding:14px;border-radius:8px;">
+            <strong style="color:var(--blue);">r $\gg$ 1 (고주파)</strong><br>
+            <span style="font-size:13px;">X/$X_{st}$ $\approx$ 1/r² $\rightarrow$ 0<br>질량이 필터 역할<br>관성이 지배</span><br>
+            <span style="font-size:12px;color:var(--text-dim);">예: 타이어 노이즈 30+ Hz</span>
+          </div>
+        </div>
+        <div class="accordion">
+          <button class="accordion-toggle">
+            ⚡ 에너지 보존 관점에서 본 이 시스템 <span class="accordion-arrow">▸</span>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <p>모든 진동계는 <strong>운동에너지(KE)</strong>와 <strong>위치에너지(PE)</strong>의 교환으로 이해할 수 있습니다:</p>
+<p style="margin:10px 0;padding:10px;background:rgba(26,82,118,0.05);border-radius:6px;">저주파 ($r \ll 1$): $X \approx X_{st}$ (준정적) &nbsp;|&nbsp; 공진 ($r = 1$): $X \approx QX_{st}$ &nbsp;|&nbsp; 고주파 ($r \gg 1$): $X \approx \frac{X_{st}}{r^2}$ (방진)</p>
+<p style="margin:10px 0;color:var(--cyan-light);"><strong>르노코리아 실무 Tip:</strong> ISO 2631 민감 대역(4~8 Hz)이 바디 공진(1~2 Hz) 위에 있으므로, 방진 영역에서의 감쇠 설계가 핵심입니다.</p>
+              <div class="deriv-equation"><span class="katex-eq">$$E_{total} = KE + PE = \frac{1}{2}m\dot{x}^2 + \frac{1}{2}kx^2$$</span></div>
+              <p>감쇠가 없으면 $E_{\text{total}}$ = 일정 (보존). 감쇠가 있으면 매 사이클마다 에너지가 열로 손실됩니다.</p>
+              <p><strong style="color:var(--blue);">차량 적용:</strong> 댐퍼가 흡수하는 에너지 = 승차감의 핵심. 에너지 소산율이 높을수록 빠르게 안정.</p>
+            </div>
+          </div>
+        </div>
+
+        <p style="color:var(--green);">💡 서스펜션 설계의 본질 = 바디 바운스 공진(약 1.3 Hz) 영역의 Q-factor를 최소화하면서, 고주파 차단(isolation)을 극대화하는 것. 이 두 목표는 $\zeta$ 선택에서 트레이드오프 관계입니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Vehicle Example -->
+<div class="section">
+  <div class="section-label">EXAMPLE</div>
+  <h2 class="section-title">레퍼런스 차량 적용 예제</h2>
+  <div class="vehicle-example" style="background:linear-gradient(135deg,rgba(0,229,255,.04),rgba(41,121,255,.04));border:1px solid rgba(26,82,118,.15);border-radius:16px;padding:24px;margin:20px 0;">
+    <h4 style="color:var(--cyan-light);margin-bottom:16px;">🚗 레퍼런스 차량 주파수 응답 — 바디 바운스</h4>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;">공진 주파수</div>
+        <div style="color:var(--cyan-light);font-size:20px;font-family:'JetBrains Mono';">1.28 Hz</div>
+      </div>
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;">공진 배율 Q</div>
+        <div style="color:var(--orange);font-size:20px;font-family:'JetBrains Mono';">$\approx$ 1.67</div>
+      </div>
+      <div style="background:var(--surface);padding:12px;border-radius:10px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;">−3dB 대역폭</div>
+        <div style="color:var(--blue);font-size:20px;font-family:'JetBrains Mono';">0.77 Hz</div>
+      </div>
+    </div>
+    <p style="color:var(--text-dim);font-size:13px;margin-top:10px;">📌 공진 배율 1.67은 "정적 대비 67% 증폭"을 의미. 높은 $\zeta(0.51)$ 덕분에 공진 피크가 완만합니다.</p>
+  </div>
+</div>
+<!-- Memory Hook -->
+  <div class="memory-hook" style="background:linear-gradient(135deg,rgba(179,136,255,.08),rgba(179,136,255,.02));border:1px solid rgba(179,136,255,.2);border-radius:16px;padding:24px;margin:20px 0;">
+    <h3 style="color:var(--purple);margin-bottom:12px;">🧠 기억 앵커: "그네 밀기"</h3>
+    <p style="font-size:14px;">강제조화진동 = 그네를 일정 리듬으로 미는 것</p>
+    <p style="font-size:13px;color:var(--cyan-light);">• 그네 고유 리듬에 맞추면(r=1) $\rightarrow$ 점점 높이 올라감 = <strong>공진</strong><br>• 너무 빨리 밀면(r$\gg$1) $\rightarrow$ 그네가 못 따라감 = <strong>고주파 차단</strong><br>• 천천히 밀면(r$\ll$1) $\rightarrow$ 그대로 따라감 = <strong>정적 추종</strong></p>
+  </div>
+<!-- ⑩ 퀴즈 -->
+
+<div class="section" id="simulation">
+<div class="section-label">INTERACTIVE SIMULATION</div>
+<div class="section-title">주파수 응답 함수 (FRF) 시뮬레이터</div>
+<div class="sim-container">
+  <div class="sim-title">🎮 가진 주파수를 바꾸며 진폭 비와 위상을 관찰하세요</div>
+  <div class="sim-canvas-wrap">
+    <canvas id="simCanvas5" width="860" height="400"></canvas>
+  </div>
+  <div class="sim-controls">
+    <div class="sim-slider-group">
+      <label>주파수 비 r = $\omega/\omega_n$</label>
+      <input type="range" id="sim5-r" min="0" max="300" value="50" step="1">
+      <div class="sim-value" id="sim5-r-val">0.50</div>
+    </div>
+    <div class="sim-slider-group">
+      <label>감쇠비 $\zeta$</label>
+      <input type="range" id="sim5-zeta" min="1" max="100" value="20" step="1">
+      <div class="sim-value" id="sim5-zeta-val">0.20</div>
+    </div>
+  </div>
+  <div class="sim-readout">
+    <div class="sim-metric"><span class="sm-label">X/$X_{st}$<span class="sm-value" id="sm5-amp">1.00</span></div>
+    <div class="sim-metric"><span class="sm-label">$\phi$ (deg)</span><span class="sm-value" id="sm5-phase">0</span></div>
+    <div class="sim-metric"><span class="sm-label">상태</span><span class="sm-value" id="sm5-state" style="font-size:13px;">준공진 전</span></div>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+  var canvas = document.getElementById('simCanvas5');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  
+  var slR = document.getElementById('sim5-r');
+  var slZ = document.getElementById('sim5-zeta');
+  
+  function ampRatio(r, z){ return 1/Math.sqrt(Math.pow(1-r*r,2) + Math.pow(2*z*r,2)); }
+  function phase(r, z){ return Math.atan2(2*z*r, 1-r*r) * 180/Math.PI; }
+  
+  function draw(){
+    var r = parseFloat(slR.value)/100;
+    var z = parseFloat(slZ.value)/100;
+    
+    document.getElementById('sim5-r-val').textContent = r.toFixed(2);
+    document.getElementById('sim5-zeta-val').textContent = z.toFixed(2);
+    
+    var amp = ampRatio(r, z);
+    var ph = phase(r, z);
+    document.getElementById('sm5-amp').textContent = amp.toFixed(3);
+    document.getElementById('sm5-phase').textContent = ph.toFixed(1) + '°';
+    document.getElementById('sm5-state').textContent = r < 0.9 ? '준공진 전' : r < 1.1 ? '⚠ 공진 영역!' : '공진 후';
+    document.getElementById('sm5-state').style.color = r >= 0.9 && r <= 1.1 ? '#ff9100' : '#2471a3';
+    
+    ctx.fillStyle = '#faf8f4';
+    ctx.fillRect(0, 0, W, H);
+    
+    // Split: left = amplitude, right = phase
+    var midX = W/2;
+    var plotL = 60, plotR = midX - 20;
+    var plotL2 = midX + 40, plotR2 = W - 20;
+    var plotT = 40, plotB = H - 40;
+    
+    // Titles
+    ctx.fillStyle = '#67f0ff';
+    ctx.font = '13px Noto Sans KR';
+    ctx.textAlign = 'center';
+    ctx.fillText('진폭 비 |X/Xst|', (plotL+plotR)/2, 25);
+    ctx.fillText('위상각 φ (deg)', (plotL2+plotR2)/2, 25);
+    
+    // Draw Amplitude plot (left)
+    var maxAmp = 6;
+    // Grid
+    ctx.strokeStyle = 'rgba(0,229,255,0.06)'; ctx.lineWidth = 1;
+    for(var a = 0; a <= maxAmp; a++){
+      var y = plotB - (a/maxAmp)*(plotB-plotT);
+      ctx.beginPath(); ctx.moveTo(plotL, y); ctx.lineTo(plotR, y); ctx.stroke();
+      ctx.fillStyle='#3d6080'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='right';
+      ctx.fillText(a, plotL-5, y+3);
+    }
+    // r axis
+    for(var rv = 0; rv <= 3; rv += 0.5){
+      var x = plotL + (rv/3)*(plotR-plotL);
+      ctx.beginPath(); ctx.moveTo(x, plotT); ctx.lineTo(x, plotB); ctx.stroke();
+      ctx.fillStyle='#3d6080'; ctx.textAlign='center';
+      ctx.fillText(rv.toFixed(1), x, plotB+15);
+    }
+    
+    // FRF curves for multiple ζ values
+    var zetaValues = [0.1, 0.2, 0.3, 0.5, 0.7, 1.0];
+    var colors = ['#67f0ff', '#2979ff', '#00e676', '#b388ff', '#ff9100', '#7A7A8A'];
+    zetaValues.forEach(function(zv, idx){
+      ctx.strokeStyle = (Math.abs(zv - z) < 0.02) ? colors[idx] : colors[idx] + '40';
+      ctx.lineWidth = (Math.abs(zv - z) < 0.02) ? 2.5 : 1;
+      ctx.beginPath();
+      for(var i = 0; i <= 300; i++){
+        var rv = (i/300)*3;
+        var a = Math.min(ampRatio(rv, zv), maxAmp);
+        var px = plotL + (rv/3)*(plotR-plotL);
+        var py = plotB - (a/maxAmp)*(plotB-plotT);
+        if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    });
+    
+    // Current point marker
+    var curAmp = Math.min(amp, maxAmp);
+    var curPx = plotL + (r/3)*(plotR-plotL);
+    var curPy = plotB - (curAmp/maxAmp)*(plotB-plotT);
+    ctx.fillStyle = '#67f0ff';
+    ctx.beginPath(); ctx.arc(curPx, curPy, 6, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#faf8f4'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(curPx, curPy, 6, 0, Math.PI*2); ctx.stroke();
+    
+    // Vertical line at current r
+    ctx.strokeStyle = 'rgba(0,229,255,0.4)'; ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(curPx, plotT); ctx.lineTo(curPx, plotB); ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Phase plot (right)
+    ctx.strokeStyle = 'rgba(0,229,255,0.06)'; ctx.lineWidth = 1;
+    for(var d = 0; d <= 180; d += 45){
+      var y = plotB - (d/180)*(plotB-plotT);
+      ctx.beginPath(); ctx.moveTo(plotL2, y); ctx.lineTo(plotR2, y); ctx.stroke();
+      ctx.fillStyle='#3d6080'; ctx.font='10px Share Tech Mono,monospace'; ctx.textAlign='right';
+      ctx.fillText(d+'°', plotL2-5, y+3);
+    }
+    for(var rv=0;rv<=3;rv+=0.5){
+      var x=plotL2+(rv/3)*(plotR2-plotL2);
+      ctx.beginPath();ctx.moveTo(x,plotT);ctx.lineTo(x,plotB);ctx.stroke();
+      ctx.fillStyle='#3d6080';ctx.textAlign='center';ctx.fillText(rv.toFixed(1),x,plotB+15);
+    }
+    
+    zetaValues.forEach(function(zv,idx){
+      ctx.strokeStyle=(Math.abs(zv-z)<0.02)?colors[idx]:colors[idx]+'40';
+      ctx.lineWidth=(Math.abs(zv-z)<0.02)?2.5:1;
+      ctx.beginPath();
+      for(var i=0;i<=300;i++){
+        var rv=(i/300)*3;
+        var p=phase(rv,zv);
+        var px=plotL2+(rv/3)*(plotR2-plotL2);
+        var py=plotB-(p/180)*(plotB-plotT);
+        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+    });
+    
+    // Phase marker
+    var phPx=plotL2+(r/3)*(plotR2-plotL2);
+    var phPy=plotB-(ph/180)*(plotB-plotT);
+    ctx.fillStyle='#00e676';
+    ctx.beginPath();ctx.arc(phPx,phPy,6,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#faf8f4';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(phPx,phPy,6,0,Math.PI*2);ctx.stroke();
+    
+    // Legend
+    ctx.font='10px Share Tech Mono,monospace';
+    zetaValues.forEach(function(zv,idx){
+      var lx=plotL+10; var ly=plotT+12+idx*14;
+      ctx.fillStyle=colors[idx]; ctx.fillRect(lx,ly-4,12,3);
+      ctx.fillText('ζ='+zv.toFixed(1),lx+16,ly);
+    });
+  }
+  
+  slR.addEventListener('input',draw);
+  slZ.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+
+<div class="section">
+  <div class="section-label">QUIZ</div>
+  <h2 class="section-title">즉시 복습 퀴즈</h2>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 01 — 공진 주파수</div>
+      <p class="quiz-q">점성감쇠 1DOF 시스템에서 진폭이 최대인 주파수비 r = $\omega/\omega_n$ 의 조건은 ($\zeta$ < $1/\sqrt{2}$ 일 때)?</p>
+      <div class="quiz-options" id="q1">
+        <div class="quiz-opt">A. r = 1</div>
+        <div class="quiz-opt">B. r = $\sqrt{1 - 2\zeta^2}$</div>
+        <div class="quiz-opt">C. r = 1/(1-$\zeta$)</div>
+        <div class="quiz-opt">D. r = 2$\zeta$</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="3">
+      <div class="quiz-num">QUESTION 02 — 증폭률</div>
+      <p class="quiz-q">비감쇠($\zeta = 0$) 시스템에서 r=1일 때 이론적 증폭률은?</p>
+      <div class="quiz-options" id="q2">
+        <div class="quiz-opt">A. 0</div>
+        <div class="quiz-opt">B. 1</div>
+        <div class="quiz-opt">C. 무한대($\infty$)</div>
+        <div class="quiz-opt">D. 2</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+
+    <div class="quiz-card" data-correct="2">
+      <div class="quiz-num">QUESTION 03 — 정상상태 응답</div>
+      <p class="quiz-q">강제조화진동의 정상상태 응답에서 위상 지연 $\phi$ 가 90°인 조건은?</p>
+      <div class="quiz-options" id="q3">
+        <div class="quiz-opt">A. r = 0</div>
+        <div class="quiz-opt">B. r = 1 (공진점)</div>
+        <div class="quiz-opt">C. r $\rightarrow \infty$</div>
+        <div class="quiz-opt">D. $\zeta = 0$</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+</div>
+
+<!-- ══════ FORMULA EXPLORER ══════ -->
+
+
+<!-- Navigation -->
+
+
+</div>
+
+
+<!-- ══════ NAVIGATION ══════ -->
+<div class="nav-section" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:40px 0;max-width:960px;margin-left:auto;margin-right:auto;padding:0 16px;">
+    <a href="Day04_부족감쇠자유진동.html" class="nav-btn" style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center;text-decoration:none;color:var(--cyan);font-weight:500;">$\leftarrow$ Day 4: 부족감쇠자유진동</a>
+    <a href="Day06_위상각유도.html" class="nav-btn" style="padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center;text-decoration:none;color:var(--cyan);font-weight:500;">Day 6: 위상각유도 $\rightarrow$</a>
+</div>
+
+<script>
+/* Quiz Pattern A: checkAnswer */
+function checkAnswer(qId, el, isCorrect) {
+    var container = el.closest('.quiz-options') || document.getElementById(qId);
+    if (!container) return;
+    var opts = container.querySelectorAll('.quiz-opt');
+    opts.forEach(function(o) {
+        o.style.pointerEvents = 'none';
+        o.style.opacity = '0.6';
+    });
+    el.style.opacity = '1';
+    el.style.border = isCorrect ? '2px solid var(--green, #00e676)' : '2px solid #e74c3c';
+    el.style.color = isCorrect ? 'var(--green, #00e676)' : '#e74c3c';
+    /* Show feedback if exists */
+    var fb = document.getElementById(qId + '-fb');
+    if (fb) fb.style.display = 'block';
+    var sol = document.getElementById(qId + '-sol');
+    if (sol) sol.style.display = 'block';
+}
+/* Quiz Pattern B: toggleAnswer */
+function toggleAnswer(arg) {
+    var ansDiv;
+    if (typeof arg === 'string') {
+        ansDiv = document.getElementById(arg + '-fb');
+        if (!ansDiv) ansDiv = document.getElementById(arg);
+    } else {
+        /* arg is button element */
+        ansDiv = arg.previousElementSibling;
+        if (!ansDiv || !ansDiv.classList.contains('q-answer')) {
+            ansDiv = arg.parentElement.querySelector('.q-answer');
+        }
+    }
+    if (ansDiv) {
+        ansDiv.style.display = ansDiv.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+
+</script>
+
+
+
+
+
+
+
+<!-- CYBER INTERACTIVE ENGINE -->
+<div id="scrollProgress"></div>
+<canvas id="cyberParticles"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ══════ SYSTEM BOOT ══════ */
+   }, 1800);
+  setTimeout(function(){ boot.remove(); }, 2500);
+
+  /* ══════ SCROLL PROGRESS ══════ */
+  var sp = document.getElementById('scrollProgress');
+  if(sp){
+    window.addEventListener('scroll', function(){
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      sp.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    }, {passive:true});
+  }
+
+  /* ══════ SECTION HUD ENTRANCE ══════ */
+  var sections = document.querySelectorAll('.section');
+  if(sections.length){
+    var sObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('hud-visible');
+          sObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+    sections.forEach(function(s){ sObs.observe(s); });
+  }
+
+  /* ══════ GAUGE SCROLL CHARGE ══════ */
+  var gauges = document.querySelectorAll('.gauge-svg');
+  if(gauges.length){
+    var gObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('charged');
+          var wrap = e.target.closest('.gauge-wrap');
+          if(wrap) wrap.classList.add('active');
+          gObs.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.5});
+    gauges.forEach(function(g){ gObs.observe(g); });
+  }
+
+  /* ══════ ACCORDION CYBER-OPEN + QUIZ PATTERN C ══════ */
+  document.addEventListener('click', function(e){
+    /* --- Accordion --- */
+    var toggle = e.target.closest('.accordion-header, .accordion-toggle');
+    if(toggle){
+      var content = toggle.nextElementSibling;
+      if(!content) return;
+      var isOpen = content.classList.contains('cyber-open') || content.classList.contains('open');
+      if(isOpen){
+        content.classList.remove('cyber-open','open');
+        content.style.display = 'none';
+        toggle.classList.remove('active');
+      } else {
+        content.style.display = 'block';
+        content.classList.add('cyber-open','open');
+        toggle.classList.add('active');
+      }
+      var arrow = toggle.querySelector('.accordion-arrow, span:last-child');
+      if(arrow){
+        if(arrow.textContent === '+' || arrow.textContent === '−'){
+          arrow.textContent = isOpen ? '+' : '−';
+        } else {
+          arrow.textContent = isOpen ? '▸' : '▾';
+          arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
+    /* --- Quiz Pattern C: data-correct click delegation --- */
+    var opt = e.target.closest('.quiz-opt');
+    if(opt){
+      var card = opt.closest('.quiz-card');
+      if(card && card.dataset.correct){
+        var options = card.querySelectorAll('.quiz-opt');
+        var correctIdx = parseInt(card.dataset.correct) - 1;
+        var clickedIdx = Array.from(options).indexOf(opt);
+        var isCorrect = clickedIdx === correctIdx;
+        card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+        options.forEach(function(o, i){
+          o.style.pointerEvents = 'none';
+          o.style.opacity = '0.6';
+          if(i === correctIdx){
+            o.classList.add('correct');
+            o.style.opacity = '1';
+          }
+          if(o === opt && !isCorrect){
+            o.classList.add('wrong');
+          }
+        });
+        var fb = card.querySelector('.quiz-feedback');
+        if(fb){
+          fb.style.display = 'block';
+          fb.classList.add('show');
+          fb.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+        }
+      }
+    }
+  });
+
+  /* ══════ QUIZ BOOST/RETIRE ══════ */
+  window._cyberCheckAnswer = window.checkAnswer;
+  window.checkAnswer = function(qId, el, isCorrect) {
+    var card = el.closest('.quiz-card');
+    if(card){
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    }
+    if(window._cyberCheckAnswer){
+      window._cyberCheckAnswer(qId, el, isCorrect);
+    }
+  };
+
+  /* ══════ CIRCUIT PARTICLE CANVAS ══════ */
+  var canvas = document.getElementById('cyberParticles');
+  if(canvas){
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var maxP = 30;
+
+    function resizeCanvas(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle(){
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 1.5 + 0.5;
+      this.alpha = Math.random() * 0.4 + 0.1;
+    }
+
+    for(var i = 0; i < maxP; i++) particles.push(new Particle());
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,229,255,' + p.alpha + ')';
+        ctx.fill();
+
+        // Connect nearby particles
+        for(var j = i + 1; j < particles.length; j++){
+          var p2 = particles[j];
+          var dx = p.x - p2.x, dy = p.y - p2.y;
+          var dist = Math.sqrt(dx*dx + dy*dy);
+          if(dist < 150){
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = 'rgba(0,229,255,' + (0.08 * (1 - dist/150)) + ')';
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  /* ══════ GAUGE PARTICLE ORBIT ══════ */
+  document.querySelectorAll('.gauge-wrap').forEach(function(wrap){
+    for(var i = 0; i < 3; i++){
+      var dot = document.createElement('div');
+      dot.className = 'gauge-particle';
+      dot.style.animationDelay = (i * 1) + 's';
+      dot.style.animationDuration = (2.5 + i * 0.5) + 's';
+      wrap.appendChild(dot);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
