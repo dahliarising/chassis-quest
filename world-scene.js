@@ -1,6 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
 import { createRacer } from './world-racer.js';
 import { CYBER_COLORS, createCyberDistrict, createStreetCar } from './world-cyber.js';
+import { VILLAGE_COLORS, createVillageDistrict, createVillageCar } from './world-village.js';
+import { COASTAL_COLORS, createCoastalDistrict, createCoastalCar } from './world-coastal.js';
 import './world-boost.js';
 
 const B = globalThis.WorldBoost;
@@ -23,17 +25,17 @@ const FORMULA_COLORS = {
 
 export function createWorld(container, options = {}) {
   if (!container?.appendChild) throw new Error('주행 화면을 열 수 없습니다.');
-  const cyberpunk = options.theme === 'cyberpunk';
-  const C = cyberpunk ? CYBER_COLORS : FORMULA_COLORS;
+  const cyberpunk = options.theme === 'cyberpunk', village = options.theme === 'village', coastal = options.theme === 'coastal';
+  const C = cyberpunk ? CYBER_COLORS : village ? VILLAGE_COLORS : coastal ? COASTAL_COLORS : FORMULA_COLORS;
   const fogNear = cyberpunk ? 240 : 320, fogFar = cyberpunk ? 750 : 850;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = cyberpunk ? 1.12 : 1.06;
+  renderer.toneMappingExposure = cyberpunk ? 1.12 : coastal ? 1.18 : village ? 1.12 : 1.06;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.domElement.setAttribute('aria-label', cyberpunk ? '네온시티 야간 시험장 3D 주행 화면' : '포뮬러 레이스 테스트 캠프 3D 주행 화면');
+  renderer.domElement.setAttribute('aria-label', cyberpunk ? '네온시티 야간 시험장 3D 주행 화면' : village ? '아기자기한 정비소 마을 3D 주행 화면' : coastal ? '해안 자동차 시험장 3D 주행 화면' : '포뮬러 레이스 테스트 캠프 3D 주행 화면');
   renderer.domElement.setAttribute('role', 'img');
   container.appendChild(renderer.domElement);
 
@@ -116,14 +118,14 @@ export function createWorld(container, options = {}) {
         ribbon(0.8, side * (width / 2 - 1), 0.081, C.mint, { ...neon(C.mint, 0.4), transparent: true, opacity: 0.12, depthWrite: false });
       } else {
         ribbon(0.18, side * (width / 2 - 0.6), 0.125, C.white);
-        if (closed) ribbon(0.95, side * (width / 2 + 0.2), 0.085, C.white);
+        if (closed && !coastal && !village) ribbon(0.95, side * (width / 2 + 0.2), 0.085, C.white);
       }
     }
     for (let i = 1; i < samples.length; i++) {
       const a = samples[i - 1], b = samples[i];
       roadSegments.push({ a, b, width });
-      if (marked && i % 4 < 2) roadSegment(a, b, 0.14, cyberpunk ? C.yellow : C.white, 0.08);
-      if (!cyberpunk && closed && i % 2 === 0) {
+      if (marked && i % 4 < 2) roadSegment(a, b, 0.14, cyberpunk || coastal || village ? C.yellow : C.white, 0.08);
+      if (!cyberpunk && !coastal && !village && closed && i % 2 === 0) {
         const length = Math.hypot(b.x - a.x, b.z - a.z);
         const nx = (b.z - a.z) / length, nz = -(b.x - a.x) / length;
         for (const side of [-1, 1]) {
@@ -135,9 +137,9 @@ export function createWorld(container, options = {}) {
     }
   }
 
-  // Both themes stay readable without bloom, strobing or extra render passes.
-  scene.add(new THREE.HemisphereLight(cyberpunk ? 0x96cfff : 0xe5f5ff, cyberpunk ? 0x263054 : 0x667f70, cyberpunk ? 2.8 : 2.2));
-  const sun = new THREE.DirectionalLight(cyberpunk ? 0xb3d4ff : 0xfff1d8, cyberpunk ? 2.2 : 3.1);
+  // Every world stays readable without bloom, strobing or extra render passes.
+  scene.add(new THREE.HemisphereLight(cyberpunk ? 0x96cfff : coastal ? 0xe0f1fa : 0xe5f5ff, cyberpunk ? 0x263054 : coastal ? 0x68845b : 0x667f70, cyberpunk ? 2.8 : coastal ? 2.9 : 2.2));
+  const sun = new THREE.DirectionalLight(cyberpunk ? 0xb3d4ff : coastal ? 0xffebca : 0xfff1d8, cyberpunk ? 2.2 : coastal ? 3.4 : village ? 2.8 : 3.1);
   sun.position.set(-85, 160, 75);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -150,7 +152,7 @@ export function createWorld(container, options = {}) {
 
   box(490, 1.1, 620, C.grass, scene, [80, -0.62, -45], { roughness: cyberpunk ? 0.44 : 0.98 }).castShadow = false;
   box(430, 0.2, 1100, C.sea, scene, [-382, -1.7, -50], { roughness: cyberpunk ? 0.14 : 0.36, metalness: cyberpunk ? 0.58 : 0.16 }).castShadow = false;
-  box(28, 0.3, 610, cyberpunk ? C.metal : 0xe3ddc8, scene, [-176, -0.4, -45]).castShadow = false;
+  box(28, 0.3, 610, cyberpunk ? C.metal : coastal ? 0xd3ca9a : village ? 0xe5dcc2 : 0xe3ddc8, scene, [-176, -0.4, -45]).castShadow = false;
 
   makeRoad([[-102, 73], [-132, 8], [-107, -90], [-20, -119], [94, -95], [133, -20], [116, 73], [22, 103]], { closed: true });
   makeRoad([[-75, 77], [-75, 26], [-61, -10]], { width: 11, marked: false });
@@ -168,7 +170,7 @@ export function createWorld(container, options = {}) {
     return object;
   };
   [20, 35, 49].forEach(r => ring(r, cyberpunk ? C.mint : C.white));
-  ring(51.5, C.red, scene, [-43, 0.1, -28], 0.32);
+  ring(51.5, coastal ? C.yellow : C.red, scene, [-43, 0.1, -28], coastal ? 0.22 : 0.32);
   for (let i = 0; i < 72; i++) {
     const angle = i / 72 * Math.PI * 2;
     const curb = box(3.55, 0.18, 1.15, i % 2 ? C.white : C.red, scene,
@@ -183,8 +185,9 @@ export function createWorld(container, options = {}) {
   }
 
   const obstacles = [];
-  if (cyberpunk) {
-    createCyberDistrict({ THREE, scene, own, geometry, material, mesh, box, cylinder, neon, C, label, isRoad, obstacles, roadSegments });
+  if (cyberpunk || village || coastal) {
+    const createDistrict = cyberpunk ? createCyberDistrict : village ? createVillageDistrict : createCoastalDistrict;
+    createDistrict({ THREE, scene, own, geometry, material, mesh, box, cylinder, neon, C, label, isRoad, obstacles, roadSegments });
   } else {
     // Race facilities sit outside the road network. Repeated seats, guardrails
     // and kerbs are instanced after construction to keep mobile draw calls low.
@@ -316,7 +319,7 @@ export function createWorld(container, options = {}) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const colour = `#${accent.toString(16).padStart(6, '0')}`;
-    ctx.fillStyle = cyberpunk ? 'rgba(5,12,27,.88)' : 'rgba(243,247,255,.96)';
+    ctx.fillStyle = cyberpunk ? 'rgba(5,12,27,.88)' : village ? 'rgba(255,247,229,.97)' : 'rgba(243,247,255,.96)';
     ctx.beginPath(); ctx.moveTo(15, 1); ctx.lineTo(767, 1); ctx.lineTo(767, 108); ctx.lineTo(747, 127); ctx.lineTo(1, 127); ctx.lineTo(1, 15); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = colour; ctx.lineWidth = 3; ctx.stroke();
     ctx.fillStyle = colour; ctx.fillRect(0, 22, 7, 83); ctx.fillRect(22, 110, 100, 4);
@@ -355,10 +358,10 @@ export function createWorld(container, options = {}) {
   }
 
   function makeCar(color, ghost = false) {
-    const createCar = cyberpunk ? createStreetCar : createRacer;
+    const createCar = cyberpunk ? createStreetCar : village ? createVillageCar : coastal ? createCoastalCar : createRacer;
     return createCar({ THREE, own, geometry, material, mesh, box, cylinder, neon, C }, color, ghost);
   }
-  const car = makeCar(cyberpunk ? C.red : C.blue); scene.add(car);
+  const car = makeCar(cyberpunk || coastal ? C.red : C.blue); scene.add(car);
   car.position.set(state.x, 0, state.z); car.rotation.y = state.heading;
   function releaseBoost() {
     boost = { ...boost, active: false };
@@ -442,7 +445,7 @@ export function createWorld(container, options = {}) {
           viewportHeight * (mobile ? 0.17 : 0.055), viewportWidth, viewportHeight);
       } else if (showcase) {
         const mobile = viewportWidth <= 600;
-        camera.setViewOffset(viewportWidth, viewportHeight, mobile ? 0 : -viewportWidth * 0.19,
+        camera.setViewOffset(viewportWidth, viewportHeight, mobile ? 0 : -viewportWidth * (village ? 0.12 : 0.19),
           viewportHeight * (mobile ? -0.13 : 0.01), viewportWidth, viewportHeight);
       } else camera.clearViewOffset();
     }
@@ -453,9 +456,14 @@ export function createWorld(container, options = {}) {
       wantedCamera.set(center.x + 450 + span * 0.12, (span * 1.06 + 17) * fit, center.z + (span * 1.06 + 20) * fit);
     } else if (showcase) {
       const fit = Math.min(2.1, Math.max(1, 0.75 / camera.aspect));
-      wantedAim.set(state.x, 0.7, state.z);
-      wantedCamera.set(state.x + (Math.sin(state.heading) * 8.8 + Math.cos(state.heading) * 6.3) * fit,
-        4.1 * fit, state.z + (Math.cos(state.heading) * 8.8 - Math.sin(state.heading) * 6.3) * fit);
+      if (village) {
+        wantedAim.set(state.x, 3.2, state.z + 10);
+        wantedCamera.set(state.x - 26 * fit, 18 * fit, state.z - 31 * fit);
+      } else {
+        wantedAim.set(state.x, 0.7, state.z);
+        wantedCamera.set(state.x + (Math.sin(state.heading) * 8.8 + Math.cos(state.heading) * 6.3) * fit,
+          4.1 * fit, state.z + (Math.cos(state.heading) * 8.8 - Math.sin(state.heading) * 6.3) * fit);
+      }
     } else if (overview) {
       const fit = Math.min(1.18, Math.max(1, 0.85 / camera.aspect));
       wantedAim.set(cyberpunk ? -5 : -12, 0, -12);

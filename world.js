@@ -7,9 +7,11 @@
   let preferredTheme='formula';
   const themes={
     formula:{name:'포뮬러 테스트 캠프',tag:'드라이버와 엔지니어, 한 팀으로',title:'머신을 깨우고.<br>한계를 배워요.',description:'서킷을 달리고, 피트에서 세팅하고.<br>당신의 판단으로 머신을 완성하세요.',start:'서킷 들어가기',mission:'첫 테스트 시작',status:'피트에서 온 테스트 의뢰',destination:'피트에서 출발해 코너링 서킷으로 가보세요.'},
-    cyberpunk:{name:'네온시티 시험장',tag:'샤시 엔지니어의 야간 근무',title:'밤의 도시.<br>당신의 시험장.',description:'네온을 따라 코스를 찾고,<br>당신의 세팅으로 차의 움직임을 바꿔보세요.',start:'시험장 들어가기',mission:'첫 임무 바로 시작',status:'오늘의 현장 임무',destination:'네온 표식의 코너링 서킷으로 가보세요.'}
+    cyberpunk:{name:'네온시티 시험장',tag:'샤시 엔지니어의 야간 근무',title:'밤의 도시.<br>당신의 시험장.',description:'네온을 따라 코스를 찾고,<br>당신의 세팅으로 차의 움직임을 바꿔보세요.',start:'시험장 들어가기',mission:'첫 임무 바로 시작',status:'오늘의 현장 임무',destination:'네온 표식의 코너링 서킷으로 가보세요.'},
+    coastal:{name:'해안 시험장',tag:'바닷바람과 함께 배우는 샤시',title:'직접 달리고.<br>움직임을 배워요.',description:'해안길을 따라 시험장을 둘러보고,<br>차의 움직임을 하나씩 이해해보세요.',start:'해안길 달리기',mission:'첫 임무 시작',status:'오늘의 시험 의뢰',destination:'해안 정비소에서 코너링 서킷으로 가보세요.'},
+    village:{name:'정비소 마을',tag:'작은 차와 함께, 오늘도 한 걸음',title:'우리 동네 차를<br>함께 고쳐봐요.',description:'알록달록 정비소에 들르고,<br>작은 차를 달리며 원리를 배워요.',start:'마을 둘러보기',mission:'첫 의뢰 받기',status:'정비소에 도착한 의뢰',destination:'차가 코너에서 바깥으로 밀린대요. 함께 살펴볼까요?'}
   };
-  function readTheme(){try{const saved=localStorage.getItem(themeKey);if(saved==='formula'||saved==='cyberpunk')preferredTheme=saved;}catch(_){}return preferredTheme;}
+  function readTheme(){try{const saved=localStorage.getItem(themeKey);if(Object.hasOwn(themes,saved))preferredTheme=saved;}catch(_){}return preferredTheme;}
   function mount(host,options={}){
     const M=window.WorldMission,media=window.matchMedia('(prefers-reduced-motion: reduce)'),abort=new AbortController();
     let scene=null,disposed=false,entered=false,phase='',near=null,delta=1,lastResult=null,feedback='',saveMessage='',completed=Boolean(options.completed),overview=true;
@@ -20,7 +22,8 @@
     document.body.classList.add('world-active');
     host.innerHTML=`<section class="world-shell is-intro" aria-label="샤시 퀘스트 3D 시험장"><div class="world-canvas" data-world-canvas></div><header class="world-top"><a href="#" class="world-brand" data-world="home"><strong>샤시 퀘스트</strong><small>포뮬러 테스트 캠프</small></a><div class="world-top-actions"><span data-world-badge>${completed?'🏁 선회 반경 해결사':'현장 임무 0 / 1'}</span><button type="button" class="world-secondary" data-world="exit">학습센터</button></div></header><div class="world-loading" data-world-loading role="status">시험장을 준비하고 있어요…</div><section class="world-intro"><span class="world-tag">드라이버와 엔지니어, 한 팀으로</span><h1>머신을 깨우고.<br>한계를 배워요.</h1><p>서킷을 달리고, 피트에서 세팅하고.<br>당신의 판단으로 머신을 완성하세요.</p><div class="world-intro-actions"><button type="button" class="world-primary" data-world="start" disabled>서킷 들어가기</button><button type="button" class="world-secondary" data-world="mission" disabled>첫 테스트 시작</button></div><small>키보드 또는 화면 버튼으로 운전 · 로그인 없이 플레이</small></section><aside class="world-status"><small>피트에서 온 테스트 의뢰</small><h2>같은 핸들, 다른 코너</h2><p>피트에서 출발해 코너링 서킷으로 가보세요.</p><p class="world-radio" data-world-radio>피트: 머신 준비 완료. 서킷에 진입하세요.</p><button type="button" class="world-secondary" data-world="mission">현장으로 바로 이동</button></aside><details class="world-map"><summary class="world-map-title">⌖ 지도 · 장소 이동</summary><div class="world-map-list">${places.map(([id,symbol,label,note])=>`<button type="button" class="world-place" data-world-place="${id}" disabled><span>${symbol}</span><strong>${label}</strong><small>${note}</small></button>`).join('')}</div><button type="button" class="world-overview" data-world="overview">시험장 전체 보기</button></details><div class="world-legend" hidden><span><i class="baseline"></i>기준차</span><span><i class="after"></i>변경차</span><small>정상 원선회 · 50 km/h · 재생 3배속 · 차량 크기 확대</small></div><div class="world-near" hidden><span>도착했어요</span><strong data-world-location></strong><button type="button" class="world-primary" data-world="interact">실습 시작</button></div><div class="world-controls" aria-label="차량 운전 조작"><div class="world-steering"><button type="button" data-drive="left" aria-label="왼쪽으로 조향">◀</button><button type="button" data-drive="right" aria-label="오른쪽으로 조향">▶</button></div><div class="world-pedals"><button type="button" data-drive="brake" aria-label="브레이크">정지</button><button type="button" data-drive="boost" aria-label="부스터 가속">부스터</button><button type="button" data-drive="forward" aria-label="가속">가속 ↑</button></div></div><div class="world-boost"><label>부스터 <span data-world-boost-percent>100%</span></label><div class="world-boost-meter" role="progressbar" aria-label="부스터 에너지" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i data-world-charge style="width:100%"></i></div><small data-world-boost-state>누르고 가속 · Shift</small></div><div class="world-speed"><strong data-world-speed>0</strong><small>km/h</small><p class="world-drive-hint">WASD / 방향키 · Space 정지 · Shift 부스터 · E 실습</p></div><section class="world-mission" hidden aria-label="코너링 현장 임무"></section><p class="world-footer-note">자유 주행은 탐색용 · 현장 임무는 차량 모델로 계산</p></section>`;
     const $=s=>host.querySelector(s),shell=$('.world-shell'),card=$('.world-mission');
-    $('.world-top-actions').insertAdjacentHTML('afterbegin','<div class="world-theme-switch" role="group" aria-label="게임 버전 선택"><button type="button" data-world-theme="formula" aria-pressed="false">포뮬러</button><button type="button" data-world-theme="cyberpunk" aria-pressed="false">사이버펑크</button></div>');
+    $('.world-top-actions').insertAdjacentHTML('afterbegin','<div class="world-theme-switch" role="group" aria-label="게임 버전 선택"><button type="button" data-world-theme="coastal" aria-pressed="false">해안 시험장</button><button type="button" data-world-theme="cyberpunk" aria-pressed="false">사이버펑크</button><button type="button" data-world-theme="formula" aria-pressed="false">포뮬러</button><button type="button" data-world-theme="village" aria-pressed="false">정비소 마을</button></div>');
+    $('[data-world="exit"]').textContent='기본 학습';
     function applyTheme(){
       const copy=themes[theme];shell.dataset.theme=theme;
       host.querySelectorAll('[data-world-theme]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldTheme===theme)));
@@ -29,7 +32,7 @@
       $('[data-world="start"]').textContent=copy.start;$('.world-intro [data-world="mission"]').textContent=copy.mission;
       $('.world-status > small').textContent=copy.status;$('.world-status > p').textContent=copy.destination;
       document.title=`샤시 퀘스트 — ${copy.name}`;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='cyberpunk'?'#070b19':'#12223c');
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content',theme==='cyberpunk'?'#070b19':theme==='village'?'#fff7e5':theme==='coastal'?'#91adbf':'#12223c');
     }
     if(options.notice){shell.classList.add('has-notice');const notice=document.createElement('p');notice.className='world-notice';notice.setAttribute('role','alert');notice.textContent=options.notice;shell.append(notice);}
     function frame(state){
@@ -42,7 +45,7 @@
       $('.world-boost-meter').setAttribute('aria-valuenow',String(charge));
       $('[data-world-boost-state]').textContent=state.boosting?'부스터 작동':charge<100?'재충전 중':'누르고 가속 · Shift';
       shell.classList.toggle('is-boosting',Boolean(state.boosting));
-      const radio=state.boosting?'피트: 부스터 작동. 코너 앞에서는 먼저 감속하세요.':charge<100?'피트: 에너지 재충전 중. 코너 라인을 확인하세요.':'피트: 머신 준비 완료. 서킷에 진입하세요.';
+      const radio=theme==='village'?(state.boosting?'정비소: 힘차게 출발! 코너 앞에서는 천천히요.':charge<100?'정비소: 에너지를 채우는 중이에요.':'정비소: 준비됐어요. 오늘의 의뢰를 만나러 가요.'):(state.boosting?'피트: 부스터 작동. 코너 앞에서는 먼저 감속하세요.':charge<100?'피트: 에너지 재충전 중. 코너 라인을 확인하세요.':'피트: 머신 준비 완료. 서킷에 진입하세요.');
       if($('[data-world-radio]').textContent!==radio)$('[data-world-radio]').textContent=radio;
       if(!phase&&entered&&near!==state.near){near=state.near;updateNear();}
       const scrub=$('[data-world-scrub]');if(scrub)scrub.value=String(state.progress||0);
