@@ -242,3 +242,81 @@ body.world-active #toast{z-index:100;bottom:calc(18px + env(safe-area-inset-bott
   .world-shell [data-drive]{width:48px}.world-shell .world-pedals [data-drive]{width:48px}
 }
 @media(max-height:570px) and (min-width:601px){.world-boost{bottom:290px;right:24px}.world-status .world-radio{max-width:215px}}
+
+/* Both worlds share one learning record and an always-visible version choice. */
+.world-theme-switch{display:flex;flex:none;gap:3px;padding:3px;background:rgba(18,34,60,.94);border:1px solid var(--world-line);border-radius:3px}
+.world-top-actions .world-theme-switch button{min-height:38px;padding:8px 12px;background:transparent;border-color:transparent;color:#c6d8ec;white-space:nowrap}
+.world-top-actions .world-theme-switch button:hover{background:#29476c;color:#fff}
+.world-top-actions .world-theme-switch button[aria-pressed="true"]{background:var(--world-cobalt);border-color:var(--world-cobalt);color:#fff;box-shadow:inset 0 -2px 0 rgba(255,255,255,.55)}
+.world-top-actions .world-theme-switch button:focus-visible{outline-offset:1px}
+.world-shell[data-theme="cyberpunk"]{
+  --world-ink:#e5f4ff;--world-muted:#a8bdd3;--world-red:#ff4e9b;
+  --world-cyan:#42edee;--world-cobalt:#42edee;--world-yellow:#f4ed64;
+  --world-panel:#151c31;--world-line:rgba(66,237,238,.28);background:#070b19;
+}
+.world-shell[data-theme="cyberpunk"]::after{background:linear-gradient(180deg,rgba(7,11,25,.25),transparent 25%,transparent 75%,rgba(7,11,25,.4))}
+.world-shell[data-theme="cyberpunk"] button:hover{background:#25354d}
+.world-shell[data-theme="cyberpunk"] .world-primary{background:var(--world-yellow);border-color:var(--world-yellow);color:#070b19;box-shadow:0 0 24px rgba(244,237,100,.12)}
+.world-shell[data-theme="cyberpunk"] .world-primary:hover{background:#fff99a;border-color:#fff99a}
+.world-shell[data-theme="cyberpunk"] .world-secondary{background:rgba(21,28,49,.94);border-color:var(--world-line);color:var(--world-cyan)}
+.world-shell[data-theme="cyberpunk"] .world-brand{background:rgba(7,11,25,.88);border-color:var(--world-red);text-shadow:0 2px 16px #070b19}
+.world-shell[data-theme="cyberpunk"] .world-theme-switch,.world-shell[data-theme="cyberpunk"] .world-top-actions>span{background:rgba(7,11,25,.94)}
+.world-shell[data-theme="cyberpunk"] .world-theme-switch button[aria-pressed="true"]{background:var(--world-cyan);border-color:var(--world-cyan);color:#070b19;box-shadow:inset 0 -2px 0 #17999e}
+.world-shell[data-theme="cyberpunk"] .world-intro::before{background:radial-gradient(ellipse at 30% 50%,rgba(7,11,25,.95),rgba(7,11,25,.65) 45%,transparent 72%)}
+.world-shell[data-theme="cyberpunk"] .world-intro h1{text-shadow:0 0 34px rgba(66,237,238,.13),0 4px 22px #070b19}
+.world-shell[data-theme="cyberpunk"] .world-loading{background:#070b19}
+.world-shell[data-theme="cyberpunk"] .world-status,.world-shell[data-theme="cyberpunk"] .world-map,.world-shell[data-theme="cyberpunk"] .world-legend,.world-shell[data-theme="cyberpunk"] .world-speed,.world-shell[data-theme="cyberpunk"] .world-boost{background:rgba(7,11,25,.92)}
+.world-shell[data-theme="cyberpunk"] .world-status .world-radio{color:#c2e9ed;border-color:var(--world-line)}
+.world-shell[data-theme="cyberpunk"] .world-status .world-radio::before{content:"COMMS / "}
+.world-shell[data-theme="cyberpunk"] .world-place:hover,.world-shell[data-theme="cyberpunk"] .world-place[aria-current="true"]{background:#203747}
+.world-shell[data-theme="cyberpunk"] [data-drive]{background:rgba(14,22,41,.9);border-color:rgba(66,237,238,.5)}
+.world-shell[data-theme="cyberpunk"] [data-drive]:active,.world-shell[data-theme="cyberpunk"] [data-drive].is-pressed{background:var(--world-cyan);color:#070b19}
+.world-shell[data-theme="cyberpunk"] .world-pedals [data-drive="forward"]{background:var(--world-yellow);border-color:var(--world-yellow);color:#070b19}
+.world-shell[data-theme="cyberpunk"] .world-pedals [data-drive="boost"]{background:#46223c;border-color:var(--world-red);color:#ffb6d6}
+.world-shell[data-theme="cyberpunk"] .world-pedals [data-drive="boost"]:active,.world-shell[data-theme="cyberpunk"] .world-pedals [data-drive="boost"].is-pressed{background:var(--world-red);color:#070b19}
+.world-shell[data-theme="cyberpunk"] .world-speed{color:var(--world-cyan);text-shadow:0 0 18px rgba(66,237,238,.25)}
+.world-shell[data-theme="cyberpunk"] .world-boost-meter{background:#303449}
+.world-shell[data-theme="cyberpunk"] .world-mission{background:rgba(12,19,37,.98);border-color:rgba(66,237,238,.35);color:var(--world-ink);box-shadow:0 14px 50px rgba(0,0,0,.45)}
+.world-shell[data-theme="cyberpunk"] .world-mission>p,.world-shell[data-theme="cyberpunk"] .world-result,.world-shell[data-theme="cyberpunk"] .world-mission details>summary,.world-shell[data-theme="cyberpunk"] .world-mission details p,.world-shell[data-theme="cyberpunk"] .world-mission details li{color:#b7cadd}
+.world-shell[data-theme="cyberpunk"] .world-mission button{background:#1b2940;border-color:#3b536e;color:var(--world-ink)}
+.world-shell[data-theme="cyberpunk"] .world-mission button:hover{background:#263e51;border-color:var(--world-cyan)}
+.world-shell[data-theme="cyberpunk"] .world-mission .world-primary{background:var(--world-yellow);border-color:var(--world-yellow);color:#070b19}
+.world-shell[data-theme="cyberpunk"] .world-mission .world-primary:hover{background:#fff99a}
+.world-shell[data-theme="cyberpunk"] .world-choices button[aria-pressed="true"],.world-shell[data-theme="cyberpunk"] .world-choices button.is-selected{background:#46223c;border-color:var(--world-red);color:#ffb6d6}
+.world-shell[data-theme="cyberpunk"] .world-choices button.is-correct{background:#113a43;border-color:var(--world-cyan);color:#a7ffff}
+.world-shell[data-theme="cyberpunk"] .world-feedback{background:#173240;color:#d2e8ed}
+.world-shell[data-theme="cyberpunk"] .world-feedback strong{color:var(--world-cyan)}
+.world-shell[data-theme="cyberpunk"] .world-tuning output{color:var(--world-yellow)}
+.world-shell[data-theme="cyberpunk"] .world-tuning>small,.world-shell[data-theme="cyberpunk"] .world-mission>small{color:var(--world-muted)}
+.world-shell[data-theme="cyberpunk"] .world-mission details code{color:#c9e8f3;background:#172c3c}
+.world-shell[data-theme="cyberpunk"] .world-footer-note{color:#b1c6dc;text-shadow:0 1px 8px #070b19}
+.world-shell[data-theme="cyberpunk"] .world-notice,.world-shell[data-theme="cyberpunk"] .world-error{background:#342f21;border-color:var(--world-yellow);color:#fff1ac}
+@media(max-width:760px){
+  .world-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center}
+  .world-brand{justify-self:start;grid-column:1;grid-row:1}
+  .world-top-actions{display:contents}
+  .world-top-actions>[data-world="exit"]{grid-column:2;grid-row:1;min-height:44px;justify-self:end}
+  .world-theme-switch{grid-column:1;grid-row:2;justify-self:start;padding:2px;gap:2px}
+  .world-top-actions .world-theme-switch button{font-size:11px;min-height:44px;padding:8px 13px}
+  .world-top-actions>span{grid-column:2;grid-row:2;max-width:105px;font-size:9px}
+  .world-status,.world-map{top:calc(132px + env(safe-area-inset-top))}
+  .world-legend{top:calc(132px + env(safe-area-inset-top))}
+  .world-intro{top:max(23%,calc(148px + env(safe-area-inset-top)))}
+  .world-notice{top:calc(126px + env(safe-area-inset-top))}
+  .world-shell.has-notice .world-status,.world-shell.has-notice .world-map,.world-shell.has-notice .world-legend{top:calc(194px + env(safe-area-inset-top))}
+  .world-shell.has-notice .world-intro{top:max(30%,calc(192px + env(safe-area-inset-top)))}
+  .world-mission{max-height:min(50dvh,calc(100dvh - 204px - env(safe-area-inset-top) - env(safe-area-inset-bottom)))}
+  .world-shell[data-theme="cyberpunk"] .world-intro::before{background:radial-gradient(ellipse at 25% 45%,rgba(7,11,25,.96),rgba(7,11,25,.65) 43%,transparent 72%)}
+}
+@media(max-height:570px) and (min-width:601px) and (max-width:760px){
+  .world-top{display:flex;gap:12px;align-items:flex-start}
+  .world-top-actions{display:flex;align-items:center;gap:6px}
+  .world-brand strong{font-size:18px}
+  .world-top-actions .world-theme-switch button{padding:8px 10px}
+  .world-top-actions>span{max-width:87px}
+  .world-intro{top:calc(86px + env(safe-area-inset-top));left:24px}
+  .world-intro h1{font-size:34px}
+  .world-intro>small{display:none}
+  .world-status,.world-map,.world-legend{top:calc(94px + env(safe-area-inset-top))}
+  .world-mission{max-height:calc(100dvh - 110px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+}
