@@ -1,4 +1,8 @@
 import * as THREE from './vendor/three.module.min.js';
+import { createRacer } from './world-racer.js';
+import './world-boost.js';
+
+const B = globalThis.WorldBoost;
 
 // Positions are metres in the freely drivable proving ground. Vehicles face +z.
 export const STATIONS = Object.freeze([
@@ -11,9 +15,9 @@ export const STATIONS = Object.freeze([
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 const C = {
-  sky: 0x070b19, grass: 0x10172a, asphalt: 0x202a40, roadEdge: 0x354158,
-  white: 0xe5f4ff, red: 0xff4e9b, mint: 0x42edee, yellow: 0xf4ed64,
-  sea: 0x111c35, metal: 0x151c31, glass: 0x203d56, dark: 0x080f20
+  sky: 0xbcd9ec, grass: 0x72a695, asphalt: 0x394b60, roadEdge: 0xb1c4ce,
+  white: 0xf3f7ff, red: 0xef4d5b, mint: 0x27d8e8, yellow: 0xf4c85b,
+  sea: 0x68bace, metal: 0x728ba6, glass: 0x315b7c, dark: 0x12223c, blue: 0x245eea
 };
 
 export function createWorld(container, options = {}) {
@@ -22,24 +26,25 @@ export function createWorld(container, options = {}) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
+  renderer.toneMappingExposure = 1.06;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
-  renderer.domElement.setAttribute('aria-label', '네온시티 야간 시험장 3D 주행 화면');
+  renderer.domElement.setAttribute('aria-label', '포뮬러 레이스 테스트 캠프 3D 주행 화면');
   renderer.domElement.setAttribute('role', 'img');
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(C.sky);
-  scene.fog = new THREE.Fog(C.sky, 240, 750);
+  scene.fog = new THREE.Fog(C.sky, 320, 850);
   const camera = new THREE.PerspectiveCamera(43, 1, 0.3, 4000);
   const resources = new Set();
   const materials = new Map();
   const geometries = new Map();
   const labels = [];
-  let disposed = false, paused = false, overview = true, dirty = true;
+  let disposed = false, paused = false, overview = true, showcase = false, dirty = true;
   let raf = 0, last = 0, lastReport = -Infinity, experiment = null;
-  let input = { throttle: 0, steer: 0, brake: false };
+  let input = { throttle: 0, steer: 0, brake: false, boost: false };
+  let boost = B.create();
   const reducedMotion = !!options.reducedMotion;
   const state = { x: -75, z: 66, heading: Math.PI, speed: 0, steering: 0 };
   const aim = new THREE.Vector3(0, 0, -2);
@@ -49,7 +54,7 @@ export function createWorld(container, options = {}) {
   const own = resource => { resources.add(resource); return resource; };
   function material(color, settings = {}) {
     const key = JSON.stringify([color, settings]);
-    if (!materials.has(key)) materials.set(key, own(new THREE.MeshStandardMaterial({ color, roughness: color === C.asphalt ? 0.24 : 0.72, metalness: color === C.asphalt ? 0.45 : 0.12, ...settings })));
+    if (!materials.has(key)) materials.set(key, own(new THREE.MeshStandardMaterial({ color, roughness: color === C.asphalt ? 0.88 : 0.66, metalness: color === C.asphalt ? 0.05 : 0.12, ...settings })));
     return materials.get(key);
   }
   const neon = (color, intensity = 1.3) => ({ emissive: color, emissiveIntensity: intensity, roughness: 0.32, metalness: 0.18 });
@@ -102,20 +107,29 @@ export function createWorld(container, options = {}) {
     ribbon(width + 2.2, 0, 0.015, C.roadEdge);
     ribbon(width, 0, 0.055, C.asphalt);
     for (const side of [-1, 1]) {
-      ribbon(0.16, side * (width / 2 - 0.6), 0.125, C.mint, neon(C.mint, 1.1));
-      ribbon(0.8, side * (width / 2 - 1), 0.081, C.mint, { ...neon(C.mint, 0.4), transparent: true, opacity: 0.12, depthWrite: false });
+      ribbon(0.18, side * (width / 2 - 0.6), 0.125, C.white);
+      if (closed) ribbon(0.95, side * (width / 2 + 0.2), 0.085, C.white);
     }
     for (let i = 1; i < samples.length; i++) {
       const a = samples[i - 1], b = samples[i];
       roadSegments.push({ a, b, width });
-      if (marked && i % 4 < 2) roadSegment(a, b, 0.14, C.yellow, 0.08);
+      if (marked && i % 4 < 2) roadSegment(a, b, 0.14, C.white, 0.08);
+      if (closed && i % 2 === 0) {
+        const length = Math.hypot(b.x - a.x, b.z - a.z);
+        const nx = (b.z - a.z) / length, nz = -(b.x - a.x) / length;
+        for (const side of [-1, 1]) {
+          const offset = side * (width / 2 + 0.2);
+          roadSegment({ x: a.x + nx * offset, z: a.z + nz * offset },
+            { x: b.x + nx * offset, z: b.z + nz * offset }, 0.95, C.red, 0.09);
+        }
+      }
     }
   }
 
-  // A lit night scene: cool fill keeps the asphalt readable while signs and
-  // window strips carry the colour. No post-processing or extra render passes.
-  scene.add(new THREE.HemisphereLight(0x96cfff, 0x263054, 2.8));
-  const sun = new THREE.DirectionalLight(0xb3d4ff, 2.2);
+  // Bright race-weekend lighting makes the machine silhouette and track
+  // surfaces readable without bloom, strobing or extra rendering passes.
+  scene.add(new THREE.HemisphereLight(0xe5f5ff, 0x667f70, 2.2));
+  const sun = new THREE.DirectionalLight(0xfff1d8, 3.1);
   sun.position.set(-85, 160, 75);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -123,12 +137,12 @@ export function createWorld(container, options = {}) {
   sun.shadow.bias = -0.0003;
   sun.shadow.normalBias = 0.25;
   scene.add(sun);
-  const cityRim = new THREE.DirectionalLight(0xff78c0, 1.05);
-  cityRim.position.set(160, 65, -170); scene.add(cityRim);
+  const skyFill = new THREE.DirectionalLight(0xb2deff, 0.6);
+  skyFill.position.set(150, 65, -170); scene.add(skyFill);
 
-  box(490, 1.1, 620, C.grass, scene, [80, -0.62, -45], { roughness: 0.44 }).castShadow = false;
-  box(430, 0.2, 1100, C.sea, scene, [-382, -1.7, -50], { roughness: 0.14, metalness: 0.58 }).castShadow = false;
-  box(28, 0.3, 610, C.metal, scene, [-176, -0.4, -45]).castShadow = false;
+  box(490, 1.1, 620, C.grass, scene, [80, -0.62, -45], { roughness: 0.98 }).castShadow = false;
+  box(430, 0.2, 1100, C.sea, scene, [-382, -1.7, -50], { roughness: 0.36, metalness: 0.16 }).castShadow = false;
+  box(28, 0.3, 610, 0xe3ddc8, scene, [-176, -0.4, -45]).castShadow = false;
 
   makeRoad([[-102, 73], [-132, 8], [-107, -90], [-20, -119], [94, -95], [133, -20], [116, 73], [22, 103]], { closed: true });
   makeRoad([[-75, 77], [-75, 26], [-61, -10]], { width: 11, marked: false });
@@ -141,11 +155,11 @@ export function createWorld(container, options = {}) {
   cylinder(52.5, 52.5, 0.08, C.asphalt, scene, [-43, 0.045, -28], 96).castShadow = false;
   const ring = (radius, color, parent = scene, center = [-43, 0.1, -28], width = 0.16) => {
     const g = own(new THREE.TorusGeometry(radius, width, 5, 100));
-    const object = mesh(g, material(color, neon(color, 0.65)), parent, center, false);
+    const object = mesh(g, material(color), parent, center, false);
     object.rotation.x = Math.PI / 2;
     return object;
   };
-  [20, 35, 49].forEach(r => ring(r, C.mint));
+  [20, 35, 49].forEach(r => ring(r, C.white));
   ring(51.5, C.red, scene, [-43, 0.1, -28], 0.32);
   for (let i = 0; i < 72; i++) {
     const angle = i / 72 * Math.PI * 2;
@@ -161,103 +175,107 @@ export function createWorld(container, options = {}) {
   }
 
   const obstacles = [];
-  // Deterministic architecture preserves the exact same driveable map. The
-  // skyline lives beyond its boundary; small service blocks avoid every road.
-  let seed = 631;
-  const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  function tower(x, z, w, d, h, index) {
-    const group = new THREE.Group(); group.position.set(x, 0, z); scene.add(group);
-    const accent = index % 3 === 0 ? C.red : C.mint;
-    const facade = index % 2 ? 0x1b2940 : 0x253049;
-    box(w, h, d, facade, group, [0, h / 2, 0], { roughness: 0.4, metalness: 0.4 });
-    box(w + 1.3, 1, d + 1.3, C.dark, group, [0, h + 0.5, 0]);
-    box(w * 0.56, h * 0.13, d * 0.6, C.metal, group, [0, h * 1.065 + 1, 0]);
-    box(w + 0.5, 0.36, 0.18, accent, group, [0, h - 1.4, d / 2 + 0.13], neon(accent));
-    box(0.18, 0.36, d + 0.5, accent, group, [-w / 2 - 0.13, h - 1.4, 0], neon(accent));
-    // Shared small boxes become GPU instances below, including the windows.
-    for (let row = 0; row < Math.floor((h - 5) / 5); row++) {
-      for (let col = 0; col < Math.floor(w / 4); col++) {
-        if ((row * 3 + col + index) % 7 === 0) continue;
-        const colour = (row + col + index) % 8 === 0 ? C.yellow : accent;
-        box(1.1, 1.8, 0.06, colour, group,
-          [-w / 2 + 2.1 + col * 4, 4 + row * 5, d / 2 + 0.05], neon(colour, 0.65));
-      }
-      for (let col = 0; col < Math.floor(d / 4); col++) {
-        if ((row + col * 3 + index) % 5 === 0) continue;
-        box(0.06, 1.8, 1.1, accent, group,
-          [-w / 2 - 0.05, 4 + row * 5, -d / 2 + 2.1 + col * 4], neon(accent, 0.65));
+  // Race facilities sit outside the road network. Repeated seats, guardrails
+  // and kerbs are instanced after construction to keep mobile draw calls low.
+  function banner(text, width, height, parent, position, color = C.blue, rotation = 0) {
+    const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 160;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`; ctx.fillRect(0, 0, 1024, 160);
+    ctx.fillStyle = '#f3f7ff'; ctx.fillRect(0, 136, 1024, 9);
+    ctx.font = 'italic bold 77px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 512, 78, 940);
+    const texture = own(new THREE.CanvasTexture(canvas)); texture.colorSpace = THREE.SRGBColorSpace;
+    const board = mesh(geometry('PlaneGeometry', [1, 1]), own(new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, toneMapped: false })), parent, position, false);
+    board.scale.set(width, height, 1); board.rotation.y = rotation;
+  }
+  function grandstand(x, z, width, rotation = 0) {
+    const group = new THREE.Group(); group.position.set(x, 0, z); group.rotation.y = rotation; scene.add(group);
+    box(width + 4, 0.4, 21, C.roadEdge, group, [0, 0, -5]);
+    for (let row = 0; row < 6; row++) {
+      const height = 0.8 + row * 1.1, depth = -row * 2.3;
+      box(width, height, 2.3, row % 2 ? 0xcbd7df : C.white, group, [0, height / 2, depth]);
+      for (let col = 0; col < Math.floor(width / 1.7); col++) {
+        const seatColor = col % 13 < 4 ? C.red : col % 13 < 9 ? C.blue : C.white;
+        box(1.05, 0.5, 0.75, seatColor, group, [-width / 2 + 1 + col * 1.7, height + 0.24, depth - 0.25]);
       }
     }
-    if (index % 3 === 0) {
-      box(0.4, h * 0.7, 0.25, accent, group, [w / 2 - 1.4, h * 0.53, d / 2 + 0.16], neon(accent));
-      box(0.25, 7, 0.25, accent, group, [0, h * 1.13 + 4.5, 0], neon(accent));
+    for (let x = -width / 2 + 2; x <= width / 2; x += 16) {
+      box(0.45, 11.4, 0.5, C.metal, group, [x, 5.7, -13]);
+      box(0.35, 0.35, 19, C.metal, group, [x, 11.1, -5]);
     }
-    if ([1, 5, 9, 17, 26].includes(index)) {
-      const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 512;
-      const context = canvas.getContext('2d');
-      if (context) {
-        const colour = `#${accent.toString(16).padStart(6, '0')}`;
-        context.fillStyle = '#081426'; context.fillRect(0, 0, 256, 512);
-        context.strokeStyle = colour; context.lineWidth = 7; context.strokeRect(7, 7, 242, 498);
-        context.fillStyle = colour; context.textAlign = 'center'; context.font = 'bold 23px Arial'; context.fillText('CHASSIS', 128, 54);
-        context.font = 'bold 101px Arial'; context.fillText(index === 5 ? 'K&C' : '07', 128, 178, 210);
-        context.lineWidth = 3;
-        for (let radius = 25; radius < 83; radius += 18) {
-          context.beginPath(); context.arc(128, 300, radius, -Math.PI * 0.85, Math.PI * 0.75); context.stroke();
-        }
-        context.fillStyle = '#e5f4ff'; context.font = 'bold 20px Arial'; context.fillText('TEST / TUNE / GO', 128, 453, 214);
-        const texture = own(new THREE.CanvasTexture(canvas)); texture.colorSpace = THREE.SRGBColorSpace;
-        const sign = mesh(geometry('PlaneGeometry', [1, 1]), own(new THREE.MeshBasicMaterial({ map: texture, toneMapped: false })), group,
-          [0, h * 0.64, d / 2 + 0.18], false);
-        sign.scale.set(w * 0.72, Math.min(h * 0.55, 38), 1);
-      }
-    }
-    return group;
+    const roof = box(width + 5, 0.28, 21, C.white, group, [0, 11.7, -5]); roof.rotation.x = -0.09;
+    box(width + 5, 0.65, 0.3, C.blue, group, [0, 11.05, 5.5]);
+    banner('CHASSIS  GRAND PRIX', width * 0.88, 2.4, group, [0, 9.1, -13.3]);
+    for (let x = -width / 2 + 1; x < width / 2; x += 6) box(0.14, 1.2, 0.16, C.metal, group, [x, 0.9, 2.2]);
+    box(width, 0.12, 0.16, C.metal, group, [0, 1.5, 2.2]);
   }
-  for (let i = 0; i < 15; i++) {
-    tower(-180 + i * 29, -185 - (i % 3) * 22, 19 + random() * 8, 18 + random() * 12, 40 + random() * 78, i);
-  }
-  for (let i = 0; i < 7; i++) {
-    tower(183 + (i % 2) * 23, -120 + i * 40, 22 + random() * 10, 23, 47 + random() * 67, i + 16);
-    tower(-230 - (i % 2) * 18, -155 + i * 50, 19 + random() * 8, 21, 34 + random() * 48, i + 24);
-  }
-  // A second staggered skyline gives the city depth rather than a single wall.
-  for (let i = 0; i < 11; i++) tower(-215 + i * 46, -290 - (i % 2) * 35, 24, 28, 78 + random() * 85, i + 40);
+  grandstand(-4, -158, 118);
+  grandstand(175, -21, 104, -Math.PI / 2);
+  grandstand(34, 155, 86, Math.PI);
 
-  function serviceBlock(x, z, w, d, h, accent, name) {
+  function pitBuilding(x, z, w, d, accent, name) {
     const group = new THREE.Group(); group.position.set(x, 0, z); scene.add(group);
-    box(w, h, d, C.metal, group, [0, h / 2, 0], { roughness: 0.38, metalness: 0.42 });
-    box(w + 1.1, 0.5, d + 1.1, C.dark, group, [0, h + 0.25, 0]);
-    box(w + 1.2, 0.25, 0.25, accent, group, [0, h + 0.6, -d / 2 - 0.5], neon(accent, 1.7));
-    box(w + 1.2, 0.25, 0.25, accent, group, [0, h + 0.6, d / 2 + 0.5], neon(accent, 1.7));
+    box(w, 6.5, d, C.white, group, [0, 3.25, 0]);
+    box(w + 1, 0.55, d + 1, accent, group, [0, 6.8, 0]);
+    box(w + 2, 0.3, 4, C.white, group, [0, 5.4, -d / 2 - 1.4]);
     for (let i = -1; i <= 1; i++) {
-      box(w / 4.6, h * 0.61, 0.08, C.glass, group, [i * w / 3, h * 0.4, -d / 2 - 0.08], { roughness: 0.12, metalness: 0.75 });
-      box(w / 4.6, 0.16, 0.1, accent, group, [i * w / 3, h * 0.73, -d / 2 - 0.15], neon(accent));
-      box(0.2, h * 0.65, 0.15, accent, group, [i * w / 3 - w / 9.2, h * 0.4, -d / 2 - 0.15], neon(accent, 0.8));
+      box(w / 4.5, 4.1, 0.12, C.dark, group, [i * w / 3, 2.1, -d / 2 - 0.08]);
+      box(w / 4.5 - 0.3, 0.9, 0.16, C.glass, group, [i * w / 3, 3.4, -d / 2 - 0.16]);
+      box(0.25, 4.6, 0.3, accent, group, [i * w / 3 - w / 9, 2.3, -d / 2 - 0.16]);
+      box(w / 4.5, 0.05, 6, accent, group, [i * w / 3, 0.12, -d / 2 - 3.3]);
     }
-    box(w * 0.7, 0.05, 3, accent, group, [0, 0.13, -d / 2 - 2], { ...neon(accent, 0.25), transparent: true, opacity: 0.13, depthWrite: false });
-    label(name, x, h + 4, z, 19, accent);
+    banner(name, w * 0.88, 2.1, group, [0, 7.9, -d / 2 - 0.25], accent, Math.PI);
+    box(w * 0.86, 2.5, d * 0.62, C.glass, group, [0, 8.3, 1], { roughness: 0.18, metalness: 0.4 });
+    box(w * 0.9, 0.3, d * 0.72, C.white, group, [0, 9.7, 1]);
     obstacles.push({ x, z, halfW: w / 2 + 1.4, halfD: d / 2 + 2.1 });
   }
-  serviceBlock(-75, 91, 32, 16, 7, C.red, 'CHASSIS // GARAGE');
-  serviceBlock(72, -105, 28, 12, 6, C.mint, 'GEOMETRY // LAB');
-  const control = tower(3, 70, 8, 8, 20, 3);
-  box(14, 5, 12, C.glass, control, [0, 20.7, 0], { roughness: 0.17, metalness: 0.65 });
-  for (const side of [-1, 1]) box(14.2, 0.3, 0.1, C.red, control, [0, 21.8, side * 6.1], neon(C.red));
-  label('DISTRICT // 07', 3, 28, 70, 19, C.red);
+  pitBuilding(-75, 91, 32, 16, C.blue, 'CHASSIS  PIT');
+  pitBuilding(72, -105, 28, 12, C.red, 'GEOMETRY  LAB');
+  const control = new THREE.Group(); control.position.set(3, 0, 70); scene.add(control);
+  box(7, 17, 7, C.white, control, [0, 8.5, 0]);
+  box(1.3, 17.2, 7.2, C.blue, control, [-2.4, 8.6, 0]);
+  box(14, 4, 12, C.glass, control, [0, 18.3, 0], { roughness: 0.2, metalness: 0.35 });
+  box(15.5, 0.65, 13.5, C.white, control, [0, 20.6, 0]);
+  box(14.3, 0.6, 12.3, C.red, control, [0, 16.3, 0]);
+  cylinder(0.1, 0.1, 7, C.metal, control, [0, 24.2, 0], 6);
+  label('RACE CONTROL', 3, 24, 70, 18, C.blue);
   obstacles.push({ x: 3, z: 70, halfW: 5, halfD: 5 });
-  for (let i = 0; i < 6; i++) {
-    const x = -92 + i * 6;
-    box(0.13, 0.03, 9, C.mint, scene, [x, 0.12, 70], neon(C.mint, 0.5)).castShadow = false;
+  for (let i = 0; i < 6; i++) box(0.14, 0.035, 9, C.white, scene, [-92 + i * 6, 0.12, 70]).castShadow = false;
+
+  // The start gantry and ground chequerboard make the test road a circuit.
+  const gantry = new THREE.Group(); gantry.position.set(-75, 0, 38); scene.add(gantry);
+  for (const side of [-1, 1]) {
+    box(0.7, 8.5, 0.8, C.white, gantry, [side * 7.3, 4.25, 0]);
+    box(1.2, 2.6, 1.2, C.blue, gantry, [side * 7.3, 1.3, 0]);
   }
-  // Low equipment compounds in the open space add street scale without
-  // placing a skyscraper between the chase camera and the player's car.
+  box(15.3, 2.1, 0.7, C.white, gantry, [0, 7.7, 0]);
+  banner('CHASSIS  FORMULA', 13.8, 1.65, gantry, [0, 7.7, -0.38], C.blue, Math.PI);
+  banner('CHASSIS  FORMULA', 13.8, 1.65, gantry, [0, 7.7, 0.38], C.blue);
+  for (let col = 0; col < 12; col++) for (let row = 0; row < 2; row++) {
+    box(0.85, 0.04, 0.85, (col + row) % 2 ? C.white : C.dark, gantry, [-4.7 + col * 0.85, 0.14, row * 0.85]);
+  }
+  for (let i = 0; i < 5; i++) {
+    const lamp = cylinder(0.23, 0.23, 0.08, C.red, gantry, [-1.4 + i * 0.7, 6.45, -0.1]); lamp.rotation.x = Math.PI / 2;
+  }
+  for (const side of [-1, 1]) obstacles.push({ x: -75 + side * 7.3, z: 38, halfW: 1.3, halfD: 1.5 });
+
+  function raceFlag(x, z, index) {
+    const color = index % 2 ? C.red : C.blue;
+    cylinder(0.08, 0.12, 9, C.metal, scene, [x, 4.5, z], 7);
+    const flag = box(2.5, 3.5, 0.035, color, scene, [x + 1.3, 6.8, z]); flag.rotation.y = -0.28;
+    box(1.5, 0.23, 0.05, C.white, scene, [x + 1.3, 7.5, z - 0.35]);
+    box(1.5, 0.23, 0.05, C.white, scene, [x + 1.3, 6.9, z - 0.35]);
+  }
+  for (let i = 0; i < 11; i++) raceFlag(-136 + i * 26, -134, i);
+  for (let i = 0; i < 7; i++) raceFlag(-151, -85 + i * 31, i + 1);
+  // A few low service trailers preserve a sense of scale without hiding roads.
   [[27, -4], [51, 67], [-118, -45], [98, -53], [-120, 100]].forEach(([x, z], index) => {
     if (isRoad(x, z, 9)) return;
-    const accent = index % 2 ? C.red : C.mint;
-    box(7, 3.8, 5, C.metal, scene, [x, 1.9, z]);
-    box(7.2, 0.22, 5.2, accent, scene, [x, 3.9, z], neon(accent, 0.65));
-    for (let i = 0; i < 4; i++) box(0.24, 1.5, 0.1, accent, scene, [x - 2.3 + i * 1.5, 2.3, z + 2.55], neon(accent));
+    const accent = index % 2 ? C.red : C.blue;
+    box(7, 2.7, 4, C.white, scene, [x, 1.8, z]);
+    box(7.1, 0.6, 4.1, accent, scene, [x, 2.3, z]);
+    for (const side of [-1, 1]) box(0.45, 0.65, 0.65, C.dark, scene, [x + side * 2.4, 0.6, z + 2.1]);
     obstacles.push({ x, z, halfW: 4.9, halfD: 4.6 });
   });
 
@@ -274,11 +292,11 @@ export function createWorld(container, options = {}) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const colour = `#${accent.toString(16).padStart(6, '0')}`;
-    ctx.fillStyle = 'rgba(5,12,27,.88)';
+    ctx.fillStyle = 'rgba(243,247,255,.96)';
     ctx.beginPath(); ctx.moveTo(15, 1); ctx.lineTo(767, 1); ctx.lineTo(767, 108); ctx.lineTo(747, 127); ctx.lineTo(1, 127); ctx.lineTo(1, 15); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = colour; ctx.lineWidth = 3; ctx.stroke();
     ctx.fillStyle = colour; ctx.fillRect(0, 22, 7, 83); ctx.fillRect(22, 110, 100, 4);
-    ctx.fillStyle = '#e5f4ff'; ctx.font = 'bold 43px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#12223c'; ctx.font = 'bold 43px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(text, 390, 63, 710);
     const texture = own(new THREE.CanvasTexture(canvas)); texture.colorSpace = THREE.SRGBColorSpace;
     const mat = own(new THREE.SpriteMaterial({ map: texture, depthTest: true, transparent: true, toneMapped: false }));
@@ -286,43 +304,26 @@ export function createWorld(container, options = {}) {
     labels.push({ sprite, width });
   }
   STATIONS.forEach((station, index) => {
-    const accent = index % 2 === 0 ? C.red : C.mint;
+    const accent = index % 2 === 0 ? C.red : C.blue;
     const x = station.x + 10, z = station.z;
-    box(0.65, 8, 0.65, C.dark, scene, [x, 4, z]);
-    box(0.16, 7.4, 0.16, accent, scene, [x - 0.36, 4, z - 0.36], neon(accent, 1.6));
-    box(3.8, 2.3, 0.1, accent, scene, [x + 1.5, 6.6, z], { ...neon(accent, 0.6), transparent: true, opacity: 0.28, depthWrite: false });
+    box(0.45, 8, 0.45, C.white, scene, [x, 4, z]);
+    box(0.18, 7.4, 0.18, accent, scene, [x - 0.25, 4, z - 0.25]);
+    box(3.8, 2.3, 0.1, accent, scene, [x + 1.5, 6.6, z], { roughness: 0.65 });
     ring(2.2, accent, scene, [x, 0.16, z], 0.08);
     label(station.label, x, 9.7, z, 17, accent);
   });
-  // Canal-side light rail: the city has an inhabited horizon, while all
-  // structures stay clear of the freely driveable road network.
+  // Low safety rails and sponsor panels frame the coast without a city wall.
   for (let i = 0; i < 28; i++) {
-    box(0.2, 1.3, 0.25, C.dark, scene, [-161, 0.65, -121 + i * 9]);
-    box(0.18, 0.15, 9, C.mint, scene, [-161, 1.25, -116.5 + i * 9], neon(C.mint, 0.85));
-  }
-  box(8, 1.2, 410, C.metal, scene, [-191, 17, -25]);
-  for (const side of [-1, 1]) box(0.22, 0.2, 410, side < 0 ? C.red : C.mint, scene, [-191 + side * 3.8, 17.8, -25], neon(side < 0 ? C.red : C.mint, 0.9));
-  for (let i = 0; i < 8; i++) box(2, 18, 3, C.metal, scene, [-191, 7.8, -195 + i * 50]);
-  const tram = new THREE.Group(); tram.position.set(-191, 18.4, -58); scene.add(tram);
-  for (let i = 0; i < 3; i++) {
-    box(4.6, 3.3, 16, 0x293951, tram, [0, 1.65, i * 17]);
-    box(4.7, 0.18, 15.5, C.red, tram, [0, 0.6, i * 17], neon(C.red));
-    for (let j = 0; j < 5; j++) box(0.05, 1.1, 1.8, C.mint, tram, [2.34, 2.1, i * 17 - 5.5 + j * 2.7], neon(C.mint, 0.8));
-  }
-  // Street lamps repeat at a measured interval. Their spill is a subtle
-  // emissive patch, not a costly shadow-casting point light for each pole.
-  for (let i = 0; i < roadSegments.length; i += 13) {
-    const { a, b, width } = roadSegments[i];
-    const length = Math.hypot(b.x - a.x, b.z - a.z);
-    const nx = (b.z - a.z) / length, nz = -(b.x - a.x) / length;
-    const x = a.x + nx * (width / 2 + 1.2), z = a.z + nz * (width / 2 + 1.2);
-    cylinder(0.1, 0.16, 6.7, C.metal, scene, [x, 3.35, z], 6);
-    box(0.22, 0.22, 2.4, C.mint, scene, [x, 6.6, z], neon(C.mint, 1.5)).castShadow = false;
-    const glow = mesh(geometry('CircleGeometry', [3.8, 16]), material(C.mint, { ...neon(C.mint, 0.2), transparent: true, opacity: 0.075, depthWrite: false }), scene, [x, 0.14, z], false);
-    glow.rotation.x = -Math.PI / 2;
+    const z = -121 + i * 9;
+    box(0.18, 1.2, 0.25, C.metal, scene, [-158, 0.6, z]);
+    box(0.25, 0.3, 9, C.white, scene, [-158, 0.85, z + 4.5]);
+    if (i % 4 === 0) {
+      const group = new THREE.Group(); group.position.set(-157.7, 1.8, z); group.rotation.y = Math.PI / 2; scene.add(group);
+      banner(i % 8 === 0 ? 'CHASSIS' : 'FORMULA', 7, 1.5, group, [0, 0, 0], i % 8 === 0 ? C.blue : C.red);
+    }
   }
 
-  // Static environment instances keep the many windows, kerbs and road markings
+  // Static environment instances keep the seats, kerbs and road markings
   // inexpensive on mobile GPUs. Dynamic vehicles are added only afterwards.
   scene.updateMatrixWorld(true);
   const batches = new Map();
@@ -341,37 +342,14 @@ export function createWorld(container, options = {}) {
   }
 
   function makeCar(color, ghost = false) {
-    const group = new THREE.Group();
-    const paint = material(color, { roughness: 0.22, metalness: 0.48, transparent: ghost, opacity: ghost ? 0.83 : 1 });
-    const shell = mesh(geometry('BoxGeometry', [1.92, 0.58, 4.25]), paint, group, [0, 0.84, 0]);
-    mesh(geometry('BoxGeometry', [1.74, 0.17, 1.25]), paint, group, [0, 1.2, 1.3]);
-    mesh(geometry('BoxGeometry', [1.62, 0.55, 1.8]), material(0x112f46, { roughness: 0.13, metalness: 0.7 }), group, [0, 1.37, -0.15]);
-    mesh(geometry('BoxGeometry', [1.64, 0.12, 1.48]), paint, group, [0, 1.7, -0.3]);
-    const windshield = box(1.59, 0.68, 0.1, 0x246b80, group, [0, 1.44, 0.72], { roughness: 0.12, metalness: 0.65 }); windshield.rotation.x = -0.45;
-    box(1.55, 0.06, 0.08, C.dark, group, [0, 1.76, -0.3]);
-    for (const side of [-1, 1]) {
-      box(0.13, 0.55, 0.14, color, group, [side * 0.83, 1.42, -0.3]);
-      box(0.28, 0.16, 0.26, color, group, [side * 1.04, 1.19, 0.63]);
-      box(0.72, 0.085, 0.05, C.white, group, [side * 0.49, 0.98, 2.15], neon(C.mint, 2.2));
-      box(0.71, 0.09, 0.05, C.red, group, [side * 0.49, 1.02, -2.15], neon(C.red, 1.7));
-      box(0.06, 0.06, 3.2, color, group, [side * 0.97, 0.59, 0], neon(color, 1.2));
-    }
-    box(1.25, 0.2, 0.07, C.dark, group, [0, 0.69, 2.16]);
-    box(1.85, 0.08, 0.4, C.dark, group, [0, 1.22, -1.86]);
-    box(0.14, 0.015, 1.2, C.mint, group, [0, 1.293, 1.3], neon(C.mint, 0.7));
-    box(2.8, 0.01, 4.9, color, group, [0, 0.055, 0], { ...neon(color, 0.6), transparent: true, opacity: 0.13, depthWrite: false });
-    box(1.76, 0.12, 0.15, C.dark, group, [0, 0.57, -2.1]);
-    const front = [], tires = [];
-    for (const x of [-0.96, 0.96]) for (const z of [-1.31, 1.3]) {
-      const pivot = new THREE.Group(); pivot.position.set(x, 0.48, z); group.add(pivot);
-      const tire = cylinder(0.46, 0.46, 0.26, 0x20292d, pivot, [0, 0, 0], 16); tire.rotation.z = Math.PI / 2;
-      const rim = cylinder(0.28, 0.28, 0.28, 0xc5d2d0, pivot, [0, 0, 0], 10); rim.rotation.z = Math.PI / 2;
-      tires.push(tire, rim); if (z > 0) front.push(pivot);
-    }
-    group.userData = { front, tires, shell }; return group;
+    return createRacer({ THREE, own, geometry, material, mesh, box, cylinder, neon, C }, color, ghost);
   }
-  const car = makeCar(C.red); scene.add(car);
+  const car = makeCar(C.blue); scene.add(car);
   car.position.set(state.x, 0, state.z); car.rotation.y = state.heading;
+  function releaseBoost() {
+    boost = { ...boost, active: false };
+    car.userData.boostFlames.forEach(flame => { flame.visible = false; });
+  }
 
   function distanceToSegment(x, z, a, b) {
     const dx = b.x - a.x, dz = b.z - a.z;
@@ -393,7 +371,8 @@ export function createWorld(container, options = {}) {
     lastReport = now;
     options.onFrame?.({ speed: Math.abs(state.speed) * 3.6, x: state.x, z: state.z, heading: state.heading,
       near: experiment ? null : nearestStation(), mode: experiment ? 'experiment' : 'drive',
-      progress: experiment ? experiment.time / experiment.duration : 0 });
+      progress: experiment ? experiment.time / experiment.duration : 0,
+      boostEnergy: boost.energy, boosting: boost.active });
   }
   function updateDrive(dt) {
     if (overview) return;
@@ -401,9 +380,16 @@ export function createWorld(container, options = {}) {
     const targetSteer = clamp(input.steer, -1, 1) * 0.47;
     state.steering = reducedMotion ? targetSteer : lerp(state.steering, targetSteer, 1 - Math.exp(-dt * 9));
     if (input.brake) state.speed = Math.sign(state.speed) * Math.max(0, Math.abs(state.speed) - 15 * dt);
-    else if (input.throttle) state.speed += input.throttle * (onRoad ? 7.5 : 4) * dt;
-    else state.speed = Math.sign(state.speed) * Math.max(0, Math.abs(state.speed) - (onRoad ? 1.4 : 3.5) * dt);
-    state.speed = clamp(state.speed, -5.5, onRoad ? 24 : 8);
+    else if (input.throttle) {
+      const topSpeed = onRoad ? (boost.active ? 32 : 24) : 8;
+      if (input.throttle < 0 || state.speed < topSpeed) {
+        const acceleration = onRoad ? (boost.active ? 13 : 7.5) : 4;
+        state.speed += input.throttle * acceleration * dt;
+        if (input.throttle > 0) state.speed = Math.min(state.speed, topSpeed);
+      } else if (state.speed > topSpeed) state.speed = Math.max(topSpeed, state.speed - 2.8 * dt);
+    } else state.speed = Math.sign(state.speed) * Math.max(0, Math.abs(state.speed) - (onRoad ? 1.4 : 3.5) * dt);
+    // Boost release coasts down naturally instead of snapping from 32 to 24 m/s.
+    state.speed = clamp(state.speed, -5.5, onRoad ? 32 : 8);
     if (Math.abs(state.speed) < 0.02) state.speed = 0;
     state.heading += state.speed / 3.2 * Math.tan(state.steering) * dt;
     const nextX = state.x + Math.sin(state.heading) * state.speed * dt;
@@ -413,6 +399,7 @@ export function createWorld(container, options = {}) {
     else { state.x = nextX; state.z = nextZ; }
     car.position.set(state.x, 0, state.z); car.rotation.y = state.heading;
     car.userData.front.forEach(w => { w.rotation.y = state.steering; });
+    car.userData.tires.forEach(wheel => { wheel.rotateY(-state.speed / 0.43 * dt); });
   }
 
   function samplePath(path, time) {
@@ -430,13 +417,17 @@ export function createWorld(container, options = {}) {
     });
   }
   function cameraTargets() {
-    const projectionKey = `${!!experiment}:${viewportWidth}:${viewportHeight}`;
+    const projectionKey = `${!!experiment}:${showcase}:${viewportWidth}:${viewportHeight}`;
     if (projectionMode !== projectionKey) {
       projectionMode = projectionKey;
       if (experiment) {
         const mobile = viewportWidth <= 600;
         camera.setViewOffset(viewportWidth, viewportHeight, mobile ? 0 : -viewportWidth * 0.16,
           viewportHeight * (mobile ? 0.17 : 0.055), viewportWidth, viewportHeight);
+      } else if (showcase) {
+        const mobile = viewportWidth <= 600;
+        camera.setViewOffset(viewportWidth, viewportHeight, mobile ? 0 : -viewportWidth * 0.19,
+          viewportHeight * (mobile ? -0.13 : 0.01), viewportWidth, viewportHeight);
       } else camera.clearViewOffset();
     }
     if (experiment) {
@@ -444,14 +435,19 @@ export function createWorld(container, options = {}) {
       const fit = Math.max(1, 1 / camera.aspect);
       wantedAim.set(center.x + 450, 0, center.z);
       wantedCamera.set(center.x + 450 + span * 0.12, (span * 1.06 + 17) * fit, center.z + (span * 1.06 + 20) * fit);
+    } else if (showcase) {
+      const fit = Math.min(2.1, Math.max(1, 0.75 / camera.aspect));
+      wantedAim.set(state.x, 0.7, state.z);
+      wantedCamera.set(state.x + (Math.sin(state.heading) * 8.8 + Math.cos(state.heading) * 6.3) * fit,
+        4.1 * fit, state.z + (Math.cos(state.heading) * 8.8 - Math.sin(state.heading) * 6.3) * fit);
     } else if (overview) {
       const fit = Math.min(1.18, Math.max(1, 0.85 / camera.aspect));
-      wantedAim.set(-5, 0, -12); wantedCamera.set(-180 * fit, 164 * fit, 205 * fit);
+      wantedAim.set(-12, 0, -12); wantedCamera.set(-176 * fit, 135 * fit, 185 * fit);
     } else {
       const speedScale = Math.min(Math.abs(state.speed) / 24, 1);
-      wantedAim.set(state.x + Math.sin(state.heading) * 9, 1.4, state.z + Math.cos(state.heading) * 9);
-      wantedCamera.set(state.x - Math.sin(state.heading) * (15 + speedScale * 4), 9 + speedScale * 2,
-        state.z - Math.cos(state.heading) * (15 + speedScale * 4));
+      wantedAim.set(state.x + Math.sin(state.heading) * 5.5, 0.8, state.z + Math.cos(state.heading) * 5.5);
+      wantedCamera.set(state.x - Math.sin(state.heading) * (10.8 + speedScale * 2.3), 4.6 + speedScale * 0.7,
+        state.z - Math.cos(state.heading) * (10.8 + speedScale * 2.3));
     }
   }
   function updateCamera(dt, snap = false) {
@@ -467,6 +463,13 @@ export function createWorld(container, options = {}) {
     if (disposed || document.hidden) { raf = 0; return; }
     const dt = Math.min(Math.max((now - last) / 1000, 0), 0.05); last = now;
     if (!paused) {
+      const previousBoost = boost;
+      boost = B.step(boost, { requested: input.boost, eligible: !experiment && !overview && input.throttle > 0 && state.speed >= 0 && isRoad(state.x, state.z) && !input.brake, dt });
+      if (boost.active !== previousBoost.active) dirty = true;
+      car.userData.boostFlames.forEach(flame => {
+        flame.visible = boost.active;
+        flame.scale.z = boost.active ? 1 + Math.min(Math.abs(state.speed) / 32, 1) * 0.7 : 1;
+      });
       if (experiment) {
         if (experiment.playing) {
           experiment.time = Math.min(experiment.duration, experiment.time + dt * 3);
@@ -490,7 +493,7 @@ export function createWorld(container, options = {}) {
   }
   const observer = new ResizeObserver(resize); observer.observe(container);
   function visibility() {
-    input = { throttle: 0, steer: 0, brake: false }; state.speed = 0;
+    input = { throttle: 0, steer: 0, brake: false, boost: false }; state.speed = 0; releaseBoost();
     if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
     else if (!disposed && !raf) { last = performance.now(); dirty = true; raf = requestAnimationFrame(renderFrame); }
   }
@@ -504,7 +507,7 @@ export function createWorld(container, options = {}) {
     if (!experiment) return;
     scene.remove(experiment.group);
     experiment.transient.forEach(resource => { resource.dispose(); resources.delete(resource); });
-    experiment = null; scene.fog.near = 240; scene.fog.far = 750; car.visible = true; dirty = true;
+    experiment = null; scene.fog.near = 320; scene.fog.far = 850; car.visible = true; dirty = true;
   }
   function validPath(path) {
     return Array.isArray(path) && path.length >= 2 && path.length <= 20000 && path.every((p, i) =>
@@ -512,7 +515,7 @@ export function createWorld(container, options = {}) {
   }
   function showExperiment({ beforePath, afterPath, playing = true } = {}) {
     if (!validPath(beforePath) || !validPath(afterPath)) throw new Error('비교할 주행 궤적이 올바르지 않습니다.');
-    clearExperiment(); state.speed = 0; input = { throttle: 0, steer: 0, brake: false };
+    clearExperiment(); showcase = false; state.speed = 0; input = { throttle: 0, steer: 0, brake: false, boost: false }; releaseBoost();
     // Clone caller data: moving a slider cannot alter an already-running replay.
     beforePath = beforePath.map(p => ({ ...p })); afterPath = afterPath.map(p => ({ ...p }));
     const group = new THREE.Group(); group.position.x = 450; scene.add(group);
@@ -545,7 +548,7 @@ export function createWorld(container, options = {}) {
     });
     const roadGeometry = transientGeo(new THREE.BufferGeometry());
     roadGeometry.setAttribute('position', new THREE.Float32BufferAttribute(roadVertices, 3)); roadGeometry.setIndex(roadIndices); roadGeometry.computeVertexNormals();
-    mesh(roadGeometry, material(0x355169, { side: THREE.DoubleSide, roughness: 0.7, metalness: 0.12 }), group, [0, 0, 0], false);
+    mesh(roadGeometry, material(C.asphalt, { side: THREE.DoubleSide, roughness: 0.85, metalness: 0.05 }), group, [0, 0, 0], false);
     const before = makeCar(C.mint, true), after = makeCar(C.red);
     // Cars are enlarged visual markers; all path coordinates stay in metres.
     before.scale.setScalar(2.8); after.scale.setScalar(2.8); group.add(before, after);
@@ -579,18 +582,19 @@ export function createWorld(container, options = {}) {
 
   return {
     drive(next = {}) {
-      input = { throttle: clamp(Number(next.throttle) || 0, -1, 1), steer: clamp(Number(next.steer) || 0, -1, 1), brake: !!next.brake };
-      if (input.throttle || input.steer) overview = false;
+      input = { throttle: clamp(Number(next.throttle) || 0, -1, 1), steer: clamp(Number(next.steer) || 0, -1, 1), brake: !!next.brake, boost: !!next.boost };
+      if (input.throttle || input.steer) { overview = false; showcase = false; }
       dirty = true;
     },
     teleport(id) {
       const station = STATIONS.find(s => s.id === id); if (!station) return false;
-      clearExperiment(); Object.assign(state, { x: station.x, z: station.z, heading: station.heading, speed: 0, steering: 0 });
-      input = { throttle: 0, steer: 0, brake: false }; car.position.set(state.x, 0, state.z); car.rotation.y = state.heading;
+      clearExperiment(); showcase = false; releaseBoost(); Object.assign(state, { x: station.x, z: station.z, heading: station.heading, speed: 0, steering: 0 });
+      input = { throttle: 0, steer: 0, brake: false, boost: false }; car.position.set(state.x, 0, state.z); car.rotation.y = state.heading;
       overview = false; updateCamera(0, true); dirty = true; report(true); return true;
     },
-    setOverview(value) { overview = !!value; if (overview) { state.speed = 0; input = { throttle: 0, steer: 0, brake: false }; } dirty = true; },
-    setPaused(value) { paused = !!value; if (paused) { input = { throttle: 0, steer: 0, brake: false }; state.speed = 0; } dirty = true; },
+    setOverview(value) { showcase = false; overview = !!value; if (overview) { state.speed = 0; input = { throttle: 0, steer: 0, brake: false, boost: false }; releaseBoost(); } dirty = true; },
+    setShowcase(value) { showcase = !!value; overview = showcase; state.speed = 0; input = { throttle: 0, steer: 0, brake: false, boost: false }; releaseBoost(); updateCamera(0, true); dirty = true; },
+    setPaused(value) { paused = !!value; if (paused) { input = { throttle: 0, steer: 0, brake: false, boost: false }; state.speed = 0; releaseBoost(); } dirty = true; },
     showExperiment,
     setExperimentTime(fraction) { if (!experiment) return; experiment.playing = false; experiment.time = clamp(Number(fraction) || 0, 0, 1) * experiment.duration; positionExperiment(); dirty = true; report(true); },
     clearExperiment() { clearExperiment(); updateCamera(0, true); report(true); },
