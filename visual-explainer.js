@@ -1,4 +1,4 @@
-/* Interactive vehicle diagrams. Physics and learner progress remain separate. */
+/* Interactive vehicle diagrams with an optional prediction-record callback. */
 (function () {
   'use strict';
   const mounts = new WeakMap();
@@ -31,6 +31,7 @@
     return `<g transform="translate(${x} ${y})"><path d="M-104 2 L-89 -30 L-53 -38 L-23 -72 Q-19 -77 -10 -77 H36 Q42 -77 48 -71 L73 -39 L109 -29 Q117 -25 118 -14 V9 H-105Z" fill="#455bdb" stroke="#2d40ad" stroke-width="3"/><path d="M-40 -41 L-17 -68 H30 L48 -41Z" fill="#dff3ec"/><path d="M-1 -67 V-41" stroke="#455bdb" stroke-width="4"/><rect x="89" y="-24" width="24" height="9" rx="4" fill="#f5c84c"/><path d="M-72 -22 H63" stroke="#8191ee" stroke-width="3"/><rect x="8" y="-30" width="12" height="4" rx="2" fill="#d4dcff"/></g>`;
   }
   function sharedScale(before, after, scene) {
+    if (window.AdvancedVisuals?.handles(scene)) return window.AdvancedVisuals.scale(before, after);
     const samples = [...before.samples, ...after.samples];
     if (scene === 'steer') {
       const xs = samples.map(s => finite(s.x)), ys = samples.map(s => finite(s.y));
@@ -95,6 +96,7 @@
     return out;
   }
   function readings(scene, frame) {
+    if (window.AdvancedVisuals?.handles(scene)) return window.AdvancedVisuals.readings(scene, frame);
     if (scene === 'steer') return [`전진 ${n(frame.x, 1)} m`, `옆 이동 ${n(frame.y, 1)} m`, `안쪽 ${n(rad(frame.inner), 1)}°`, `바깥쪽 ${n(rad(frame.outer), 1)}°`];
     if (scene === 'brake') return [`속도 ${n(finite(frame.speed) * 3.6, 1)} km/h`, `이동 ${n(frame.x, 1)} m`, `앞축 ${n(finite(frame.frontLoad) / 1000)} kN`, `뒤축 ${n(finite(frame.rearLoad) / 1000)} kN`];
     if (scene === 'roll') return [`롤각 ${n(rad(frame.roll), 2)}°`, '기울기 확대 없음'];
@@ -109,7 +111,7 @@
     let mode = 'compare', question = null, answer = null, exampleIndex = 0;
     const media = window.matchMedia('(prefers-reduced-motion: reduce)'), abort = new AbortController();
     const listen = (element, event, handler) => element.addEventListener(event, handler, { signal: abort.signal });
-    host.innerHTML = `<section class="vehicle-explainer" aria-label="차량 움직임 바꾸기 전후 비교"><header class="cv-heading"><div><span class="cv-eyebrow">움직임으로 이해하기</span><h3>바꾸기 전과 후, 같이 볼까요?</h3></div><span class="cv-chip">비교 실험</span></header><p class="cv-caption" data-viz-caption></p><div class="cv-modes" role="group" aria-label="실험 방식"><button type="button" data-viz-mode="compare" aria-pressed="true">자유 비교</button><button type="button" data-viz-mode="quiz" aria-pressed="false">먼저 맞혀보기</button></div><div class="cv-scenes" role="group" aria-label="실험 장면 선택">${sceneIds.map(id => `<button type="button" data-viz-scene="${esc(id)}" aria-pressed="false">${esc(physics.scenes[id].title)}</button>`).join('')}</div><div class="cv-comparison-layout"><div class="cv-quiz-result" data-viz-quiz-result hidden></div><div class="cv-stage"><div class="cv-stage-heading"><strong data-viz-title></strong><span>같은 시간 · 같은 축척</span></div><div class="cv-pair">${['before', 'after'].map((side, index) => `<figure class="cv-panel cv-${side}"><figcaption><strong>${index ? '변경' : '기준'}</strong><span>${index ? '슬라이더 조절 후' : '고정된 처음 값'}</span></figcaption><svg class="cv-car" data-viz-car="${side}" role="img" aria-label="${index ? '변경한' : '기준'} 값으로 계산한 차량 움직임"></svg><div class="cv-frame-readout" data-viz-frame="${side}" aria-live="off"></div><p class="cv-ended" data-viz-ended="${side}" aria-live="off"></p></figure>`).join('')}</div><p class="cv-scale-note" data-viz-scale></p><div class="cv-player"><button type="button" data-viz-play>함께 재생</button><button type="button" class="cv-restart" data-viz-restart>처음으로</button><output data-viz-time aria-live="off">0.00 s</output></div><label class="cv-scrub"><span>두 차의 시간을 함께 움직이기</span><input type="range" data-viz-scrub min="0" max="5" step="any" value="0" aria-label="두 차량의 공통 시뮬레이션 시간"/><span data-viz-duration></span></label><p class="cv-motion-note" data-viz-motion-note></p></div><aside class="cv-why" aria-label="움직임이 달라지는 이유"><div class="cv-quiz-feedback" data-viz-quiz-feedback hidden></div><span class="cv-eyebrow">그림 옆 해설</span><h4>왜 이렇게 달라질까요?</h4><p class="cv-why-summary" data-viz-summary></p><div class="cv-changes" data-viz-changes></div><div class="cv-reasons" data-viz-reasons></div></aside></div><div class="cv-settings"><div class="cv-settings-heading"><strong>오른쪽 차의 값을 바꿔 보세요</strong><button type="button" data-viz-reset>오른쪽 기본값</button></div><div class="cv-controls" data-viz-controls></div><div class="cv-baseline-actions"><button type="button" data-viz-baseline>현재 값을 기준으로</button><button type="button" data-viz-undo>변경 취소</button></div><p class="cv-input-tip">왼쪽 기준은 고정됩니다. 원하는 조합을 만든 뒤 ‘현재 값을 기준으로’를 누르면 다음 비교의 출발점이 됩니다.</p></div><section class="cv-quiz" data-viz-quiz hidden aria-label="움직임 예측 퀴즈"><div class="cv-quiz-heading"><span class="cv-eyebrow">예상 → 관찰 → 이해</span><button type="button" data-viz-example>다른 조건 퀴즈</button></div><p class="cv-quiz-condition" data-viz-quiz-condition></p><div class="cv-quiz-inputs" data-viz-quiz-inputs></div><h4 data-viz-quiz-prompt></h4><p class="cv-quiz-definition" data-viz-quiz-definition></p><div class="cv-quiz-choices" role="group" aria-label="움직임 예상 선택">${["increase", "decrease", "same"].map(id => `<button type="button" data-viz-answer="${id}" aria-pressed="false"></button>`).join("")}</div><p class="cv-quiz-hint" data-viz-quiz-hint></p><p class="cv-quiz-status" data-viz-quiz-status role="status" aria-live="polite" aria-atomic="true"></p></section><div class="cv-metric-comparison" data-viz-metrics></div><div class="cv-formulas"><h4>변경한 값이 공식에 들어가면</h4><div data-viz-formulas></div></div><div class="cv-trace"><div class="cv-trace-heading"><strong data-viz-trace-title>시간에 따른 변화</strong><div data-viz-legend></div></div><svg data-viz-graph viewBox="0 0 680 200" role="img" aria-label="기준과 변경의 응답 비교 그래프"></svg><p class="cv-graph-range" data-viz-graph-range></p></div><details class="cv-assumptions"><summary>이 그림이 계산하는 것과 가정</summary><ul data-viz-assumptions></ul></details></section>`;
+    host.innerHTML = `<section class="vehicle-explainer" aria-label="차량 움직임 바꾸기 전후 비교"><header class="cv-heading"><div><span class="cv-eyebrow">움직임으로 이해하기</span><h3>바꾸기 전과 후, 같이 볼까요?</h3></div><span class="cv-chip">비교 실험</span></header><p class="cv-caption" data-viz-caption></p><div class="cv-modes" role="group" aria-label="실험 방식"><button type="button" data-viz-mode="compare" aria-pressed="true">자유 비교</button><button type="button" data-viz-mode="quiz" aria-pressed="false">먼저 맞혀보기</button></div><div class="cv-scenes" role="group" aria-label="실험 장면 선택">${sceneIds.map(id => `<button type="button" data-viz-scene="${esc(id)}" aria-pressed="false">${esc(physics.scenes[id].title)}</button>`).join('')}</div><p class="cv-model-warning" data-viz-warning role="status" hidden></p><div class="cv-comparison-layout"><div class="cv-quiz-result" data-viz-quiz-result hidden></div><div class="cv-stage"><div class="cv-stage-heading"><strong data-viz-title></strong><span>같은 시간 · 같은 축척</span></div><div class="cv-pair">${['before', 'after'].map((side, index) => `<figure class="cv-panel cv-${side}"><figcaption><strong>${index ? '변경' : '기준'}</strong><span>${index ? '슬라이더 조절 후' : '고정된 처음 값'}</span></figcaption><svg class="cv-car" data-viz-car="${side}" role="img" aria-label="${index ? '변경한' : '기준'} 값으로 계산한 차량 움직임"></svg><div class="cv-frame-readout" data-viz-frame="${side}" aria-live="off"></div><p class="cv-ended" data-viz-ended="${side}" aria-live="off"></p></figure>`).join('')}</div><p class="cv-scale-note" data-viz-scale></p><div class="cv-player"><button type="button" data-viz-play>함께 재생</button><button type="button" class="cv-restart" data-viz-restart>처음으로</button><output data-viz-time aria-live="off">0.00 s</output></div><label class="cv-scrub"><span>두 차의 시간을 함께 움직이기</span><input type="range" data-viz-scrub min="0" max="5" step="any" value="0" aria-label="두 차량의 공통 시뮬레이션 시간"/><span data-viz-duration></span></label><p class="cv-motion-note" data-viz-motion-note></p></div><aside class="cv-why" aria-label="움직임이 달라지는 이유"><div class="cv-quiz-feedback" data-viz-quiz-feedback hidden></div><span class="cv-eyebrow">그림 옆 해설</span><h4>왜 이렇게 달라질까요?</h4><p class="cv-why-summary" data-viz-summary></p><div class="cv-changes" data-viz-changes></div><div class="cv-reasons" data-viz-reasons></div></aside></div><div class="cv-settings"><div class="cv-settings-heading"><strong>오른쪽 차의 값을 바꿔 보세요</strong><button type="button" data-viz-reset>오른쪽 기본값</button></div><div class="cv-controls" data-viz-controls></div><div class="cv-baseline-actions"><button type="button" data-viz-baseline>현재 값을 기준으로</button><button type="button" data-viz-undo>변경 취소</button></div><p class="cv-input-tip">왼쪽 기준은 고정됩니다. 원하는 조합을 만든 뒤 ‘현재 값을 기준으로’를 누르면 다음 비교의 출발점이 됩니다.</p></div><section class="cv-quiz" data-viz-quiz hidden aria-label="움직임 예측 퀴즈"><div class="cv-quiz-heading"><span class="cv-eyebrow">예상 → 관찰 → 이해</span><button type="button" data-viz-example>다른 조건 퀴즈</button></div><p class="cv-quiz-condition" data-viz-quiz-condition></p><div class="cv-quiz-inputs" data-viz-quiz-inputs></div><h4 data-viz-quiz-prompt></h4><p class="cv-quiz-definition" data-viz-quiz-definition></p><div class="cv-quiz-choices" role="group" aria-label="움직임 예상 선택">${["increase", "decrease", "same"].map(id => `<button type="button" data-viz-answer="${id}" aria-pressed="false"></button>`).join("")}</div><p class="cv-quiz-hint" data-viz-quiz-hint></p><p class="cv-quiz-status" data-viz-quiz-status role="status" aria-live="polite" aria-atomic="true"></p></section><div class="cv-metric-comparison" data-viz-metrics></div><div class="cv-formulas"><h4>변경한 값이 공식에 들어가면</h4><div data-viz-formulas></div></div><div class="cv-trace"><div class="cv-trace-heading"><strong data-viz-trace-title>시간에 따른 변화</strong><div data-viz-legend></div></div><svg data-viz-graph viewBox="0 0 680 200" role="img" aria-label="기준과 변경의 응답 비교 그래프"></svg><p class="cv-graph-range" data-viz-graph-range></p></div><section class="cv-theory" data-viz-theory hidden></section><details class="cv-assumptions"><summary>이 그림이 계산하는 것과 가정</summary><ul data-viz-assumptions></ul></details></section>`;
     const $ = selector => host.querySelector(selector), graph = $('[data-viz-graph]'), scrub = $('[data-viz-scrub]'), play = $('[data-viz-play]');
     let marker = null, graphPoints = [], traceSpec, traceMin = 0, traceMax = 1;
     function stop() {
@@ -134,7 +136,7 @@
       question = window.VehiclePrediction.create(baseline, result);
       $('[data-viz-quiz-condition]').textContent = '이 조건에서 오른쪽 차는 어떻게 달라질까요?';
       $('[data-viz-quiz-inputs]').innerHTML = comparison.changed.length ? comparison.changed.map(item => `<span><b>${esc(item.label)}</b> ${n(item.before, 3)} → <strong>${n(item.after, 3)}</strong> ${esc(item.unit)}</span>`).join('') : '<span>기준 값과 변경 값이 같아요.</span>';
-      $('[data-viz-quiz-prompt]').textContent = question ? question.prompt : '먼저 조건을 바꿔 주세요.';
+      $('[data-viz-quiz-prompt]').textContent = question ? question.prompt : baseline.valid === false || result.valid === false ? '모델 적용 범위 밖에서는 채점하지 않아요.' : '먼저 조건을 바꿔 주세요.';
       $('[data-viz-quiz-definition]').textContent = question ? question.definition : '슬라이더로 값을 바꾸거나 ‘다른 조건 퀴즈’를 눌러 시작하세요.';
       host.querySelectorAll('[data-viz-answer]').forEach(button => {
         const choice = question?.choices.find(item => item.id === button.dataset.vizAnswer);
@@ -163,7 +165,7 @@
       if (mode === 'quiz') { section.insertBefore(settings, layout); section.insertBefore(quiz, layout); }
       else { layout.after(settings); settings.after(quiz); }
       updateOutputs();
-      if (mode === 'quiz' && !question) loadExample(0);
+      if (mode === 'quiz' && !question && baseline.valid !== false && result.valid !== false) loadExample(0);
     }
     function startPlayback() {
       if (media.matches || awaitingPrediction()) return;
@@ -185,6 +187,10 @@
       resultStrip.classList.toggle('cv-quiz-correct', grade.correct);
       resultStrip.innerHTML = `<strong>${esc(grade.heading)}</strong><p>내 예상: ${esc(chosen.label)} <span>→</span> 계산: <b>${esc(actual.label)}</b></p><p class="cv-quiz-insight">${esc(question.insight || question.reasons[0]?.body || question.observation)}</p>`;
       resultStrip.hidden = false;
+      if (typeof options.onPrediction === 'function') {
+        const message = options.onPrediction({before:baseline,after:result,choiceId:id});
+        if (message) { const note = document.createElement('p'); note.className = 'cv-saved-note'; note.textContent = message; resultStrip.append(note); }
+      }
       stop(); playbackFresh = true; time = media.matches ? representativeTime() : 0; draw();
       $('.cv-comparison-layout').scrollIntoView({ block: 'start', behavior: 'instant' });
       startPlayback();
@@ -195,7 +201,7 @@
       const frames = [physics.at(baseline, time), physics.at(result, time)];
       ['before', 'after'].forEach((side, index) => {
         const frame = frames[index], simulation = index ? result : baseline, car = $(`[data-viz-car="${side}"]`);
-        let illustration = current === 'steer' ? steerScene(simulation, frame, scale) : current === 'brake' ? brakeScene(simulation, frame, scale) : current === 'roll' ? rollScene(simulation, frame) : quarterScene(simulation, frame, current, scale);
+        let illustration = window.AdvancedVisuals?.handles(current) ? window.AdvancedVisuals.render(simulation, frame, scale) : current === 'steer' ? steerScene(simulation, frame, scale) : current === 'brake' ? brakeScene(simulation, frame, scale) : current === 'roll' ? rollScene(simulation, frame) : quarterScene(simulation, frame, current, scale);
         if (!index) illustration = illustration.replaceAll('#455bdb', '#16836e').replaceAll('#2d40ad', '#106c5b').replaceAll('#abb7ed', '#93cdbc');
         car.innerHTML = illustration;
         $(`[data-viz-frame="${side}"]`).innerHTML = readings(current, frame).map(value => `<span>${esc(value)}</span>`).join('');
@@ -232,6 +238,9 @@
       duration = Math.max(baseline.duration, result.duration); time = Math.min(time, duration); scale = sharedScale(baseline, result, current);
       const comparison = window.VehicleComparison.describe(baseline, result);
       $('[data-viz-summary]').textContent = comparison.summary;
+      const warnings = [...new Set([...(baseline.warnings || []), ...(result.warnings || [])])];
+      $('[data-viz-warning]').hidden = warnings.length === 0;
+      $('[data-viz-warning]').textContent = warnings.join(' ');
       $('[data-viz-changes]').innerHTML = comparison.changed.length ? comparison.changed.map(item => `<p><b>${esc(item.label)} <small>${esc(item.symbol)}</small></b><span>${n(item.before, 3)} → <strong>${n(item.after, 3)}</strong> ${esc(item.unit)}</span></p>`).join('') : '<p>아래에서 한 가지 값을 바꿔 차이를 만들어 보세요.</p>';
       $('[data-viz-reasons]').innerHTML = comparison.reasons.map(reason => `<div><h5>${esc(reason.title)}</h5><p>${esc(reason.body)}</p></div>`).join('');
       $('[data-viz-metrics]').innerHTML = `<table><caption>전체 응답의 계산 결과 비교</caption><thead><tr><th scope="col">결과</th><th scope="col">기준</th><th scope="col">변경</th></tr></thead><tbody>${comparison.outcomes.map(item => `<tr><th scope="row">${esc(item.label)} <small>${esc(item.unit)}</small></th><td>${n(item.before, 3)}</td><td>${n(item.after, 3)}</td></tr>`).join('')}</tbody></table>`;
@@ -240,9 +249,9 @@
       $('[data-viz-undo]').disabled = comparison.unchanged;
       $('[data-viz-baseline]').disabled = comparison.unchanged;
       host.querySelector('.cv-before figcaption span').textContent = '고정된 기준 값';
-      const viewBox = current === 'steer' ? '0 0 490 320' : current === 'brake' ? '0 30 680 255' : current === 'roll' ? '175 48 330 227' : '170 -25 330 330';
+      const viewBox = window.AdvancedVisuals?.handles(current) ? window.AdvancedVisuals.viewBox(current) : current === 'steer' ? '0 0 490 320' : current === 'brake' ? '0 30 680 255' : current === 'roll' ? '175 48 330 227' : '170 -25 330 330';
       host.querySelectorAll('[data-viz-car]').forEach(car => car.setAttribute('viewBox', viewBox));
-      $('[data-viz-scale]').textContent = current === 'brake' ? '같은 거리·하중 축척 · 거리 눈금 1칸 = 25 m · 화살표 길이는 차축 하중' : current === 'steer' ? '같은 지도 축척 · 노란 점은 뒤 차축 중심 · 앞바퀴 각도도 함께 변해요' : current === 'roll' ? '같은 수평 기준 · 계산된 롤각 그대로 표시 · 바퀴 위치 고정' : `두 그림의 변위 배율은 함께 조정됩니다 · 하단 눈금 = ${n(28 / scale.motion * 1000, 1)} mm · 피치 제외`;
+      $('[data-viz-scale]').textContent = window.AdvancedVisuals?.handles(current) ? window.AdvancedVisuals.scaleNote(current, scale) : current === 'brake' ? '같은 거리·하중 축척 · 거리 눈금 1칸 = 25 m · 화살표 길이는 차축 하중' : current === 'steer' ? '같은 지도 축척 · 노란 점은 뒤 차축 중심 · 앞바퀴 각도도 함께 변해요' : current === 'roll' ? '같은 수평 기준 · 계산된 롤각 그대로 표시 · 바퀴 위치 고정' : `두 그림의 변위 배율은 함께 조정됩니다 · 하단 눈금 = ${n(28 / scale.motion * 1000, 1)} mm · 피치 제외`;
       scrub.max = String(duration); $('[data-viz-duration]').textContent = `${n(duration, 2)} s`;
       updateQuiz(comparison);
       buildGraph(); draw();
@@ -259,6 +268,12 @@
         if (output) output.textContent = `${n(params[control.key], 3)} ${control.unit}`;
       });
     }
+    function renderTheory() {
+      const theory = window.ADVANCED_THEORY?.[current], node = $('[data-viz-theory]');
+      node.hidden = !theory;
+      if (!theory) { node.replaceChildren(); return; }
+      node.innerHTML = `<span class="cv-eyebrow">샤시 딥다이브</span><h4>${esc(theory.title)}</h4><p class="cv-theory-intro">${esc(theory.intro)}</p><dl class="cv-theory-definitions">${theory.definitions.map(item=>`<div><dt>${esc(item.term)}</dt><dd>${esc(item.text)}</dd></div>`).join('')}</dl><div class="cv-theory-sections">${theory.sections.map(item=>`<details><summary>${esc(item.title)}</summary><p>${esc(item.body)}</p>${item.formula?`<code>${esc(item.formula)}</code>`:''}</details>`).join('')}</div><h5>10분 실험 순서</h5><div class="cv-theory-experiments">${theory.experiments.map((item,index)=>`<div><button type="button" data-viz-experiment="${index}">${esc(item.label)}</button><span>${esc(item.question)}</span></div>`).join('')}</div><p class="cv-theory-sources">참고: ${theory.sources.map(item=>`<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.label)}</a>`).join(' · ')}</p>`;
+    }
     function selectScene(id) {
       if (!sceneIds.includes(id)) return;
       stop(); invalidatePrediction(); current = id; playbackFresh = true; exampleIndex = 0;
@@ -268,7 +283,7 @@
       $('[data-viz-caption]').textContent = current === initialScene && typeof options.caption === 'string' ? options.caption : definition.description;
       $('[data-viz-title]').textContent = definition.title;
       $('[data-viz-controls]').innerHTML = definition.controls.map(control => `<label class="cv-control" for="${uid}-${esc(control.key)}"><span><b>${esc(control.label)} <small>${esc(control.symbol)}</small></b><output data-viz-value="${esc(control.key)}" for="${uid}-${esc(control.key)}"></output></span><input id="${uid}-${esc(control.key)}" type="range" data-viz-param="${esc(control.key)}" min="${finite(control.min)}" max="${finite(control.max)}" step="${finite(control.step, 1)}" value="${finite(params[control.key])}"/><span class="cv-range-ends"><small>${esc(control.min)} ${esc(control.unit)}</small><small>${esc(control.max)} ${esc(control.unit)}</small></span></label>`).join('');
-      syncControlValues();
+      syncControlValues(); renderTheory();
       if (mode === 'quiz') loadExample(0); else updateOutputs();
     }
     function tick(now) {
@@ -288,6 +303,13 @@
       else if (target.hasAttribute('data-viz-example') && mode === 'quiz') loadExample(exampleIndex + 1);
       else if (target.dataset.vizAnswer) submitPrediction(target.dataset.vizAnswer);
       else if (target.dataset.vizScene) selectScene(target.dataset.vizScene);
+      else if (target.hasAttribute('data-viz-experiment')) {
+        const experiment = window.ADVANCED_THEORY?.[current]?.experiments[Number(target.dataset.vizExperiment)];
+        if (!experiment) return;
+        stop(); invalidatePrediction(); baseline = physics.simulate(current, physics.scenes[current].defaults);
+        params = { ...physics.scenes[current].defaults, ...experiment.params }; syncControlValues(); recompute();
+        $('.cv-settings').scrollIntoView({block:'start'});
+      }
       else if (target.hasAttribute('data-viz-play')) {
         if (awaitingPrediction()) return;
         if (running) stop();
@@ -308,7 +330,13 @@
     listen(document, 'visibilitychange', () => { if (document.hidden) stop(); }); listen(media, 'change', motionPreference);
     const observer = new MutationObserver(() => { if (!host.isConnected) cleanup(); }); observer.observe(document.body, { childList: true, subtree: true });
     function cleanup() { if (disposed) return; stop(); disposed = true; abort.abort(); observer.disconnect(); mounts.delete(host); }
-    mounts.set(host, cleanup); selectScene(initialScene); motionPreference(); return cleanup;
+    mounts.set(host, cleanup); selectScene(initialScene);
+    if (options.predictionSnapshot) {
+      const snapshot = options.predictionSnapshot;
+      baseline = physics.simulate(current, snapshot.before); params = { ...snapshot.after }; result = physics.simulate(current, params);
+      syncControlValues(); setMode('quiz');
+    } else if (options.mode === 'quiz') setMode('quiz');
+    motionPreference(); return cleanup;
   }
   window.ChassisVisual = Object.freeze({ mount });
 })();

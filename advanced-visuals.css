@@ -1,0 +1,24 @@
+/* Deep-dive material shares the experiment's calm, mobile-first visual language. */
+.vehicle-explainer .cv-theory{margin-top:24px;padding-top:22px;border-top:1px solid #dfe6f2}
+.vehicle-explainer .cv-theory>h4{font-size:19px;line-height:1.5;margin:5px 0 10px;color:#26334d;letter-spacing:-.4px}
+.vehicle-explainer .cv-theory-intro{font-size:13px;line-height:1.85;color:#53647f;margin:0 0 18px;word-break:keep-all}
+.vehicle-explainer .cv-theory-definitions{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:0 0 18px}
+.vehicle-explainer .cv-theory-definitions>div{padding:14px;background:#f3f6fc;border:1px solid #e2e8f2;border-radius:12px;min-width:0}
+.vehicle-explainer .cv-theory-definitions dt{font-size:13px;font-weight:750;line-height:1.5;color:#334571;margin:0 0 5px}
+.vehicle-explainer .cv-theory-definitions dd{font-size:12px;line-height:1.8;color:#53647f;margin:0;word-break:keep-all}
+.vehicle-explainer .cv-theory-sections{display:grid;gap:8px}
+.vehicle-explainer .cv-theory-sections details{border:1px solid #dfe6f2;border-radius:12px;background:#fff;overflow:hidden}
+.vehicle-explainer .cv-theory-sections summary{font-weight:700;cursor:pointer;padding:14px 16px;font-size:13px;line-height:1.65;color:#334571}
+.vehicle-explainer .cv-theory-sections summary:focus-visible,.vehicle-explainer .cv-theory-experiments button:focus-visible{outline:3px solid #455bdb;outline-offset:3px}
+.vehicle-explainer .cv-theory-sections details[open] summary{background:#f7f9fd;border-bottom:1px solid #e5eaf3}
+.vehicle-explainer .cv-theory-sections p{font-size:13px;line-height:1.9;color:#53647f;margin:14px 16px;white-space:pre-line;word-break:keep-all}
+.vehicle-explainer .cv-theory-sections code{display:block;padding:12px 14px;margin:12px 16px 16px;border-radius:9px;background:#eff3ff;color:#354ba7;font-size:12px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere}
+.vehicle-explainer .cv-theory-experiments{display:grid;gap:9px;margin:18px 0}
+.vehicle-explainer .cv-theory-experiments>div{padding:14px;border-radius:12px;border:1px solid #e8d59a;background:#fffaf0}
+.vehicle-explainer .cv-theory-experiments button{display:block;text-align:left;background:#fff;border:1px solid #d4b554;color:#70551c;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;min-height:44px;line-height:1.5}
+.vehicle-explainer .cv-theory-experiments span,.vehicle-explainer .cv-theory-experiments p{display:block;font-size:12px;color:#756441;line-height:1.8;margin:8px 0 0;word-break:keep-all}
+.vehicle-explainer .cv-theory-sources{display:flex;flex-wrap:wrap;gap:7px 16px;font-size:11px;line-height:1.8;margin-top:16px}
+.vehicle-explainer .cv-theory-sources a{color:#536b9d;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+@container(max-width:500px){.vehicle-explainer .cv-theory-definitions{grid-template-columns:1fr}.vehicle-explainer .cv-theory-sections summary{padding:12px}.vehicle-explainer .cv-theory-sections p{margin:12px}.vehicle-explainer .cv-theory-sections code{margin:10px 12px 12px}.vehicle-explainer .cv-theory>h4{font-size:17px}}
+
+.vehicle-explainer .cv-car:has([data-advanced-scene]){height:auto;min-height:0}

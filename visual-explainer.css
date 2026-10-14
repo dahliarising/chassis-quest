@@ -17,3 +17,5 @@
 @media(max-width:600px){.vehicle-explainer{padding:16px 10px;margin:23px 0 15px;border-radius:17px}}
 @container(max-width:500px){.vehicle-explainer .cv-modes{width:100%}.vehicle-explainer .cv-modes button{flex:1;min-width:0;padding:8px 10px;font-size:12px}.vehicle-explainer .cv-quiz{padding:16px 12px}.vehicle-explainer .cv-quiz h4{font-size:17px}.vehicle-explainer .cv-quiz-heading{gap:7px}.vehicle-explainer .cv-quiz-heading .cv-eyebrow{font-size:11px}.vehicle-explainer .cv-quiz-heading button{font-size:10px;padding:7px}.vehicle-explainer .cv-quiz-choices{gap:6px}.vehicle-explainer .cv-quiz-choices button{font-size:12px;padding:10px 5px;min-height:55px}}
 @media(prefers-reduced-motion:reduce){.vehicle-explainer *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.vehicle-explainer .cv-model-warning{background:#fff2ce;border-left:4px solid #bd8419;padding:14px;margin:15px 0;line-height:1.8;color:#765716;font-size:13px}.vehicle-explainer .cv-saved-note{font-size:12px!important;padding-top:9px;border-top:1px solid #d5ddcf;margin-top:10px!important;color:#397260!important}

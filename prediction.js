@@ -4,6 +4,10 @@
   const same=(a,b)=>Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));
   const ids=['increase','decrease','same'];
   const targets={
+    hardpoint:{metricLabel:'최종 캠버각',symbol:'γ',labels:['더 양수로','더 음수로','같아요'],definition:'최종 캠버는 지정한 하부 볼조인트 스트로크에서 바퀴 상단이 바깥으로 기우는 각도입니다. 음수는 상단이 차량 안쪽으로 기운 상태입니다. 초기 캠버는 −1°로 두었습니다.',observation:'두 그림을 같은 마지막 시각으로 놓고 너클과 바퀴 기울기를 비교하세요. 내측 점 이동은 정적 외측 점을 유지한 새 설계입니다. 토나 캐스터는 이 전면 2D 모델에서 계산하지 않습니다.'},
+    knc:{metricLabel:'최종 토각',symbol:'toe',labels:['더 양수로','더 음수로','같아요'],definition:'이 왼쪽 바퀴의 토 인을 양수로 정합니다. 최종 토=정적 0.1°+기구학 기울기×수직 스트로크+컴플라이언스×횡력입니다. 반대 부호의 K와 C 항은 상쇄될 수 있습니다.',observation:'위에서 본 바퀴 방향과 K·C 기여를 비교하세요. 캠버 기울기만 바꾸면 최종 토는 같을 수 있습니다. 토와 캠버의 계수는 각각 독립적인 가상 시험 입력입니다.'},
+    alignment:{metricLabel:'조향 후 캠버각',symbol:'γ',labels:['더 양수로','더 음수로','같아요'],definition:'킹핀 경사와 캐스터로 기울어진 조향축 주위로 바퀴를 회전시킨 뒤의 캠버입니다. 양수는 왼쪽 바퀴 상단이 차량 바깥쪽으로 기운 상태입니다.',observation:'정면의 바퀴 기울기와 위에서 본 실제 조향각을 함께 보세요. 축 회전 입력과 지면 바퀴 조향각은 다릅니다. 정적 스크럽·트레일 수치만으로 핸들 복원 토크를 예측하지 않습니다.'},
+    cornering:{metricLabel:'정상 요레이트',symbol:'r∞',labels:['커져요','작아져요','같아요'],definition:'정상 요레이트는 일정한 차속과 전륜 등가 조향각에서 과도 응답이 가라앉은 뒤의 차체 방향 변화율입니다. 운전대 각도나 차체 슬립각 β와는 다른 값입니다.',observation:'차체 방향이 변하는 속도와 요레이트 파형을 비교하세요. 같은 순간 위치만으로 언더스티어를 판단하지 마세요. 작은 슬립각의 선형 범위 안에서만 이 퀴즈를 채점합니다.'},
     frequency:{
       metricLabel:'고유 진동수',symbol:'fₙ',labels:['높아져요','낮아져요','같아요'],
       definition:'고유 진동수 fₙ=√(k/m)/(2π)는 감쇠가 없는 계가 1초에 진동하는 횟수입니다. 실제 감쇠 진동수나 정착 시간과는 다른 지표입니다.',
@@ -41,6 +45,10 @@
     }
   };
   const presets={
+    hardpoint:[{id:'upper-height',label:'상부 내측점을 높이면?',params:{upperZ:470}},{id:'jounce',label:'하부 볼조인트를 더 올리면?',params:{jounce:50}}],
+    knc:[{id:'bump',label:'범프 스트로크를 늘리면?',params:{jounce:40}},{id:'compliance',label:'횡력에 대한 토 변형을 뒤집으면?',params:{toeCompliance:.08}}],
+    alignment:[{id:'caster',label:'캐스터를 높이면?',params:{caster:10}},{id:'offset',label:'축 오프셋만 바꾸면?',params:{offset:80}}],
+    cornering:[{id:'front',label:'전축 코너링 강성을 낮추면?',params:{Cf:60000}},{id:'steer',label:'앞바퀴를 조금 더 꺾으면?',params:{delta:1.5}}],
     bounce:[{id:'mass',label:'차체 질량을 늘리면?',params:{m:500}},{id:'damping',label:'댐퍼를 강하게 하면?',params:{c:4500}}],
     ride:[{id:'damping',label:'범프에서 댐퍼를 강하게 하면?',params:{cs:4500}},{id:'speed',label:'범프를 더 빨리 넘으면?',params:{speed:60}}],
     resonance:[{id:'frequency',label:'가진 주파수를 4 Hz로 올리면?',params:{f:4}},{id:'damping',label:'반복 외력에서 댐퍼를 강하게 하면?',params:{c:4500}}],
@@ -53,6 +61,10 @@
   // of whichever slider was moved last.
   function insight(kind,target,correct){
     const up=correct==='increase',equal=correct==='same';
+    if(kind==='hardpoint')return `암 길이와 너클 길이 구속을 함께 푼 최종 자세에서 캠버가 ${equal?'같습니다':up?'더 양수입니다':'더 음수입니다'}. 한 하드포인트의 이동 방향만으로 캠버 방향을 단정하지 않습니다.`;
+    if(kind==='knc')return `정적 토+gToe·z+cToe·Fy를 모두 더한 토가 ${equal?'같습니다':up?'더 양수입니다':'더 음수입니다'}. K는 스트로크, C는 힘에 의한 항이며 서로 상쇄될 수도 있습니다.`;
+    if(kind==='alignment')return `기울어진 조향축 주위로 바퀴를 회전시킨 캠버가 ${equal?'같습니다':up?'더 양수입니다':'더 음수입니다'}. 오프셋은 이 모델의 자세 회전에 들어가지 않아 캠버를 바꾸지 않습니다.`;
+    if(kind==='cornering')return `변경값을 함께 넣은 r∞=vδ/(L+Kv²/g)가 ${equal?'같습니다':up?'커집니다':'작아집니다'}. K=Wf/Cf−Wr/Cr이며 앞뒤 차축 강성의 균형과 속도를 같이 봅니다.`;
     if(target===targets.frequency)return equal
       ?'강성과 질량의 변화가 k/m에서 상쇄되어 fₙ=√(k/m)/(2π)가 같습니다. 감쇠 c는 이 고유 진동수 식에 들어가지 않습니다.'
       :`변경값을 함께 대입한 k/m이 ${up?'커져':'작아져'} fₙ=√(k/m)/(2π)가 ${up?'높아집니다':'낮아집니다'}. 이 값은 실제 감쇠 진동수와 구별합니다.`;
@@ -66,7 +78,7 @@
 
   function create(before,after){
     const comparison=C.describe(before,after);
-    if(comparison.unchanged)return null;
+    if(comparison.unchanged||before.valid===false||after.valid===false)return null;
     const target=before.kind==='bounce'
       ?targets[comparison.changed.some(change=>change.key==='m'||change.key==='k')?'frequency':'damping']
       :targets[before.kind];

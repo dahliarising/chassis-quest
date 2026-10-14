@@ -1,6 +1,6 @@
 (function(root){
   'use strict';
-  const P=typeof module!=='undefined'&&module.exports?require('./physics.js'):root.VehiclePhysics;
+  const P=typeof module!=='undefined'&&module.exports?require('./advanced-physics.js'):root.VehiclePhysics;
   const same=(a,b)=>Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b));
   const number=value=>value.toLocaleString('ko-KR',{maximumFractionDigits:3});
   const amount=(value,unit)=>`${number(value)}${unit?' '+unit:''}`;
@@ -13,6 +13,13 @@
   function explanation(kind,key,before,after){
     const up=after[key]>before[key];
     const larger=(high,low)=>up?high:low;
+    const advanced={
+      hardpoint:'전면의 두 암과 너클 길이 구속을 만족하는 원 교점으로 외측 볼조인트를 구합니다. 내측 하드포인트를 바꾸면 정적 외측 점을 유지하도록 암 길이도 다시 정해집니다. 캠버 변화는 전체 링크 배치에 달려 있어 한 좌표의 증감만으로 일반화하지 않습니다.',
+      knc: key==='jounce'||key.endsWith('Gradient')?'K 항은 수직 스트로크 z와 설정한 기구학 기울기의 곱입니다. 최종 토는 0.1°+gToe·z+cToe·Fy이며, 최종 캠버는 −1°+gCamber·z+cCamber·Fy입니다. 양의 토는 이 왼쪽 바퀴의 토 인입니다.':'C 항은 횡력 Fy와 설정한 컴플라이언스 계수의 곱입니다. 힘이 0이면 C 기여도 0입니다. K 항과 부호가 반대면 서로 상쇄됩니다. 이 계수는 가상 시험 입력이며 하드포인트에서 유도한 값은 아닙니다.',
+      alignment:key==='offset'?'휠 중심 높이에서 축까지의 오프셋은 정적 스크럽 반경을 바꿉니다. 이 모델은 바퀴 자세를 조향축의 방향과 회전각으로 정하므로 오프셋 자체는 조향 후 캠버를 바꾸지 않습니다.':'킹핀 경사와 캐스터가 정한 3차원 조향축 주위로 바퀴 법선을 회전시킵니다. 그래서 조향축 회전각, 지면상의 바퀴 조향각, 캠버가 함께 달라질 수 있습니다. 어느 하나를 같은 각도로 취급하지 마세요.',
+      cornering:'전륜과 후륜 횡력은 각 차축의 코너링 강성에 슬립각을 곱해 계산합니다. 횡력 합은 횡가속도를, 앞뒤 모멘트 차는 요 가속도를 만듭니다. 정상 요레이트 r∞=vδ/[L+K·v²/g]이며 K=Wf/Cf−Wr/Cr (rad/g)입니다. 여러 입력을 바꾸면 이 비를 함께 확인하세요.'
+    };
+    if (advanced[kind]) return advanced[kind];
     const reasons={
       bounce:()=>({
         m:`다른 조건이 같다면 질량 m이 ${larger('커져','작아져')} 같은 힘에 대한 가속도 F/m은 ${larger('작아집니다','커집니다')}. fₙ=√(k/m)/(2π)는 ${larger('낮아집니다','높아집니다')}. c>0일 때 감쇠비 ζ=c/(2√(km))도 ${larger('낮아집니다','높아집니다')}. c=0이면 감쇠비는 0 그대로입니다. 흔들림의 박자와 감쇠 정도를 함께 보세요.`,
