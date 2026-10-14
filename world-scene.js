@@ -185,9 +185,11 @@ export function createWorld(container, options = {}) {
   }
 
   const obstacles = [];
+  let villageDistrict = null;
   if (cyberpunk || village || coastal) {
     const createDistrict = cyberpunk ? createCyberDistrict : village ? createVillageDistrict : createCoastalDistrict;
-    createDistrict({ THREE, scene, own, geometry, material, mesh, box, cylinder, neon, C, label, isRoad, obstacles, roadSegments });
+    const district = createDistrict({ THREE, scene, own, geometry, material, mesh, box, cylinder, neon, C, label, isRoad, obstacles, roadSegments });
+    if (village) { villageDistrict = district; villageDistrict.setLevel(options.villageLevel); }
   } else {
     // Race facilities sit outside the road network. Repeated seats, guardrails
     // and kerbs are instanced after construction to keep mobile draw calls low.
@@ -344,7 +346,7 @@ export function createWorld(container, options = {}) {
   scene.updateMatrixWorld(true);
   const batches = new Map();
   scene.traverse(object => {
-    if (!object.isMesh) return;
+    if (!object.isMesh || object.userData.preserveVisibility) return;
     const key = `${object.geometry.uuid}:${object.material.uuid}:${object.castShadow}`;
     if (!batches.has(key)) batches.set(key, []);
     batches.get(key).push(object);
@@ -455,7 +457,7 @@ export function createWorld(container, options = {}) {
       wantedAim.set(center.x + 450, 0, center.z);
       wantedCamera.set(center.x + 450 + span * 0.12, (span * 1.06 + 17) * fit, center.z + (span * 1.06 + 20) * fit);
     } else if (showcase) {
-      const fit = Math.min(2.1, Math.max(1, 0.75 / camera.aspect));
+      const fit = Math.min(village ? 2.8 : 2.1, Math.max(1, (village ? 0.95 : 0.75) / camera.aspect));
       if (village) {
         wantedAim.set(state.x, 3.2, state.z + 10);
         wantedCamera.set(state.x - 26 * fit, 18 * fit, state.z - 31 * fit);
@@ -608,6 +610,7 @@ export function createWorld(container, options = {}) {
   }
 
   return {
+    setVillageGrowth(level) { if (!villageDistrict || disposed) return; villageDistrict.setLevel(level); dirty = true; },
     getDriveState() { return { ...state, boost: { ...boost }, overview }; },
     restoreDriveState(saved) {
       clearExperiment(); showcase = false;

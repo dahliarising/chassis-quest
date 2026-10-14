@@ -9,23 +9,46 @@
     formula:{name:'포뮬러 테스트 캠프',tag:'드라이버와 엔지니어, 한 팀으로',title:'머신을 깨우고.<br>한계를 배워요.',description:'서킷을 달리고, 피트에서 세팅하고.<br>당신의 판단으로 머신을 완성하세요.',start:'서킷 들어가기',mission:'첫 테스트 시작',status:'피트에서 온 테스트 의뢰',destination:'피트에서 출발해 코너링 서킷으로 가보세요.'},
     cyberpunk:{name:'네온시티 시험장',tag:'샤시 엔지니어의 야간 근무',title:'밤의 도시.<br>당신의 시험장.',description:'네온을 따라 코스를 찾고,<br>당신의 세팅으로 차의 움직임을 바꿔보세요.',start:'시험장 들어가기',mission:'첫 임무 바로 시작',status:'오늘의 현장 임무',destination:'네온 표식의 코너링 서킷으로 가보세요.'},
     coastal:{name:'해안 시험장',tag:'바닷바람과 함께 배우는 샤시',title:'직접 달리고.<br>움직임을 배워요.',description:'해안길을 따라 시험장을 둘러보고,<br>차의 움직임을 하나씩 이해해보세요.',start:'해안길 달리기',mission:'첫 임무 시작',status:'오늘의 시험 의뢰',destination:'해안 정비소에서 코너링 서킷으로 가보세요.'},
-    village:{name:'정비소 마을',tag:'작은 차와 함께, 오늘도 한 걸음',title:'우리 동네 차를<br>함께 고쳐봐요.',description:'알록달록 정비소에 들르고,<br>작은 차를 달리며 원리를 배워요.',start:'마을 둘러보기',mission:'첫 의뢰 받기',status:'정비소에 도착한 의뢰',destination:'차가 코너에서 바깥으로 밀린대요. 함께 살펴볼까요?'}
+    village:{name:'정비소 마을',tag:'작은 차와 함께, 오늘도 한 걸음',title:'우리 동네 차를<br>함께 고쳐봐요.',description:'토·캠버·댐퍼를 조정하고,<br>주민과 함께 마을을 키워요.',start:'마을 둘러보기',mission:'주민 의뢰 보기',status:'정비소에 도착한 의뢰',destination:'모모·나래·두리의 의뢰가 기다려요. 정비소에서 만나보세요.'}
   };
   function readTheme(){try{const saved=localStorage.getItem(themeKey);if(Object.hasOwn(themes,saved))preferredTheme=saved;}catch(_){}return preferredTheme;}
   function mount(host,options={}){
     const M=window.WorldMission,media=window.matchMedia('(prefers-reduced-motion: reduce)'),abort=new AbortController();
     let scene=null,disposed=false,entered=false,phase='',near=null,delta=1,lastResult=null,feedback='',saveMessage='',completed=Boolean(options.completed),overview=true;
-    let theme=readTheme(),loading=true,loadId=0,lastFrame=null,resume=null;
+    let theme=options.villageMission?'village':readTheme(),loading=true,loadId=0,lastFrame=null,resume=null;
+    let villageProgress=window.VillageMissions.normalizeProgress(options.village),villageOpen=false,pendingVillageMission=options.villageMission;
+    const inWorkshop=()=>theme==='village'&&villageOpen;
     const keys=new Set(),pointers=new Map();
     const listen=(el,event,fn)=>el.addEventListener(event,fn,{signal:abort.signal});
     const reference=M.baseline(),fault=M.fault(),referencePath=M.path(reference,{duration:18});
     document.body.classList.add('world-active');
     host.innerHTML=`<section class="world-shell is-intro" aria-label="샤시 퀘스트 3D 시험장"><div class="world-canvas" data-world-canvas></div><header class="world-top"><a href="#" class="world-brand" data-world="home"><strong>샤시 퀘스트</strong><small>포뮬러 테스트 캠프</small></a><div class="world-top-actions"><span data-world-badge>${completed?'🏁 선회 반경 해결사':'현장 임무 0 / 1'}</span><button type="button" class="world-secondary" data-world="exit">학습센터</button></div></header><div class="world-loading" data-world-loading role="status">시험장을 준비하고 있어요…</div><section class="world-intro"><span class="world-tag">드라이버와 엔지니어, 한 팀으로</span><h1>머신을 깨우고.<br>한계를 배워요.</h1><p>서킷을 달리고, 피트에서 세팅하고.<br>당신의 판단으로 머신을 완성하세요.</p><div class="world-intro-actions"><button type="button" class="world-primary" data-world="start" disabled>서킷 들어가기</button><button type="button" class="world-secondary" data-world="mission" disabled>첫 테스트 시작</button></div><small>키보드 또는 화면 버튼으로 운전 · 로그인 없이 플레이</small></section><aside class="world-status"><small>피트에서 온 테스트 의뢰</small><h2>같은 핸들, 다른 코너</h2><p>피트에서 출발해 코너링 서킷으로 가보세요.</p><p class="world-radio" data-world-radio>피트: 머신 준비 완료. 서킷에 진입하세요.</p><button type="button" class="world-secondary" data-world="mission">현장으로 바로 이동</button></aside><details class="world-map"><summary class="world-map-title">⌖ 지도 · 장소 이동</summary><div class="world-map-list">${places.map(([id,symbol,label,note])=>`<button type="button" class="world-place" data-world-place="${id}" disabled><span>${symbol}</span><strong>${label}</strong><small>${note}</small></button>`).join('')}</div><button type="button" class="world-overview" data-world="overview">시험장 전체 보기</button></details><div class="world-legend" hidden><span><i class="baseline"></i>기준차</span><span><i class="after"></i>변경차</span><small>정상 원선회 · 50 km/h · 재생 3배속 · 차량 크기 확대</small></div><div class="world-near" hidden><span>도착했어요</span><strong data-world-location></strong><button type="button" class="world-primary" data-world="interact">실습 시작</button></div><div class="world-controls" aria-label="차량 운전 조작"><div class="world-steering"><button type="button" data-drive="left" aria-label="왼쪽으로 조향">◀</button><button type="button" data-drive="right" aria-label="오른쪽으로 조향">▶</button></div><div class="world-pedals"><button type="button" data-drive="brake" aria-label="브레이크">정지</button><button type="button" data-drive="boost" aria-label="부스터 가속">부스터</button><button type="button" data-drive="forward" aria-label="가속">가속 ↑</button></div></div><div class="world-boost"><label>부스터 <span data-world-boost-percent>100%</span></label><div class="world-boost-meter" role="progressbar" aria-label="부스터 에너지" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i data-world-charge style="width:100%"></i></div><small data-world-boost-state>누르고 가속 · Shift</small></div><div class="world-speed"><strong data-world-speed>0</strong><small>km/h</small><p class="world-drive-hint">WASD / 방향키 · Space 정지 · Shift 부스터 · E 실습</p></div><section class="world-mission" hidden aria-label="코너링 현장 임무"></section><p class="world-footer-note">자유 주행은 탐색용 · 현장 임무는 차량 모델로 계산</p></section>`;
     const $=s=>host.querySelector(s),shell=$('.world-shell'),card=$('.world-mission');
+    const workshopHost=document.createElement('section');shell.append(workshopHost);
+    const workshop=window.VillageWorkshop.mount(workshopHost,{
+      progress:villageProgress,
+      onPrediction:payload=>{const response=options.onVillagePrediction(payload);villageProgress=response.progress;return response;},
+      onComplete:payload=>{const response=options.onVillageComplete(payload);villageProgress=response.progress;scene?.setVillageGrowth?.(villageProgress.level);updateVillageStatus();return response;},
+      onClose:({growth})=>closeVillage(growth)
+    });
+    function updateVillageStatus(){
+      $('[data-world-badge]').textContent=theme==='village'?`🌱 정비소 Lv. ${villageProgress.level}`:completed?'🏁 선회 반경 해결사':'현장 임무 0 / 1';
+      $('.world-status h2').textContent=theme==='village'?'주민들의 차를 부탁해요':'같은 핸들, 다른 코너';
+      $('.world-status [data-world="mission"]').textContent=theme==='village'?'주민 의뢰 보기':'현장으로 바로 이동';
+    }
+    function openVillage(id){
+      if(!scene||loading)return;closeMission();enter();clearInput();scene.teleport('garage');near='garage';villageOpen=true;
+      shell.classList.add('has-workshop');$('.world-map').open=false;scene.setPaused(true);workshop.open(id);updateNear();
+    }
+    function closeVillage(growth=false){
+      villageOpen=false;workshop.setVisible(false);shell.classList.remove('has-workshop');clearInput();scene?.setPaused(document.hidden||inWorkshop());
+      if(growth)scene?.setShowcase?.(true);shell.focus({preventScroll:true});updateNear();
+    }
     $('.world-top-actions').insertAdjacentHTML('afterbegin','<div class="world-theme-switch" role="group" aria-label="게임 버전 선택"><button type="button" data-world-theme="coastal" aria-pressed="false">해안 시험장</button><button type="button" data-world-theme="cyberpunk" aria-pressed="false">사이버펑크</button><button type="button" data-world-theme="formula" aria-pressed="false">포뮬러</button><button type="button" data-world-theme="village" aria-pressed="false">정비소 마을</button></div>');
     $('[data-world="exit"]').textContent='기본 학습';
     function applyTheme(){
       const copy=themes[theme];shell.dataset.theme=theme;
+      workshop.setVisible(inWorkshop());shell.classList.toggle('has-workshop',inWorkshop());updateVillageStatus();
       host.querySelectorAll('[data-world-theme]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldTheme===theme)));
       $('.world-brand small').textContent=copy.name;$('.world-tag').textContent=copy.tag;
       $('.world-intro h1').innerHTML=copy.title;$('.world-intro p').innerHTML=copy.description;
@@ -52,12 +75,12 @@
       if(phase==='testing'&&state.mode==='experiment'&&state.progress>=.9999)finishAttempt();
     }
     function updateNear(){
-      const place=places.find(p=>p[0]===near);$('.world-near').hidden=!place||!entered||Boolean(phase);
-      if(place){$('[data-world-location]').textContent=place[2];$('[data-world="interact"]').textContent=near==='cornering'?'현장 임무 시작':near==='garage'?'오답 정비소 열기':'실습 시작';}
+      const place=places.find(p=>p[0]===near);$('.world-near').hidden=!place||!entered||Boolean(phase)||inWorkshop();
+      if(place){$('[data-world-location]').textContent=place[2];$('[data-world="interact"]').textContent=near==='cornering'?'현장 임무 시작':near==='garage'?(theme==='village'?'주민 의뢰 보기':'오답 정비소 열기'):'실습 시작';}
     }
     function clearInput(){keys.clear();pointers.clear();scene?.drive({throttle:0,steer:0,brake:true,boost:false});host.querySelectorAll('[data-drive]').forEach(b=>b.classList.remove('is-pressed'));}
     function sendInput(){
-      if(!scene||!entered||phase)return;
+      if(!scene||!entered||phase||inWorkshop())return;
       const held=new Set([...keys,...pointers.values()]);
       scene.drive({throttle:Number(held.has('forward')||held.has('boost'))-Number(held.has('backward')),steer:Number(held.has('left'))-Number(held.has('right')),brake:held.has('brake'),boost:held.has('boost')});
       host.querySelectorAll('[data-drive]').forEach(b=>b.classList.toggle('is-pressed',held.has(b.dataset.drive)));
@@ -69,7 +92,7 @@
       if(playing&&media.matches)scene?.setExperimentTime(1);
     }
     function beginMission(){
-      if(!scene)return;enter();clearInput();scene.teleport('cornering');near='cornering';phase='predict';delta=1;feedback='';saveMessage='';lastResult=null;
+      if(!scene)return;if(villageOpen)closeVillage();enter();clearInput();scene.teleport('cornering');near='cornering';phase='predict';delta=1;feedback='';saveMessage='';lastResult=null;
       shell.classList.add('has-mission');card.hidden=false;$('.world-near').hidden=true;$('.world-legend').hidden=true;$('.world-map').open=false;
       renderMission();
     }
@@ -113,7 +136,7 @@
     function interact(){
       if(!near||phase)return;
       if(near==='cornering')beginMission();
-      else if(near==='garage')options.onReview?.();
+      else if(near==='garage'){if(theme==='village')openVillage();else options.onReview?.();}
       else options.onLab?.(near==='bump'?'ride':'hardpoint');
     }
     listen(host,'click',event=>{
@@ -125,7 +148,7 @@
       const action=button.dataset.world;if(!action)return;event.preventDefault();
       if(action==='exit'||action==='home')options.onExit?.();
       else if(action==='start')enter();
-      else if(action==='mission')beginMission();
+      else if(action==='mission'){if(theme==='village')openVillage();else beginMission();}
       else if(action==='interact')interact();
       else if(action==='overview'){overview=!overview;scene?.setOverview(overview);}
       else if(action==='close'||action==='roam')closeMission();
@@ -141,17 +164,18 @@
     listen(host,'input',event=>{if(event.target.hasAttribute('data-world-delta'))changeDelta(Number(event.target.value));if(event.target.hasAttribute('data-world-scrub'))scene?.setExperimentTime(Number(event.target.value));});
     const mapping={w:'forward',ArrowUp:'forward',s:'backward',ArrowDown:'backward',a:'left',ArrowLeft:'left',d:'right',ArrowRight:'right',' ':'brake',Shift:'boost'};
     listen(window,'keydown',event=>{
-      if(loading||!scene||!entered||phase||/INPUT|TEXTAREA|SELECT|BUTTON/.test(event.target.tagName))return;
+      if(event.key==='Escape'&&inWorkshop()){event.preventDefault();closeVillage();return;}
+      if(loading||!scene||!entered||phase||inWorkshop()||/INPUT|TEXTAREA|SELECT|BUTTON/.test(event.target.tagName))return;
       if(event.key.toLowerCase()==='e'){event.preventDefault();interact();return;}
       const control=mapping[event.key]||mapping[event.key.toLowerCase()];if(control){event.preventDefault();keys.add(control);sendInput();}
     });
     listen(window,'keyup',event=>{const control=mapping[event.key]||mapping[event.key.toLowerCase()];if(control){keys.delete(control);sendInput();}});
     host.querySelectorAll('[data-drive]').forEach(button=>{
-      listen(button,'pointerdown',event=>{if(!scene||loading||!entered||phase)return;event.preventDefault();button.setPointerCapture(event.pointerId);pointers.set(event.pointerId,button.dataset.drive);sendInput();});
+      listen(button,'pointerdown',event=>{if(!scene||loading||!entered||phase||inWorkshop())return;event.preventDefault();button.setPointerCapture(event.pointerId);pointers.set(event.pointerId,button.dataset.drive);sendInput();});
       const release=event=>{pointers.delete(event.pointerId);sendInput();};listen(button,'pointerup',release);listen(button,'pointercancel',release);listen(button,'lostpointercapture',release);
     });
     listen(window,'blur',clearInput);
-    listen(document,'visibilitychange',()=>{clearInput();scene?.setPaused(document.hidden);});
+    listen(document,'visibilitychange',()=>{clearInput();scene?.setPaused(document.hidden||inWorkshop());});
     listen(media,'change',()=>{if(media.matches&&phase)scene?.setExperimentTime(1);});
     async function loadTheme(next){
       if(!Object.hasOwn(themes,next)||disposed||next===theme&&scene&&!loading)return;
@@ -165,7 +189,7 @@
       try{
         const module=await import('./world-scene.js');
         if(disposed||ticket!==loadId)return;
-        scene=module.createWorld($('[data-world-canvas]'),{theme,onFrame:frame,reducedMotion:media.matches,onError:()=>{if(!disposed&&ticket===loadId){clearInput();const note=$('.world-footer-note');note.textContent='3D 화면이 중단됐어요. 학습센터에서 이어가거나 새로고침해 주세요.';note.classList.add('world-error');}}});
+        scene=module.createWorld($('[data-world-canvas]'),{theme,villageLevel:villageProgress.level,onFrame:frame,reducedMotion:media.matches,onError:()=>{if(!disposed&&ticket===loadId){clearInput();const note=$('.world-footer-note');note.textContent='3D 화면이 중단됐어요. 학습센터에서 이어가거나 새로고침해 주세요.';note.classList.add('world-error');}}});
       }catch(_){
         if(disposed||ticket!==loadId)return;
         shell.classList.add('is-fallback');scene=flatFallback($('[data-world-canvas]'),frame);
@@ -180,12 +204,13 @@
           scene.setExperimentTime(resume?.frame?.progress||0,Boolean(resume?.frame?.playing)&&!media.matches);
         }
       }
-      scene.setPaused(document.hidden);loading=false;card.inert=false;$('.world-map').inert=false;
+      scene.setPaused(document.hidden||inWorkshop());loading=false;card.inert=false;$('.world-map').inert=false;
       $('[data-world-loading]').hidden=true;host.querySelectorAll('[data-world="start"],[data-world="mission"],[data-world-place]').forEach(b=>b.disabled=false);
-      if(entered)shell.focus({preventScroll:true});
+      if(entered&&!inWorkshop())shell.focus({preventScroll:true});
+      if(pendingVillageMission&&theme==='village'){const id=pendingVillageMission;pendingVillageMission=null;openVillage(id);}
     }
     loadTheme(theme);
-    return ()=>{disposed=true;++loadId;abort.abort();clearInput();scene?.dispose();document.body.classList.remove('world-active');};
+    return ()=>{disposed=true;++loadId;abort.abort();workshop.dispose();clearInput();scene?.dispose();document.body.classList.remove('world-active');};
   }
   // Keep the mission playable when a browser cannot create a WebGL context.
   function flatFallback(container,onFrame){

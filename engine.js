@@ -3,6 +3,7 @@
   const VERSION = 1;
   const predictionHistory=()=>typeof module!=='undefined'&&module.exports?require('./prediction-history.js'):root.PredictionHistory;
   const worldMission=()=>typeof module!=='undefined'&&module.exports?require('./world-mission.js'):root.WorldMission;
+  const villageMissions=()=>typeof module!=='undefined'&&module.exports?require('./village-missions.js'):root.VillageMissions;
   const intervals = [1, 3, 7, 14, 30];
   function today(date = new Date()) {
     return new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(date);
@@ -11,7 +12,7 @@
     const d = new Date(day + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + count);
     return d.toISOString().slice(0,10);
   }
-  function fresh() { return {version:VERSION,cards:{},completed:{},bosses:{},days:{},awards:{},predictions:{},world:{completed:{}},session:null}; }
+  function fresh() { return {version:VERSION,cards:{},completed:{},bosses:{},days:{},awards:{},predictions:{},world:{completed:{}},village:villageMissions().normalizeProgress(),session:null}; }
   function xp(state) { return Object.values(state.awards).reduce((a,b)=>a+b,0); }
   function grade(state, id, correct, day = today()) {
     const previous = state.cards[id] || {attempts:0,correct:0,streak:0,lapses:0};
@@ -85,6 +86,7 @@
     // Optional for version-1 backups created before prediction practice existed.
     if(Object.prototype.hasOwnProperty.call(value,'predictions'))state.predictions=predictionHistory().validate(value.predictions);
     if(Object.prototype.hasOwnProperty.call(value,'world'))state.world=worldMission().validate(value.world);
+    if(Object.prototype.hasOwnProperty.call(value,'village'))state.village=villageMissions().validateProgress(value.village);
     // Backups deliberately resume from the path, not an arbitrary imported session.
     return state;
   }
